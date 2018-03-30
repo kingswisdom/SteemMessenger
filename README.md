@@ -39,20 +39,20 @@ _____________________________________
 
 First, the client side (`client.js`). Here is the log in screen.
 
-<center>![](https://steemitimages.com/DQmQETvDFXKCewftSu54BNzFDaRFKhL4562qpAGKKUTcpFD/image.png)</center>
+![](https://steemitimages.com/DQmQETvDFXKCewftSu54BNzFDaRFKhL4562qpAGKKUTcpFD/image.png)
 
 When you enter your private memo key, and press "Log in", this is what happen :
-<center>![](https://steemitimages.com/DQmfYhUuu4A61Bs9Lr3N3HE2CcSA4THBpGMUEXTSVFfDg91/image.png)</center>
+![](https://steemitimages.com/DQmfYhUuu4A61Bs9Lr3N3HE2CcSA4THBpGMUEXTSVFfDg91/image.png)
 
 It will check the public memo key associated with your username (`pubWif = result[0]["memo_key"];`) and verify if the private key you specified is valid with `steem.auth.wifIsValid(privWif, pubWif);`. If everything is ok, your private key is then stored on a local var with `var privateMemoKey = privWif;`.
 
 You will then have access to the chat page like this :
 
-<center>![](https://steemitimages.com/DQmQh5wcErp5cP2APyJvBrdieqfGZ3JoeQrrjhY7Xbj5xkT/image.png)</center>
+![](https://steemitimages.com/DQmQh5wcErp5cP2APyJvBrdieqfGZ3JoeQrrjhY7Xbj5xkT/image.png)
 
 You can then set your recipient name and your message in the specified forms. Press enter, and this will happen :
 
-<center>![](https://steemitimages.com/DQmWLngvAtje5BNeA9N8U4hzhHeSijRGE89BxXDQJfBUmqM/image.png)</center>
+![](https://steemitimages.com/DQmWLngvAtje5BNeA9N8U4hzhHeSijRGE89BxXDQJfBUmqM/image.png)
 
 It will fetch automaticaly your recipient public memo key (`publicMemoReceiver = result[0]["memo_key"];`), and encrypt your message with `var encoded = steem.memo.encode(privateMemoKey, publicMemoReceiver, texte);`.
 
@@ -62,11 +62,11 @@ The data is then saved in the database.
 
 Same thing when you receive a message, this is what happen :
 
-<center>![](https://steemitimages.com/DQmbktYGPk7eVtvaBeL2h9eHhRRZypy2k62HLZ8hZeKT1ym/image.png)</center>
+![](https://steemitimages.com/DQmbktYGPk7eVtvaBeL2h9eHhRRZypy2k62HLZ8hZeKT1ym/image.png)
 
 The `raw` variable is the encrypted message received from the server. It is decoded with `var decoded = steem.memo.decode(privateMemoKey, raw);`, and then, inserted in the chat box. Without your private  MemoKey, nobody should be able to decode your message but you.
 
-<center>![](https://steemitimages.com/DQmZMBcyLdP1bzyhB6PnGgXB7LNNqhTCS5PDeZPgUwT8G3J/image.png)</center>
+![](https://steemitimages.com/DQmZMBcyLdP1bzyhB6PnGgXB7LNNqhTCS5PDeZPgUwT8G3J/image.png)
 
 
 
