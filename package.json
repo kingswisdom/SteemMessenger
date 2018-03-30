@@ -1,0 +1,17 @@
+{
+  "name": "SteemMessenger",
+  "version": "0.0.1",
+  "description": "Simple chat app using Socket.io, MongoDB, and Steem",
+  "main": "./Server/server.js",
+  "scripts": {
+    "start": "node ./Server/server.js"
+  },
+  "author": "kingswisdom",
+  "license": "MIT",
+  "dependencies": {
+    "mongodb": "^2.2.30",
+    "socket.io": "^2.0.3",
+	"socket.io-client": "^2.1.0",
+    "steem": "^0.7.1"
+  }
+}
