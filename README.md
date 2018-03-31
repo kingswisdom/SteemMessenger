@@ -1,8 +1,6 @@
 # SteemMessenger V0.0.1
 Chat securely with the power of Steem blockchain !
 
-In this post, I will explain the SteemMessenger Project, the state of developpement, features, and how everything works !
-
 ![](https://steemitimages.com/DQmX7bzCq1jxYxb8FyzyTt2Xp3xLMwCy8TcVgm9M8mpNDEZ/image.png)
 
 ### The Steem Messenger
@@ -68,7 +66,11 @@ The `raw` variable is the encrypted message received from the server. It is deco
 
 ![](https://steemitimages.com/DQmZMBcyLdP1bzyhB6PnGgXB7LNNqhTCS5PDeZPgUwT8G3J/image.png)
 
+### Installation guide
 
+To test this Proof of Concept, you need Node.js, and MongoDB. 
+
+Simply use `npm install` into the directory, start `mongod`, and then run the `server.js`. You can now launch `index.html` !
 
 ### Roadmap
 
