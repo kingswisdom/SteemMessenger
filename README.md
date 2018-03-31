@@ -10,7 +10,7 @@ Steem Messenger is about convenience, security, and privacy. Many Steem users de
 
 
 - Technology Stack
-We use a combination of Javascript, and of course, HTML and CSS for the frontend. We also implemented the `require` function in our client side with  `Browserify`. We use `socket.io` , `socket.io-client`and `MongoDB`.
+We use a combination of Javascript, and of course, HTML and CSS for the frontend. We also implemented the `require` function in our client side with  `Browserify`. We use `socket.io` , `socket.io-client` and `MongoDB`.
 
     
 
