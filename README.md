@@ -1,15 +1,19 @@
+
 # SteemMessenger V0.0.2
 Chat securely with the power of Steem blockchain !
 
 ![](https://steemitimages.com/DQmb1nZtQbXzJsVfzFgwXkKnjKfKW3QEYxgEG8p7u2wDKD2/image.png)
 
 ### The Steem Messenger
+___________________________________
 
-- What is the project about?
+#### What is the project about?
+
 Steem Messenger is about convenience, security, and privacy. Many Steem users decided to use chats mediums like Discord, and Steemit.chat. Steem Messenger enable a secure and fast instant messaging interface between users on the Steem blockchain, without the need to trust your recipient, or any third party. This is a Proof of Concept. The project is still in developpement stage, and this release is not yet hosted on our servers.
 
 
-- Technology Stack
+#### Technology Stack
+
 We use a combination of Javascript, and of course, HTML and CSS for the frontend. We also implemented the `require` function in our client side with  `Browserify`. We use `socket.io` , `socket.io-client` and `MongoDB`. `express` was added to dependencies, and will be used for the public release.
 
     
@@ -26,7 +30,7 @@ With the power of the Steem blockchain, and a little bit of clever thinking, we 
 With a clever use of the function `steem.memo.encode` included in `steemjs`, we made a chat system where only you and your recipient can read them. In case there is a data leak, your content will be safe, as long as you keep your private memo key in a safe place. 
 
 - **Keep the control on your data**
-With all the controversy about data leaks lately, we decided to give you full rights to your data. We believe your messages belongs to you. So we integrated a function to delete every message between you and your recipient. The *clear discussion* button gives you the ability to delete all the messages you own on the database in just one click, making this chat legal-proof, wich means it can't be used as a legal material. We believe a chat session should be just like talking to somebody in real life. We know words fly, and writing remains, so we decided to make the writing as volatil as speach.
+With all the controversy about data leaks lately, we decided to give you full rights to your data. We believe your messages belongs to you. So we integrated a function to delete every message at once between you and your recipient. The *clear discussion* button gives you the ability to delete all the messages you own on the database in just one click, making this chat legal-proof, wich means it can't be used as a legal material. We believe a chat session should be just like talking to somebody in real life. We know words fly, and writing remains, so we decided to make the writing as volatil as speach.
 
 - **Secure database**
 All your messages are encrypted in your browser before they are sent to the server, providing you an E2EE (End to End Encryption). Meaning that only you and your recipient can read your messages, as it would take 10,000 centuries to successfully brute force your memo key with a regular computer. No institutional agency can actually decode your messages without your memo key, wich make Steem Messenger a great medium of communication. 
@@ -57,25 +61,18 @@ You can connect to the interface by entering your personnal informations. Please
 
 It will check the public memo key associated with your username (`pubWif = result[0]["memo_key"];`) and verify if the private key you specified is valid with `steem.auth.wifIsValid(privWif, pubWif);`. If everything is ok, your private key is then stored on a local var with `var privateMemoKey = privWif;`.
 
-You will then have access to the chat page like this. 
-
-![](https://steemitimages.com/DQmQh5wcErp5cP2APyJvBrdieqfGZ3JoeQrrjhY7Xbj5xkT/image.png)
-
-
-
-It will fetch automatically your recipient public memo key (`publicMemoReceiver = result[0]["memo_key"];`), and encrypt your message with `var encoded = steem.memo.encode(privateMemoKey, publicMemoReceiver, texte);`.
-
-Here is how the function works :
-
 ![](https://steemitimages.com/DQmQTY5LWYXXrm7uFfhDB3VuzRcZq832eCPahcXseaUPWoy/image.png)
 
 Once you've logged in, you can then set your recipient name and your message in the specified form, and start messaging with your recipient.
 
-![](https://steemitimages.com/DQmWLngvAtje5BNeA9N8U4hzhHeSijRGE89BxXDQJfBUmqM/image.png)
+Once you've chose your recipient, it will fetch automatically your recipient public memo key (`publicMemoReceiver = result[0]["memo_key"];`), and encrypt your message with `var encoded = steem.memo.encode(privateMemoKey, publicMemoReceiver, texte);`.
 
-Your input is transmitted to the server with `socket.emit`, and you can see your message is encrypted before it goes to the server. 
+Here is how the function works :
 
 ![](https://steemitimages.com/DQmdiWR4XZ3x6tiH4FFUmHGMQQC3KaU7cf8a9kfor36MbL7/image.png)
+
+
+Your input is transmitted to the server with `socket.emit`, and you can see your message is encrypted before it goes to the server. 
 
 The data is then saved in the database.
 
