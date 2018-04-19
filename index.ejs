@@ -1,0 +1,146 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>SteemMessenger</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="css/main.css" />
+	</head>
+		
+	<body>		
+		<!-- Header -->
+			<section id="header">
+				<header class="major">
+					<h1>The Steem Messenger <img src="images/SteemMessenger.png"></h1>
+
+					<p>A secure and private instant messaging application for the Steem ecosystem by <a href="http://steemit.com/@kingswisdom">@kingswisdom</a></p>
+				</header>
+				<div class="container">
+					<ul class="actions">
+						<li><a href="#one" class="button special scrolly">Discover</a></li>
+					</ul>
+				</div>
+			</section>
+
+		<!-- One -->
+			<section id="one" class="main special">
+				<div class="container">
+					<span class="image fit primary"><img src="images/pic01.jpg" alt="" /></span>
+					<div class="content">
+						<header class="major">
+							<h2>One more step !</h2>
+						</header>
+						
+						<p>Click on the "+" button on the bottom right of your screen to open the Steem Messenger widget.</p>
+					</div>
+				</div>
+
+				
+		<!-- Footer -->
+			<section id="footer">
+				<div class="container">
+					<header class="major">
+						<h2>About SteemMessenger</h2>
+						</header>
+						<p>Steem Messenger is about convenience, security, and privacy. Many Steem users decided to use chats mediums like Discord, and Steemit.chat. Steem Messenger enables a secure and fast instant messaging interface between users on the Steem blockchain, without the need to trust your recipient, or any third party. This is a Proof of Concept. The project is still in developpement stage, and this release is not yet hosted on our servers.</p>
+				</div>
+				<footer>
+					<ul class="icons">
+						<li><a href="https://github.com/kingswisdom/SteemMessenger" class="icon alt fa-github"><span class="label">Github</span></a></li>
+					</ul>
+					<ul class="copyright">
+						<li>&copy; <a href="http://steemit.com/@kingswisdom">kingswisdom</a></li>
+					</ul>
+				</footer>
+			</section>
+
+		<!-- Scripts -->
+
+		<!--Widget-->
+	<div id="DaButton" onclick="superchatactivation()" class="flyingButtonApp">
+			<p class="flyingButtonText">+</p>
+		</div>
+		<div id="DaChat" class="DaChatBox">		
+			<div id="receiver-info">
+				<div id="returnToSelection" class="returnBtn">
+				<p class="returnText"><</p>
+				</div>
+				<div id="clear" class="clearBtn">
+					<img style="width: 30px; height: 30px; margin-top: 7px;" src="images/bin2.png">
+				</div>
+			</div>
+			<div id="splash">
+				<br>
+				<br>
+			<h1>The Steem Messenger <img src="images/SteemMessenger.png"></h1>
+
+					<p>A secure and private instant messaging application for the Steem ecosystem by <a href="http://steemit.com/@kingswisdom">@kingswisdom</a></p>
+					<a id="start">Start</a>
+			</div>
+
+			<div id="login-interface">
+				<br>
+				<br>
+				<header class="major">
+				<h2>Who are you ?</h2>
+				</header>
+				<input type="text" id="username" class="form-control" placeholder="Username"></input>
+				<input type="password" id="privMemoKey" class="form-control" placeholder="Private Memo Key"></input>
+				<div class="loaderEffect" id="loaderEffect"></div>
+				<button id="login">Log in</button>
+				<p>Your private key is stored in your browser, making this log in form the most secure way to verify your authority.</p>
+			</div>
+
+			<div id="login-success">
+				<br>
+				<br>
+				<header class="major">
+				<h2>Logged in !</h2>
+				</header>
+				<p>Choose your recipient</p>
+				<input type="text" id="receiver" class="form-control" placeholder="Your friend's name"></input>
+				<div class="loaderEffect" id="loaderEffect2"></div>
+				<button id="friend">Go!</button>
+			</div>
+			<div id="chat-container">
+
+				<div id="messages" class="msg-box">
+				</div>
+				<textarea id="textarea" 
+				style="height:40px;
+					overflow:hidden;
+					resize:none;
+					font-size: 13px;
+					background-color: #fff;
+					border-radius: 5px;
+					border-width: 1px;
+					border-color: #E0E0E0;
+					color: #232529;" 
+					class="form-control" placeholder="Your message here..."></textarea>
+					<div class="loaderEffect" id="loaderEffect3"></div>
+					<input type="file" id="fileSend"/>
+				<div id="status"></div>
+			</div>
+		</div>
+			<!--End of the widget-->
+			<script src="js/bundle.js"></script>
+			<script src="js/jquery.min.js"></script>
+			<script src="js/jquery.scrollex.min.js"></script>
+			<script src="js/jquery.scrolly.min.js"></script>
+			<script src="js/skel.min.js"></script>
+			<script src="js/util.js"></script>
+			<script src="js/main.js"></script>
+			<script>
+				function superchatactivation() {
+   					var DaChat = document.getElementById("DaChat");
+    				if (DaChat.style.display === "none") {
+       					DaChat.style.display = "block";
+    				} else {
+        				DaChat.style.display = "none";
+    				}
+				}
+			</script>
+			
+	</body>
+	
+</html>
