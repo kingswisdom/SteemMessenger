@@ -1,19 +1,22 @@
 {
   "name": "SteemMessenger",
-  "version": "0.0.2",
-  "description": "Simple chat app using Socket.io, MongoDB, and Steem",
-  "main": "./Server/server.js",
-  "scripts": {
-    "start": "node ./Server/server.js"
-  },
+  "version": "0.0.3",
+  "description": "Chat securely and privately with your friends with the power of the Steem Blockchain !",
+  "main": "./server.js",
   "author": "kingswisdom",
   "license": "MIT",
   "dependencies": {
     "bufferutil": "^3.0.3",
+    "ejs": "^2.5.8",
     "express": "^4.16.3",
     "mongodb": "^2.2.30",
+    "path": "^0.12.7",
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.1.0",
     "steem": "^0.7.1"
+  },
+  "engines": {
+    "node": "6.11.1",
+    "npm": "5.6.0"
   }
 }
