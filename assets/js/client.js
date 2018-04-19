@@ -1,184 +1,165 @@
-(function () {
-	
 const steem = require("steem");	
 var io = require('socket.io-client');
-
-/*--------------------------------
------Get Elements from html-------
---------------------------------*/
+var SM = require('./SM.js');
 
 var element = function(id){
 	return document.getElementById(id);
 }
-
-var status = element('status');
+var DaChat = element('DaChat');
+var returnToSelection = element('returnToSelection');
 var messages = element('messages');
 var textarea = element('textarea');
 var username = element('username');
 var privMemoKey = element('privMemoKey');
 var receiver = element('receiver');
+var receiverInfo = element("receiver-info");
 var clearBtn = element('clear');
 var loginBtn = element('login');
 var friendBtn = element('friend');
-var a = element("login-success");
-var b = element("login-success2");
-var x = element("login-interface");
-var y = element("chat-container");
-y.style.display = "none";
-a.style.display = "none";
-b.style.display = "none";
+var startBtn = element('start');
+var logsucc = element("login-success");
+var splash = element("splash");
+var loader1 = element("loaderEffect");
+var loader2 = element("loaderEffect2");
+var loader3 = element("loaderEffect3");
+var loginter = element("login-interface");
+var chatCont = element("chat-container");
+var fileSend = element('fileSend');
+DaChat.style.display = "none";
+loginter.style.display = "none";
+chatCont.style.display = "none";
+logsucc.style.display = "none";
+loader1.style.display = "none";
+loader2.style.display = "none";
+loader3.style.display = "none";
+receiverInfo.style.display = "none";
 
-// Set default status
-var statusDefault = status.textContent;
+var user = undefined;
+var key = undefined;
+var recipient = undefined;
 
-var setStatus = function(s){
-	// Set status
-	status.textContent = s;
+var socket = io.connect();
 
-	if(s !== statusDefault){
-		var delay = setTimeout(function(){
-			setStatus(statusDefault);
-		}, 4000);
-	}
-}
-
-/*--------------------------------
-------Connect to socket.io--------
---------------------------------*/
-
-var socket = io.connect('http://127.0.0.1:4000');
 
 // Check for connection
 if(socket !== undefined){
-	console.log('Connection to socket successful !');
+	console.log('Connection to socket successful!');
 
-	/*--------------------------------
-	-------------Log in---------------
-	--------------------------------*/
-	loginBtn.addEventListener('click', function(){
 
-			var user = username.value;
-				steem.api.getAccounts([user], function(err, result) {
-					if(result.length > 0) {
-						privWif = privMemoKey.value;
-						pubWif = result[0]["memo_key"];
-						var isvalid = steem.auth.wifIsValid(privWif, pubWif);
-						console.log(isvalid);
-						if(isvalid == true){
-							var privateMemoKey = privWif;
-							x.style.display = "none";
-							a.style.display = "block";
-							friendBtn.addEventListener('click', function(){
-								var to = receiver.value;
-								steem.api.getAccounts([to], function(err, result) {
-									if(result.length > 0) {
-										var receiver = to;
-										a.style.display = "none";
-										b.style.display = "block";
-										y.style.display = "block";
-										socket.emit('logged', {
-												name:user,
-												to:receiver,
-										});
-										
-										/*--------------------------------
-										----------Handle Output-----------
-										--------------------------------*/
-										socket.on('output', function(data){
-											if(privateMemoKey !== undefined) {
-												//console.log(data);
-												if(data.length){						
-													for(var x = 0;x < data.length;x++){
-														// Decode messages locally
-														var raw = data[x].message;
-														var author = data[x].author
-															author1 = author.toString();
-														var decoded = steem.memo.decode(privateMemoKey, raw);
-														// Build message div
-														if(author1 == user) {
-															var message = document.createElement('div');
-															message.setAttribute('class', 'msg-containerblue');	
-															message.setAttribute('align', 'right');								
-															message.textContent = author1 + " : " + decoded;
-															messages.appendChild(message);
-															//messages.insertBefore(message, messages.firstChild);
-														}
-														else {
-															var message = document.createElement('div');
-															message.setAttribute('class', 'msg-container');	
-															message.setAttribute('align', 'left');											
-															message.textContent = author1 + " : " + decoded;
-															messages.appendChild(message);
-															//messages.insertBefore(message, messages.firstChild);
-														}
-													}
-												}
-											}
-										});
-	
-										/*-------------------------------- 
-										----------Handle Input------------
-										--------------------------------*/
+startBtn.addEventListener('click', function(){
+	splash.style.display = "none";
+	loginter.style.display = "block";
+});
 
-										textarea.addEventListener('keydown', function(event){
-											if(event.which === 13 && event.shiftKey == false){
-												// Find receiver's Public Memo Key								
-												steem.api.getAccounts([receiver], function(err, result) {
-													if(result.length > 0) {
-														publicMemoReceiver = result[0]["memo_key"];
-														texte = "#" + textarea.value;
-														var encoded = steem.memo.encode(privateMemoKey, publicMemoReceiver, texte);	
-														// Emit to server input
-														socket.emit('input', {
-															name:user,
-															to:receiver,
-															message:encoded
-														});
-													}
-												});
-												event.preventDefault();
-											}	
-										});
-	
-										/*-------------------------------
-										-----Get Status From Server------
-										--------------------------------*/
 
-										socket.on('status', function(data){
-											// get message status
-											setStatus((typeof data === 'object')? data.message : data);
-											// If status is clear, clear text
-											if(data.clear){
-												textarea.value = '';
-											}
-										});
 
-										/*--------------------------------
-										--------Handle Chat Clear---------
-										--------------------------------*/
-
-										clearBtn.addEventListener('click', function(){
-											socket.emit('clear');
-										});
-
-										/*--------------------------------
-										----------Clear Message----------- 
-										--------------------------------*/
-										socket.on('cleared', function(){
-											messages.textContent = '';
-										});
-									}
-								})
-							})
-						}
-						
-						else {
-							var privateMemoKey = "";
-							console.log("login error");
-						}
-					}
-				});
+loginBtn.addEventListener('click', function() {
+	SM.login({user:username.value, privWif:privMemoKey.value}, function(out){
+		user = out.user
+		key = out.key;
+		
 	});
-}
+});
 
-})();
+friendBtn.addEventListener('click', function() {
+	SM.chooseFriend({to:receiver.value}, function(out){
+		recipient = out.receiver;
+		socket.emit('fetchDiscussion', 
+			{
+				name:user,
+				to:recipient,
+			}
+		);
+	})
+});
+
+socket.on('initialization', function(data){
+	if(key !== undefined) {
+		if(data.length) {
+			SM.appendMessages(data, {id:user,key:key,receiver:recipient});	
+		}
+	}
+});
+
+socket.on('output', function(data){
+	if(key !== undefined) {
+		if(data.length) {
+			SM.appendMessages(data, {id:user,key:key,receiver:recipient});		
+		}
+	}
+});
+
+socket.on('file output', function(data){
+	if(key !== undefined) {
+			SM.appendFile(data, {id:user,key:key,receiver:recipient});
+	}
+});				
+
+textarea.addEventListener('keydown', function(event){
+	if(event.which === 13 && event.shiftKey == false){
+		if(textarea.value != "") {
+			SM.handleInput({user:user,receiver:recipient,key:key,message:textarea.value}, function(out){
+				encoded = out.encodedmsg;
+				socket.emit('input', {
+					name:user,
+					to:recipient,
+					message:encoded
+				});
+				loader3.style.display = "none";
+				textarea.style.display = "block";
+				textarea.value = "";
+				textarea.focus();
+			})
+		}
+	}
+});
+
+fileSend.addEventListener("change", function () {
+	console.log(this.files[0].size);
+	if(this.files[0].size > 100000){
+       alert("File is too big!");
+       this.value = "";
+    }
+    else {
+		var file = this.files[0];
+		var reader = new FileReader();
+		reader.onloadend = function() {
+    		//console.log('RESULT', reader.result)
+    		SM.handleFile({user:user, receiver:recipient, key:key, file:reader.result}, function(out){
+    			encoded = out.encodedfile;
+    			socket.emit('file input', {
+    				name:user,
+    				to:recipient,
+    				file:encoded,
+    			});
+    			loader3.style.display = "none";
+				textarea.style.display = "block";
+				textarea.value = "";
+				textarea.focus();
+    		});
+    	}
+    	reader.readAsDataURL(file);
+    }
+});	
+
+returnToSelection.addEventListener('click', function(){
+	chatCont.style.display = "none";
+	receiverInfo.style.display = "none";
+	logsucc.style.display = "block";
+	messages.innerHTML = "";
+	document.getElementById('receiverpicture').remove();
+	document.getElementById('receiverInf').remove();
+})		
+	
+clearBtn.addEventListener('click', function(){
+	messages.innerHTML = "";
+	socket.emit('clear', {
+		name:user,
+		to:recipient
+	});
+});
+
+socket.on('cleared', function(){
+	messages.innerHTML = "";
+});
+}
