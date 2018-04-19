@@ -55,9 +55,9 @@ We heavily upgraded the user interface, and added a lot of small functionnalitie
 ![](https://steemitimages.com/DQmULZJLEv6fdMZFXvdghaWhdzrG4nUtks9tPuPDvH4thPF/image.png)
 
 Now, the page is just here to present the project. Everythings happen when you click on the "+" button on the bottom right.
-
+<center>
 ![SM.gif](https://steemitimages.com/DQmYwtdrL13kHvdRZJ4cJnHVD6JR7fGrowDnee6S8GoBXZN/SM.gif)
-
+</center>
 You can connect to the interface by entering your personnal informations. Please remember you need exclusively your **private memo key**, as other keys would not work with the encryption feature. 
 
 It will check the public memo key associated with your username (`pubWif = result[0]["memo_key"];`) and verify if the private key you specified is valid with `steem.auth.wifIsValid(privWif, pubWif);`. If everything is ok, your private key is then stored on a local var with `var privateMemoKey = privWif;`.
