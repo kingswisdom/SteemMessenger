@@ -60,8 +60,6 @@ Now, the page is just here to present the project. Everythings happen when you c
 
 You can connect to the interface by entering your personnal informations. Please remember you need exclusively your **private memo key**, as other keys would not work with the encryption feature. 
 
-![](https://steemitimages.com/DQmVkk4tnSV76QKTjZKco7rCuMKRBLktKXVyDAfd46Tpsow/login.gif)
-
 It will check the public memo key associated with your username (`pubWif = result[0]["memo_key"];`) and verify if the private key you specified is valid with `steem.auth.wifIsValid(privWif, pubWif);`. If everything is ok, your private key is then stored on a local var with `var privateMemoKey = privWif;`.
 
 
