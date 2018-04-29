@@ -4,8 +4,12 @@
   "description": "Chat securely and privately with your friends with the power of the Steem Blockchain !",
   "main": "./server.js",
   "author": "kingswisdom",
+  "scripts": {
+    "bundle": "browserify ./assets/js/client.js -o ./assets/js/bundle.js"
+  },
   "license": "MIT",
   "dependencies": {
+    "browserify": "^16.2.0",
     "bufferutil": "^3.0.3",
     "ejs": "^2.5.8",
     "express": "^4.16.3",

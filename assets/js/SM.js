@@ -146,6 +146,9 @@ exports.appendMessages = function(data, ind){
         decodedFinal.shift();
         var decodedFinal = decodedFinal.join("");
         if(author1 == ind.id) {
+            var timestamp = document.createElement('div');
+            timestamp.setAttribute('align', 'right');
+            timestamp.textContent = new Date(data[x].timestamp).getHours() < 13 ? `${new Date(data[x].timestamp).getHours()}: ${new Date(data[x].timestamp).getMinutes()} AM` : `${new Date(data[x].timestamp).getHours() - 12}: ${new Date(data[x].timestamp).getMinutes()} PM`
             var message = document.createElement('div');
             message.setAttribute('class', 'msg-containerblue'); 
             message.setAttribute('align', 'right');
@@ -154,15 +157,20 @@ exports.appendMessages = function(data, ind){
             messageText.textContent = decodedFinal;
             messages.appendChild(message);
             message.appendChild(messageText);
+            messages.appendChild(timestamp);
             messages.scrollTop = messages.scrollHeight;
             //messages.insertBefore(message, messages.firstChild);
         }
         if(author1 == ind.receiver) {
+            var timestamp = document.createElement('div');
+            timestamp.setAttribute('align', 'left');
+            timestamp.textContent = new Date(data[x].timestamp).getHours() < 13 ? `${new Date(data[x].timestamp).getHours()}: ${new Date(data[x].timestamp).getMinutes()} AM` : `${new Date(data[x].timestamp).getHours() - 12}: ${new Date(data[x].timestamp).getMinutes()} PM`
             var message = document.createElement('div');
             message.setAttribute('class', 'msg-container'); 
             message.setAttribute('align', 'left');                                          
             message.textContent = decodedFinal;
             messages.appendChild(message);
+            messages.appendChild(timestamp);
             messages.scrollTop = messages.scrollHeight;
             notificationSound.play();
             //messages.insertBefore(message, messages.firstChild);
