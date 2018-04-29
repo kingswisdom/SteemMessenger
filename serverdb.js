@@ -31,7 +31,8 @@ exports.saveMessage = function(data){
 	chat.insert({
 		"tags": [data.name, data.to], 
 		"author": data.name, 
-		"message": data.message
+		"message": data.message,
+		"timestamp": Date.now()
 	});
 }
 

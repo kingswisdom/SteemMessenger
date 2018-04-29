@@ -151,7 +151,8 @@
 	text-align: center;
 	font-size: 38px;
   font-family: 'Roboto';
-  font-weight: 300;
+	font-weight: 300;
+	cursor: pointer;
 }
 
 .DaChatBox
