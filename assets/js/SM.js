@@ -5,7 +5,7 @@ const crypto = require('@steemit/libcrypto');
 var element = function(id){
     return document.getElementById(id);
 }
-var LaraPublicKey = 'STM6CoeaohnQBMLYbQU3nkyfGqMeLG68n8MVnf5Zk2dzN2Bocdq43';
+var LaraPublicKey = '';
 var messages = element('messages');
 var textarea = element('textarea');
 var receiverInfo = element("receiver-info");
