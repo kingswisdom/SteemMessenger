@@ -1,13 +1,13 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>SteemMessenger</title>
+		<title>Steem Messenger</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="stylesheet" href="css/main.css" />
 	</head>
-		
-	<body>		
+
+	<body>
 		<!-- Header -->
 			<section id="header">
 				<header class="major">
@@ -30,12 +30,12 @@
 						<header class="major">
 							<h2>One more step !</h2>
 						</header>
-						
+
 						<p>Click on the "+" button on the bottom right of your screen to open the Steem Messenger widget.</p>
 					</div>
 				</div>
 
-				
+
 		<!-- Footer -->
 			<section id="footer">
 				<div class="container">
@@ -54,28 +54,33 @@
 				</footer>
 			</section>
 
-		<!-- Scripts -->
+
 
 		<!--Widget-->
-	<div id="DaButton" onclick="superchatactivation()" class="flyingButtonApp">
-			<p class="flyingButtonText">+</p>
+		<div id="DaButton" onclick="superchatactivation()" class="flyingButtonApp">
+				
 		</div>
-		<div id="DaChat" class="DaChatBox">		
-			<div id="receiver-info">
-				<div id="returnToSelection" class="returnBtn">
-				<p class="returnText"><</p>
-				</div>
-				<div id="clear" class="clearBtn">
-					<img style="width: 30px; height: 30px; margin-top: 7px;" src="images/bin2.png">
-				</div>
-			</div>
+
+		<div id="DaChat" class="DaChatBox">
+				<div id="receiver-info">
+						<div id="returnToSelection" class="returnBtn">
+								<p class="returnText"><</p>
+								<span class="tooltippreviousdisc">Previous discussions</span>
+						</div>
+						<div id="clear" class="clearBtn">
+								<img style="width: 30px; height: 30px; margin-top: 7px;" src="images/bin.png">
+								<span class="tooltipcleardisc">Clear discussion</span>
+						</div>
+			 </div>
+
 			<div id="splash">
 				<br>
 				<br>
 			<h1>The Steem Messenger <img src="images/SteemMessenger.png"></h1>
 
-					<p>A secure and private instant messaging application for the Steem ecosystem by <a href="http://steemit.com/@kingswisdom">@kingswisdom</a></p>
-					<a id="start">Start</a>
+					<p style="margin-top: 80px;">A secure and private instant messaging application for the Steem ecosystem by <a href="http://steemit.com/@kingswisdom">@kingswisdom</a></p>
+					<div class="loaderEffect" id="loaderEffect0"></div>
+					<a id="start" class="button" style="margin-top:80px; border-radius:50px;">Start</a>
 			</div>
 
 			<div id="login-interface">
@@ -86,43 +91,39 @@
 				</header>
 				<input type="text" id="username" class="form-control" placeholder="Username"></input>
 				<input type="password" id="privMemoKey" class="form-control" placeholder="Private Memo Key"></input>
-				<div class="loaderEffect" id="loaderEffect"></div>
+
 				<button id="login">Log in</button>
 				<p>Your private key is stored in your browser, making this log in form the most secure way to verify your authority.</p>
+				<div class="loaderEffect" style="float:right;" id="loaderEffect1"></div>
 			</div>
 
 			<div id="login-success">
-				<br>
-				<br>
-				<header class="major">
-				<h2>Logged in !</h2>
-				</header>
-				<p>Choose your recipient</p>
-				<input type="text" id="receiver" class="form-control" placeholder="Your friend's name"></input>
-				<div class="loaderEffect" id="loaderEffect2"></div>
-				<button id="friend">Go!</button>
+
+				<textarea type="text" id="receiver" class="messageInput" placeholder="Enter friend name to search..."></textarea>
+
+				<div class="discussionsHistory" id="previousDiscussions"></div>
+				<div class="loaderEffect" style="float:right;" id="loaderEffect2"></div>
 			</div>
+
 			<div id="chat-container">
 
 				<div id="messages" class="msg-box">
 				</div>
-				<textarea id="textarea" 
-				style="height:40px;
-					overflow:hidden;
-					resize:none;
-					font-size: 13px;
-					background-color: #fff;
-					border-radius: 5px;
-					border-width: 1px;
-					border-color: #E0E0E0;
-					color: #232529;" 
-					class="form-control" placeholder="Your message here..."></textarea>
+				<textarea id="textarea" class="messageInput" placeholder="Your message here..."></textarea>
 					<div class="loaderEffect" id="loaderEffect3"></div>
-					<input type="file" id="fileSend"/>
+					<div class="paperclip-btn">
+					<label for="fileSend" class="label-file"><img class="paperclip-button" src="images/paperclip.png"></label>
+					<span class="tooltippaperclip">Send File (< 100kb)</span>
+
+					<input type="file" class="input-file" id="fileSend"/>
+				</div>
 				<div id="status"></div>
 			</div>
 		</div>
 			<!--End of the widget-->
+
+			<!-- Scripts -->
+
 			<script src="js/bundle.js"></script>
 			<script src="js/jquery.min.js"></script>
 			<script src="js/jquery.scrollex.min.js"></script>
@@ -140,7 +141,7 @@
     				}
 				}
 			</script>
-			
+
 	</body>
-	
+
 </html>
