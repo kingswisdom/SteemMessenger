@@ -206,10 +206,3 @@ As a sub-community manager/curator for SteemSTEM, I always felt the need to *sen
 I'm also very excited by how this developpement is going, from a simple messaging app, to a secure interface for basically anything concerning data and identity validation. The Lara module is also a great way to experiment with the permissioned database architecture on the Steem Blockchain. Why not store Dtube videos on it, costing cheap database storage ? We could even create an anonymous chat section, for all the users that land on steemit but don't know anything ? Or for the external audience ? The number of possibilities are incredible, and this brings me a lot of hope for the Steem ecosystem, and future !
 
 Thank you !
-
-
-
-![](https://steemitimages.com/DQmUupFdS6gKukpJzhos5MvqUZrrm1RpAE1KLaHEiK6Zgu2/image.png)
-##### <center>If you think this app gives value to the Steem ecosystem, [you can vote for me as a witness with SteemConnect](https://steemconnect.com/sign/account-witness-vote?witness=kingswisdom&approve=1), or [directly through Steemit](https://steemit.com/~witnesses)</center>
-
-<center><a href="/@kingswisdom"><img src="https://steemitimages.com/DQmaRh1QvGnQ3sGc96kkjZCZD2e52my7fywvJBDKraFoAS1/ezgif-4-5fafbd92c8.gif"/></a></center>
