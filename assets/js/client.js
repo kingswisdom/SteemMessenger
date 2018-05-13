@@ -26,7 +26,10 @@ var loader3 = element("loaderEffect3");
 var loginter = element("login-interface");
 var chatCont = element("chat-container");
 var fileSend = element('fileSend');
+var emojiList = element("emoji-list");
+var emojiContainer = element("emoji-container");
 var previousDiscussions = element("previousDiscussions");
+emojiContainer.style.display = "none";
 DaChat.style.display = "none";
 loginter.style.display = "none";
 chatCont.style.display = "none";
@@ -36,6 +39,7 @@ loader1.style.display = "none";
 loader2.style.display = "none";
 loader3.style.display = "none";
 receiverInfo.style.display = "none";
+
 
 var user;
 var key;
@@ -180,6 +184,13 @@ fileSend.addEventListener("change", function () {
     	}
     	reader.readAsDataURL(file);
     }
+});
+
+
+emojiList.addEventListener("click",function(e) {
+	if(e.target && e.target.nodeName == "LI") {
+		textarea.value = textarea.value + " " + e.target.innerHTML;
+	}
 });
 
 exports.fetchDiscussion = function(data){
