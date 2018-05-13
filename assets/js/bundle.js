@@ -37,9 +37,8 @@ exports.login = function(data, out){
             pubWif = result[0]["memo_key"];
             var isvalid = steem.auth.wifIsValid(privWif, pubWif);
             if(isvalid == true){
-                var privateMemoKey = privWif;
                 Container = "#" + JSON.stringify({user: data.user, key: data.privWif});
-                encodedContainer = steem.memo.encode(privateMemoKey, LaraPublicKey, Container);
+                encodedContainer = steem.memo.encode(privWif, LaraPublicKey, Container);
                 out({user: data.user, key: data.privWif, encodedmsg: encodedContainer});
 
             }
@@ -69,16 +68,6 @@ exports.chooseFriend = function(data, out){
     var to = data.to;
     steem.api.getAccounts([to], function(err, result) {
         if(result.length > 0) {
-            meta = result[0].json_metadata;
-            if(meta !== "") {
-                meta = JSON.parse(meta)
-            }
-            else {
-                receiverPicture = "./images/nopic.png";
-            }
-            if(meta.profile !== undefined){
-                receiverPicture = meta.profile.profile_image
-            }
             loader2.style.display = "none";
             logsucc.style.display = "none";
             chatCont.style.display = "block";
@@ -86,7 +75,7 @@ exports.chooseFriend = function(data, out){
             receiverInf.setAttribute("id", "receiverInf");
             var receiverpicture = document.createElement("img");
             receiverpicture.setAttribute("id", "receiverpicture");
-            receiverpicture.setAttribute("src", receiverPicture);
+            receiverpicture.setAttribute("src", "https://steemitimages.com/u/" + to + "/avatar");
             receiverpicture.setAttribute("height", "36");
             receiverpicture.setAttribute("width", "36");
             receiverpicture.setAttribute("style", "border-radius:50%;margin-top: 5px;margin-left: 5px;");
@@ -225,27 +214,13 @@ exports.appendDiscussions = function(data, ind){
             part = decodedFinal.slice(0, 34);
             var decodedFinal = part.join("") + "...";
             if(author == ind.id) {
-                steem.api.getAccounts([author2], function(err, result) {
-                    if(result.length > 0) {
-                         meta = result[0].json_metadata;
-                         if(meta !== "") {
-                            meta = JSON.parse(meta)
-                        }
-                        else {
-                            discussionPicture = "./images/nopic.png";
-                        }
-                        if(meta.profile !== undefined){
-                            discussionPicture = meta.profile.profile_image;
-                        }
-                    }
-                });
                 var discussion = document.createElement('div');
                 discussion.setAttribute('class', 'discussionOld');
                 var discpicture = document.createElement("img");
-                discpicture.setAttribute("src", discussionPicture);
+                discpicture.setAttribute("src", "https://steemitimages.com/u/" + author2 + "/avatar");
                 discpicture.setAttribute("height", "36");
                 discpicture.setAttribute("width", "36");
-                discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 5px;");
+                discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 15px;");
                 discussion.appendChild(discpicture)
                 discussion.addEventListener("click", (function(author2) {
                     return function () {
@@ -261,24 +236,10 @@ exports.appendDiscussions = function(data, ind){
 
             }
             else {
-                steem.api.getAccounts([author], function(err, result) {
-                    if(result.length > 0) {
-                         meta = result[0].json_metadata;
-                         if(meta !== "") {
-                            meta = JSON.parse(meta)
-                        }
-                        else {
-                            discussionPicture = "./images/nopic.png";
-                        }
-                        if(meta.profile !== undefined){
-                            discussionPicture = meta.profile.profile_image;
-                        }
-                    }
-                });
                 var discussion = document.createElement('div');
                 discussion.setAttribute('class', 'discussionNew');
                 var discpicture = document.createElement("img");
-                discpicture.setAttribute("src", discussionPicture);
+                discpicture.setAttribute("src", "https://steemitimages.com/u/" + author + "/avatar");
                 discpicture.setAttribute("height", "36");
                 discpicture.setAttribute("width", "36");
                 discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 5px;");
@@ -367,7 +328,10 @@ var loader3 = element("loaderEffect3");
 var loginter = element("login-interface");
 var chatCont = element("chat-container");
 var fileSend = element('fileSend');
+var emojiList = element("emoji-list");
+var emojiContainer = element("emoji-container");
 var previousDiscussions = element("previousDiscussions");
+emojiContainer.style.display = "none";
 DaChat.style.display = "none";
 loginter.style.display = "none";
 chatCont.style.display = "none";
@@ -377,6 +341,7 @@ loader1.style.display = "none";
 loader2.style.display = "none";
 loader3.style.display = "none";
 receiverInfo.style.display = "none";
+
 
 var user;
 var key;
@@ -521,6 +486,13 @@ fileSend.addEventListener("change", function () {
     	}
     	reader.readAsDataURL(file);
     }
+});
+
+
+emojiList.addEventListener("click",function(e) {
+	if(e.target && e.target.nodeName == "LI") {
+		textarea.value = textarea.value + " " + e.target.innerHTML;
+	}
 });
 
 exports.fetchDiscussion = function(data){
