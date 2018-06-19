@@ -64,7 +64,7 @@ startBtn.addEventListener('click', function(){
 		SM.login({user:user, privWif:key}, function(out){
 			user = out.user;
 			key = out.key;
-			keys = {uniquePublic:cookieB.uniquePublic, uniquePrivate:cookieB.uniquePrivate};
+			keys = {uniquePublic:cookieB.uniquePublic, uniquePrivate:cookieB.uniquePrivate, authenticationKey:cookieB.authenticationKey, encryptionKey: cookieB.encryptionKey};
 			socket.emit('reinitialize', {encodedmsg: out.encodedmsg});
 			splash.style.display = "none";
 			logsucc.style.display = "block";
@@ -101,9 +101,9 @@ receiver.addEventListener('keydown', function(event){
 });
 
 socket.on('logged', function(){
-	SM.initializeKeys({key: key}, function(out){){
-		document.cookie = '{"user":"' + user + '","privateKey":"' + key + '","uniquePrivate":"' + out.uniquePrivate + '","uniquePublic":"' + out.uniquePublic + '","authenticationKey":"' + out.authenticationKey + '"}';
-		keys = {uniquePublic:out.uniquePublic, uniquePrivate:out.uniquePrivate, authenticationKey:out.authenticationKey};
+	SM.initializeKeys({key: key}, function(out){
+		document.cookie = '{"user":"' + user + '","privateKey":"' + key + '","uniquePrivate":"' + out.uniquePrivate + '","uniquePublic":"' + out.uniquePublic + '","authenticationKey":"' + out.authenticationKey + '","encryptionKey":"' + out.encryptionKey + '"}';
+		keys = {uniquePublic:cookieB.uniquePublic, uniquePrivate:cookieB.uniquePrivate, authenticationKey:cookieB.authenticationKey, encryptionKey: cookieB.encryptionKey};
 		loader1.style.display = "none";
 		loginter.style.display = "none";
 		logsucc.style.display = "block";
