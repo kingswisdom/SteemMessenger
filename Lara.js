@@ -1,4 +1,5 @@
 const steem = require('steem');
+const crypto = require('./assets/js/crypto');
 const LaraPrivateKey = "";
 
 exports.checkLogin = function(data, out){
@@ -11,13 +12,15 @@ exports.checkLogin = function(data, out){
 		if(result.length > 0) {
 			pubWif = result[0]["memo_key"];
 			var isvalid = steem.auth.wifIsValid(decodedContainer.key, pubWif);
+			/* check that the session keys generation works server side*/
+			console.log(crypto.generate_session_keys(LaraPrivateKey, pubWif));
 			if(isvalid == true) {
 				console.log('Lara : Connexion approved !')
 				out({name: decodedContainer.user});
 			}
 			else {
-				console.log("Lara : @" + decodedContainer.user + " just tried to bypass auth check. Here's more informations on this attempt :\n" 
-						  + "      PublicKey : " + pubWif + "\n" 
+				console.log("Lara : @" + decodedContainer.user + " just tried to bypass auth check. Here's more informations on this attempt :\n"
+						  + "      PublicKey : " + pubWif + "\n"
 						  + "      PrivateKey : " + decodedContainer.key);
 				out(undefined);
 			}
@@ -40,9 +43,9 @@ exports.checkIdentity = function(data, out){
 				out({name: decodedContainer.user, to: decodedContainer.to, message: decodedContainer.message});
 			}
 			else {
-				console.log("Lara : @" + decodedContainer.user + " just tried to forge a message. Here's more informations on this attempt :\n" 
-						  + "      victim : " + decodedContainer.to + "\n" 
-						  + "      PublicKey : " + pubWif + "\n" 
+				console.log("Lara : @" + decodedContainer.user + " just tried to forge a message. Here's more informations on this attempt :\n"
+						  + "      victim : " + decodedContainer.to + "\n"
+						  + "      PublicKey : " + pubWif + "\n"
 						  + "      PrivateKey : " + decodedContainer.key);
 				out(undefined);
 			}

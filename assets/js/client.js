@@ -101,9 +101,9 @@ receiver.addEventListener('keydown', function(event){
 });
 
 socket.on('logged', function(){
-	SM.initializeKeys({key: key}, function(out){
-		document.cookie = '{"user":"' + user + '","privateKey":"' + key + '","uniquePrivate":"' + out.uniquePrivate + '","uniquePublic":"' + out.uniquePublic + '"}';
-		keys = {uniquePublic:out.uniquePublic, uniquePrivate:out.uniquePrivate};
+	SM.initializeKeys({key: key}, function(out){){
+		document.cookie = '{"user":"' + user + '","privateKey":"' + key + '","uniquePrivate":"' + out.uniquePrivate + '","uniquePublic":"' + out.uniquePublic + '","authenticationKey":"' + out.authenticationKey + '"}';
+		keys = {uniquePublic:out.uniquePublic, uniquePrivate:out.uniquePrivate, authenticationKey:out.authenticationKey};
 		loader1.style.display = "none";
 		loginter.style.display = "none";
 		logsucc.style.display = "block";

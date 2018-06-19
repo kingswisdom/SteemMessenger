@@ -58,7 +58,11 @@ exports.initializeKeys = function(data, out){
     var uniqueMemoKeys = crypto.generateKeys();
     var uniquePrivate = uniqueMemoKeys.private;
     var uniquePublic = uniqueMemoKeys.public;
-    out({uniquePrivate: uniquePrivate, uniquePublic: uniquePublic});
+    /* check that the session keys generation works client side*/
+    var sessionKeys = crypto.generate_session_keys(data.key, LaraPublicKey);
+    console.log("init keys");
+    console.log(sessionKeys);
+    out({uniquePrivate: uniquePrivate, uniquePublic: uniquePublic, authenticationKey : authenticationKey, encryptionKey : encryptionKey});
 
 }
 
