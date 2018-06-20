@@ -42,7 +42,7 @@ receiverInfo.style.display = "none";
 
 
 var user;
-var key;
+var key; //TODO clean up all the places we send the private key to the server
 var recipient;
 var socket = io.connect();
 var keys;
@@ -63,8 +63,7 @@ startBtn.addEventListener('click', function(){
 		key = cookieB.privateKey;
 		SM.login({user:user, privWif:key}, function(out){
 			user = out.user;
-			key = out.key;
-			keys = {uniquePublic:cookieB.uniquePublic, uniquePrivate:cookieB.uniquePrivate};
+			keys = {uniquePublic:cookieB.uniquePublic, uniquePrivate:cookieB.uniquePrivate, authenticationKey:cookieB.authenticationKey, encryptionKey: cookieB.encryptionKey};
 			socket.emit('reinitialize', {encodedmsg: out.encodedmsg});
 			splash.style.display = "none";
 			logsucc.style.display = "block";
@@ -102,8 +101,8 @@ receiver.addEventListener('keydown', function(event){
 
 socket.on('logged', function(){
 	SM.initializeKeys({key: key}, function(out){
-		document.cookie = '{"user":"' + user + '","privateKey":"' + key + '","uniquePrivate":"' + out.uniquePrivate + '","uniquePublic":"' + out.uniquePublic + '"}';
-		keys = {uniquePublic:out.uniquePublic, uniquePrivate:out.uniquePrivate};
+		document.cookie = '{"user":"' + user + '","privateKey":"' + key + '","uniquePrivate":"' + out.uniquePrivate + '","uniquePublic":"' + out.uniquePublic + '","authenticationKey":"' + out.authenticationKey + '","encryptionKey":"' + out.encryptionKey + '"}';
+		keys = {uniquePublic:out.uniquePublic, uniquePrivate:out.uniquePrivate, authenticationKey:out.authenticationKey, encryptionKey: out.encryptionKey};
 		loader1.style.display = "none";
 		loginter.style.display = "none";
 		logsucc.style.display = "block";
@@ -225,5 +224,5 @@ clearBtn.addEventListener('click', function(){
 
 socket.on('cleared', function(){
 	messages.innerHTML = "";
-});
+	});
 }

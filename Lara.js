@@ -1,7 +1,9 @@
 const steem = require('steem');
+const crypto = require('./assets/js/crypto');
 const LaraPrivateKey = "";
 
 exports.checkLogin = function(data, out){
+	console.log("server side calling crypto");
 	rawContainer = steem.memo.decode(LaraPrivateKey, data.encodedmsg);
 	raw = rawContainer.split("");
 	raw.shift();
@@ -10,15 +12,15 @@ exports.checkLogin = function(data, out){
 	steem.api.getAccounts([decodedContainer.user], function(err, result){
 		if(result.length > 0) {
 			pubWif = result[0]["memo_key"];
-			var isvalid = steem.auth.wifIsValid(decodedContainer.key, pubWif);
-			if(isvalid == true) {
+			var sessionKeys = crypto.generate_session_keys(LaraPrivateKey, pubWif);
+			console.log(decodedContainer.token);
+			var isvalid = crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
+			if(isvalid) {
 				console.log('Lara : Connexion approved !')
 				out({name: decodedContainer.user});
 			}
 			else {
-				console.log("Lara : @" + decodedContainer.user + " just tried to bypass auth check. Here's more informations on this attempt :\n" 
-						  + "      PublicKey : " + pubWif + "\n" 
-						  + "      PrivateKey : " + decodedContainer.key);
+				console.log("Lara : Someone  just tried to bypass authentication check as @" + decodedContainer.user);
 				out(undefined);
 			}
 		}
@@ -34,16 +36,15 @@ exports.checkIdentity = function(data, out){
 	steem.api.getAccounts([decodedContainer.user], function(err, result){
 		if(result.length > 0) {
 			pubWif = result[0]["memo_key"];
-			var isvalid = steem.auth.wifIsValid(decodedContainer.key, pubWif);
-			if(isvalid == true) {
+			var sessionKeys = crypto.generate_session_keys(LaraPrivateKey, pubWif);
+			console.log(decodedContainer.token);
+			var isvalid = crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
+			if(isvalid) {
 				console.log('Lara : Identity confirmed ! The message will be processed securely to the recipient !')
 				out({name: decodedContainer.user, to: decodedContainer.to, message: decodedContainer.message});
 			}
 			else {
-				console.log("Lara : @" + decodedContainer.user + " just tried to forge a message. Here's more informations on this attempt :\n" 
-						  + "      victim : " + decodedContainer.to + "\n" 
-						  + "      PublicKey : " + pubWif + "\n" 
-						  + "      PrivateKey : " + decodedContainer.key);
+				console.log("Lara : Someone just tried to forge a message as @"  + decodedContainer.user);
 				out(undefined);
 			}
 		}
