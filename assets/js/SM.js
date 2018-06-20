@@ -25,18 +25,23 @@ loader3.style.display = "none";
 receiverInfo.style.display = "none";
 var notificationSound = new Audio('./audio/light.mp3');
 
-
-
+//TODO clean up all the places we send the private key to the server
+//because it is not needed anymore
 
 exports.login = function(data, out){
     loader1.style.display = "block";
     steem.api.getAccounts([data.user], function(err, result) { //Get your account info on the Steem Blockchain
+
         if(result.length > 0) {
             privWif = data.privWif; //Here is the private memo key you inserted
             pubWif = result[0]["memo_key"]; //Get your public Memo Key from the blockchain
             var isvalid = steem.auth.wifIsValid(privWif, pubWif); //Test if it is your key before sending info to Lara
             if(isvalid == true){
-                Container = "#" + JSON.stringify({user: data.user, key: data.privWif}); //Prepare your data for encryption
+                var sessionKeys = crypto.generate_session_keys(privWif, LaraPublicKey);
+                var authenticationToken = crypto.authentication_token(sessionKeys.authenticationKey);
+                Container = "#" + JSON.stringify({user: data.user, token: authenticationToken}); //Prepare your data for encryption
+                //TODO do we really need to encrypt the credentials?
+                //The DH key exchange is authenticated by the blockchain(steem.api)
                 encodedContainer = steem.memo.encode(privWif, LaraPublicKey, Container);//Encrypt your credentials
                 out({user: data.user, key: data.privWif, encodedmsg: encodedContainer});//Save your memo key locally and sends the "encodedmsg" to Lara
 
@@ -55,14 +60,15 @@ exports.login = function(data, out){
 
 exports.initializeKeys = function(data, out){
     //data.key
-    var uniqueMemoKeys = crypto.generateKeys();
+    var uniqueMemoKeys = libcrypto.generateKeys();
     var uniquePrivate = uniqueMemoKeys.private;
     var uniquePublic = uniqueMemoKeys.public;
+    console.log(data);
     /* check that the session keys generation works client side*/
     var sessionKeys = crypto.generate_session_keys(data.key, LaraPublicKey);
     console.log("init keys");
     console.log(sessionKeys);
-    out({uniquePrivate: uniquePrivate, uniquePublic: uniquePublic, authenticationKey : authenticationKey, encryptionKey : encryptionKey});
+    out({uniquePrivate: uniquePrivate, uniquePublic: uniquePublic, authenticationKey : sessionKeys.authenticationKey, encryptionKey : sessionKeys.encryptionKey});
 
 }
 
@@ -114,9 +120,10 @@ exports.handleInput = function(data, out){
             publicMemoReceiver = result[0]["memo_key"];
             texte = "#" + data.message;
             privateMemoKey = data.key;
-            console.log(privateMemoKey + "\n" + publicMemoReceiver)
             var encoded = steem.memo.encode(data.uniquePrivate, publicMemoReceiver, texte);
-            Container = "#" + JSON.stringify({user: data.user, to: data.receiver, key: data.key, message: encoded});
+            var sessionKeys = crypto.generate_session_keys(privWif, LaraPublicKey);
+            var authenticationToken = crypto.authentication_token(sessionKeys.authenticationKey);
+            Container = "#" + JSON.stringify({user: data.user, to: data.receiver, token: authenticationToken, message: encoded});
             encodedContainer = steem.memo.encode(privateMemoKey, LaraPublicKey, Container);
             out({encodedmsg: encodedContainer});
         }
