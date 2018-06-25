@@ -1,7 +1,7 @@
-var Signature = require('./steem-js/src/auth/ecc/src/signature'),
-	KeyPrivate = require('./steem-js/src/auth/ecc/src/key_private'),
-	PublicKey = require('./steem-js/src/auth/ecc/src/key_public'),
-  hash = require('./steem-js/src/auth/ecc/src/hash'),
+var Signature = require('./steem-js/auth/ecc/src/signature'),
+	KeyPrivate = require('./steem-js/auth/ecc/src/key_private'),
+	PublicKey = require('./steem-js/auth/ecc/src/key_public'),
+  hash = require('./steem-js/auth/ecc/src/hash'),
   base58 = require('bs58');
 
 var Crypto = {};
