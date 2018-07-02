@@ -1,6 +1,6 @@
 
 
-# Steem Messenger™ V0.0.4
+# Steem Messenger™ V0.0.5
 Chat securely with the power of Steem blockchain !
 
 ![](https://steemitimages.com/DQmb1nZtQbXzJsVfzFgwXkKnjKfKW3QEYxgEG8p7u2wDKD2/image.png)
