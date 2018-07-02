@@ -2,60 +2,55 @@ const steem = require("steem");
 const client = require("./client.js");
 const libcrypto = require('@steemit/libcrypto');
 const crypto = require ('./crypto');
-
+const UIlib = require('./UIlib.js');
+const UI = require('./UI.js');
+const login = require('./login.js')
+const storage = require('./storage.js');
 
 var element = function(id){
     return document.getElementById(id);
 }
 var LaraPublicKey = '';
 var messages = element('messages');
-var textarea = element('textarea');
 var receiverInfo = element("receiver-info");
-var logsucc = element("login-success");
-var loader1 = element("loaderEffect1");
-var loader2 = element("loaderEffect2");
-var loader3 = element("loaderEffect3");
-var loginter = element("login-interface");
-var chatCont = element("chat-container");
 var previousDiscussions = element("previousDiscussions");
-loginter.style.display = "none";
-chatCont.style.display = "none";
-logsucc.style.display = "none";
-loader1.style.display = "none";
-loader2.style.display = "none";
-loader3.style.display = "none";
 receiverInfo.style.display = "none";
-var notificationSound = new Audio('./audio/light.mp3');
-
-//TODO clean up all the place we send the private key to the server.
 
 
-exports.login = function(data, out){
-    loader1.style.display = "block";
-    steem.api.getAccounts([data.user], function(err, result) { //Get your account info on the Steem Blockchain
 
-        if(result.length > 0) {
-            privWif = data.privWif; //Here is the private memo key you inserted
-            pubWif = result[0]["memo_key"]; //Get your public Memo Key from the blockchain
-            var isvalid = steem.auth.wifIsValid(privWif, pubWif); //Test if it is your key before sending info to Lara
-            if(isvalid == true){
-                var sessionKeys = crypto.generate_session_keys(privWif, LaraPublicKey);
-                var authenticationToken = crypto.authentication_token(sessionKeys.authenticationKey);
-                Container = "#" + JSON.stringify({user: data.user, token: authenticationToken}); //Prepare your data for encryption
-                //TODO do we really need to encrypt the credentials?
-                //The DH key exchange is authenticated by the blockchain(steem.api)
-                encodedContainer = steem.memo.encode(privWif, LaraPublicKey, Container);//Encrypt your credentials
-                out({user: data.user, key: data.privWif, encodedmsg: encodedContainer});//Save your memo key locally and sends the "encodedmsg" to Lara
 
-            }
-            else {
-            loader1.style.display = "none";
-            alert("Error : Invalid Private Memo Key !")
-            }
+exports.checkIfAlreadyConnected = function(){
+    console.log(localStorage);
+    if(localStorage.length != 0){
+        UI.onConnectedShowPassphraseLoginInterface();
+    }
+    else{
+        UI.onNotConnectedShowLoginInterface();
+    }
+}
+
+exports.login = function(data, result){
+    UIlib.showLoader1();
+    login.firstLogin(data, function(out){
+        if(out.error == "bad memo key" || out.error == "bad account"){
+            UIlib.hideLoader1();
+            alert("Wrong username and/or Private Memo Key");
         }
-        else {
-            loader1.style.display = "none";
-            alert("Error : This account doesn't exist !")
+        else{
+            result(out);
+        }
+    });
+}
+
+exports.passphraseLogin = function(data, result){
+    UIlib.showLoader5();
+    login.reLogin(data, function(out){
+        if(out.error == "bad password" || out.error == "bad memo key" || out.error == "bad account"){
+            UIlib.hideLoader5();
+            alert("Wrong username and/or password");
+        }
+        else{
+            result(out);
         }
     });
 }
@@ -70,92 +65,90 @@ exports.initializeKeys = function(data, out){
     var sessionKeys = crypto.generate_session_keys(data.key, LaraPublicKey);
     console.log("init keys");
     console.log(sessionKeys);
-    out({uniquePrivate: uniquePrivate, uniquePublic: uniquePublic, authenticationKey : sessionKeys.authenticationKey, encryptionKey : sessionKeys.encryptionKey});
+    var wallet = '{"user":"' + data.user + '","privateKey":"' + data.key + '","uniquePrivate":"' + uniquePrivate + '","uniquePublic":"' + uniquePublic + '","authenticationKey":"' + sessionKeys.authenticationKey + '","encryptionKey":"' + sessionKeys.encryptionKey + '"}'
+    storage.createSafeStorage(wallet, data.passphrase);
+    out({user: data.user, privateKey: data.key, uniquePrivate: uniquePrivate, uniquePublic: uniquePublic, authenticationKey: sessionKeys.authenticationKey, encryptionKey: sessionKeys.encryptionKey });
+}
 
+exports.createWalletPassphrase = function(data, result){
+    if(data.pass1 === data.pass2){
+
+        result("ok");
+    }
+    else{
+        result("unmatching passphrases");
+    }
 }
 
 exports.chooseFriend = function(data, out){
-    loader2.style.display = "block";
+    UIlib.showLoader2();
     var to = data.to;
     steem.api.getAccounts([to], function(err, result) {
         if(result.length > 0) {
-            meta = result[0].json_metadata;
-            if(meta !== "") {
-                meta = JSON.parse(meta)
-            }
-            else {
-                receiverPicture = "./images/nopic.png";
-            }
-            if(meta.profile !== undefined){
-                receiverPicture = meta.profile.profile_image
-            }
-            loader2.style.display = "none";
-            logsucc.style.display = "none";
-            chatCont.style.display = "block";
+            UIlib.hideLoader2();
+            UIlib.hideLoginSuccess();
+            UIlib.showChatContainer();
             var receiverInf = document.createElement('div');
             receiverInf.setAttribute("id", "receiverInf");
             var receiverpicture = document.createElement("img");
             receiverpicture.setAttribute("id", "receiverpicture");
-            receiverpicture.setAttribute("src", receiverPicture);
+            receiverpicture.setAttribute("src", "https://steemitimages.com/u/" + to + "/avatar");
             receiverpicture.setAttribute("height", "36");
             receiverpicture.setAttribute("width", "36");
             receiverpicture.setAttribute("style", "border-radius:50%;margin-top: 5px;margin-left: 5px;");
-            receiverInfo.appendChild(receiverpicture)
+            receiverInfo.appendChild(receiverpicture);
             receiverInf.textContent = "@" + data.to;
             receiverInfo.appendChild(receiverInf);
-            receiverInfo.style.display = "block";
+            UIlib.showReceiverInfo();
             out({receiver: to});
         }
         else {
-            loader2.style.display = "none";
+            UIlib.hideLoader2();
             alert("Error : This user doesn't exist !");
         }
     });
 }
 
 exports.handleInput = function(data, out){
-    textarea.style.display = "none";
-    loader3.style.display = "block";
+    UIlib.hideChatTextInputArea();
+    UIlib.showLoader3()
     steem.api.getAccounts([data.receiver], function(err, result) {
         if(result.length > 0) {
             console.log(data.receiver + " is valid");
-            publicMemoReceiver = result[0]["memo_key"];
-            texte = "#" + data.message;
-            privateMemoKey = data.key;
+            var publicMemoReceiver = result[0]["memo_key"];
+            var texte = "#" + data.message;
+            var privateMemoKey = data.key;
             var encoded = steem.memo.encode(data.uniquePrivate, publicMemoReceiver, texte);
-            var sessionKeys = crypto.generate_session_keys(privWif, LaraPublicKey);
+            var sessionKeys = crypto.generate_session_keys(privateMemoKey, LaraPublicKey);
             var authenticationToken = crypto.authentication_token(sessionKeys.authenticationKey);
-            Container = "#" + JSON.stringify({user: data.user, to: data.receiver, token: authenticationToken, message: encoded});
-            encodedContainer = steem.memo.encode(privateMemoKey, LaraPublicKey, Container);
+            var Container = "#" + JSON.stringify({user: data.user, to: data.receiver, token: authenticationToken, message: encoded});
+            var encodedContainer = steem.memo.encode(privateMemoKey, LaraPublicKey, Container);
             out({encodedmsg: encodedContainer});
         }
         else {
-            loader3.style.display = "none";
-            textarea.style.display = "block";
-            textarea.value = "";
-            textarea.focus();
+            UIlib.showChatTextInputArea();
+            UIlib.clearChatTextInputArea();
             alert("Error : no receiver found !");
         }
     });
 }
 
 exports.handleFile = function(data, out){
-    textarea.style.display = "none";
-    loader3.style.display = "block";
+    UIlib.hideChatTextInputArea();
+    UIlib.showLoader3();
     receiver = data.receiver;
     steem.api.getAccounts([receiver], function(err, result) {
         if(result.length > 0) {
-            publicMemoReceiver = result[0]["memo_key"];
-            texte = "#" + data.file;
-            privateMemoKey = data.key;
+            var publicMemoReceiver = result[0]["memo_key"];
+            var texte = "#" + data.file;
+            var privateMemoKey = data.key;
             var encoded = steem.memo.encode(privateMemoKey, publicMemoReceiver, texte);
             out({encodedfile: encoded});
         }
         else {
-            loader3.style.display = "none";
-            textarea.style.display = "block";
-            textarea.value = "";
-            textarea.focus();
+            UIlib.hideLoader3();
+            UIlib.showChatTextInputArea();
+            UIlib.clearChatTextInputArea();
             alert("Error : no receiver found !");
         }
     });
@@ -185,10 +178,10 @@ exports.appendMessages = function(data, ind){
             messages.appendChild(message);
             message.appendChild(messageText);
             messages.appendChild(timestamp);
-            loader3.style.display = "none";
-            textarea.style.display = "block";
-            textarea.value = "";
-            textarea.focus();
+            UIlib.hideLoader3();
+            UIlib.showChatTextInputArea();
+            UIlib.clearChatTextInputArea();
+            UIlib.focusChatTextInputArea();
             messages.scrollTop = messages.scrollHeight;
             //messages.insertBefore(message, messages.firstChild);
         }
@@ -212,7 +205,7 @@ exports.appendMessages = function(data, ind){
             message.appendChild(messageText);
             messages.appendChild(timestamp);
             messages.scrollTop = messages.scrollHeight;
-            notificationSound.play();
+            UIlib.notification();
             //messages.insertBefore(message, messages.firstChild);
         }
         else {
@@ -224,39 +217,26 @@ exports.appendMessages = function(data, ind){
 exports.appendDiscussions = function(data, ind){
     var discussionPicture;
     if(data.length){
+        console.log(data);
         for(var x = 0;x < data.length;x++){
             var raw = data[x].message;
             var author = data[x].from;
             author = author.toString();
-            var author2 = data[x]._id;
+            var author2 = data[x].to;
             author2 = author2.toString();
-            var decoded = steem.memo.decode(ind.key, raw);
-            var decodedFinal = decoded.split("");
-            decodedFinal.shift();
-            part = decodedFinal.slice(0, 34);
-            var decodedFinal = part.join("") + "...";
             if(author == ind.id) {
-                steem.api.getAccounts([author2], function(err, result) {
-                    if(result.length > 0) {
-                         meta = result[0].json_metadata;
-                         if(meta !== "") {
-                            meta = JSON.parse(meta)
-                        }
-                        else {
-                            discussionPicture = "./images/nopic.png";
-                        }
-                        if(meta.profile !== undefined){
-                            discussionPicture = meta.profile.profile_image;
-                        }
-                    }
-                });
+                var decoded = steem.memo.decode(ind.uniqueKey, raw);
+                var decodedFinal = decoded.split("");
+                decodedFinal.shift();
+                part = decodedFinal.slice(0, 34);
+                var decodedFinal = part.join("") + "...";
                 var discussion = document.createElement('div');
                 discussion.setAttribute('class', 'discussionOld');
                 var discpicture = document.createElement("img");
-                discpicture.setAttribute("src", discussionPicture);
+                discpicture.setAttribute("src", "https://steemitimages.com/u/" + author2 + "/avatar");
                 discpicture.setAttribute("height", "36");
                 discpicture.setAttribute("width", "36");
-                discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 5px;");
+                discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 15px;");
                 discussion.appendChild(discpicture)
                 discussion.addEventListener("click", (function(author2) {
                     return function () {
@@ -272,36 +252,29 @@ exports.appendDiscussions = function(data, ind){
 
             }
             else {
-                steem.api.getAccounts([author], function(err, result) {
-                    if(result.length > 0) {
-                         meta = result[0].json_metadata;
-                         if(meta !== "") {
-                            meta = JSON.parse(meta)
-                        }
-                        else {
-                            discussionPicture = "./images/nopic.png";
-                        }
-                        if(meta.profile !== undefined){
-                            discussionPicture = meta.profile.profile_image;
-                        }
-                    }
-                });
+                var decoded = steem.memo.decode(ind.key, raw);
+                var decodedFinal = decoded.split("");
+                decodedFinal.shift();
+                part = decodedFinal.slice(0, 34);
+                var decodedFinal = part.join("") + "...";
                 var discussion = document.createElement('div');
                 discussion.setAttribute('class', 'discussionNew');
                 var discpicture = document.createElement("img");
-                discpicture.setAttribute("src", discussionPicture);
+                discpicture.setAttribute("src", "https://steemitimages.com/u/" + author + "/avatar");
                 discpicture.setAttribute("height", "36");
                 discpicture.setAttribute("width", "36");
-                discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 5px;");
+                discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 15px;");
                 discussion.appendChild(discpicture)
                 discussion.addEventListener("click", (function(author) {
                     return function () {
                         client.fetchDiscussion({receiver: author});
                     }
                 })(author));
-                discussion.setAttribute('align', 'left');
-                discussion.innerHTML = "<b>@" + author + "</b>" + " <br>" + decodedFinal;
+                var discussionText = document.createElement('div');
+                discussionText.setAttribute('align', 'left');
+                discussionText.innerHTML = "<b>@" + author + "</b>" + " <br>" + decodedFinal;
                 previousDiscussions.insertBefore(discussion, previousDiscussions.firstChild);
+                discussion.appendChild(discussionText);
             }
         }
     }
@@ -330,6 +303,7 @@ exports.appendFile = function(data, ind){
         messageImage.setAttribute("width", "170");
         messages.appendChild(message);
         message.appendChild(messageImage);
+        UI.showChatTextInputArea();
         messages.scrollTop = messages.scrollHeight;
     }
     if(author1 == ind.receiver){
@@ -343,7 +317,7 @@ exports.appendFile = function(data, ind){
         messages.appendChild(message);
         message.appendChild(messageImage);
         messages.scrollTop = messages.scrollHeight;
-        notificationSound.play();
+        UIlib.notification();
     }
     else{
     }
