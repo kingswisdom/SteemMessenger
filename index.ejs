@@ -79,9 +79,13 @@
 				<br>
 			<h1>The Steem Messenger <img src="images/SteemMessenger.png"></h1>
 
-					<p style="margin-top: 80px;">A secure and private instant messaging application for the Steem ecosystem by <a href="http://steemit.com/@kingswisdom">@kingswisdom</a></p>
+					<p style="margin-top: 25%; position: absolute;padding: 10px;">A secure and private instant messaging application for the Steem ecosystem by <a href="http://steemit.com/@kingswisdom">@kingswisdom</a></p>
 					<div class="loaderEffect" id="loaderEffect0"></div>
-					<a id="start" style="border-radius:50px; margin-top:40px;" class="button" style="margin-top:80px; border-radius:50px;">Start</a>
+					<a id="start" style="background-position: 0 200px
+: absolute;
+left: 0;
+	  right: 0;
+top: 75%;" class="button" style="margin-top:80px; border-radius:50px;">Start</a>
 			</div>
 
 			<div id="login-interface">
@@ -98,12 +102,45 @@
 				<div class="loaderEffect" style="float:right;" id="loaderEffect1"></div>
 			</div>
 
+			
+
 			<div id="login-success">
 
 				<textarea type="text" id="receiver" class="messageInput" placeholder="Enter friend name to search..."></textarea>
 
 				<div class="discussionsHistory" id="previousDiscussions"></div>
 				<div class="loaderEffect" style="float:right;" id="loaderEffect2"></div>
+			</div>
+
+			<div id="passphraseSelectorScreen">
+				<br>
+				<br>
+				<header class="major">
+				<h2>Welcome !</h2>
+				</header>
+				<p style="margin-top: 15px">This is your first login to Steem Messenger. Your browser now generated new keys to handle everything about the encryption and stored them locally. In order to make all of this secure, you need to choose a strong password.</p>
+				<input type="password" id="newPassphrase" class="form-control" placeholder="New password"></input>
+				<input type="password" id="newPassphrase2" class="form-control" placeholder="Confirm your password"></input>
+
+				<button style="border-radius:50px; margin-top:15px;" id="createPassphraseBtn">Go !</button>
+				
+				<div class="loaderEffect" style="float:right;" id="loaderEffect4"></div>
+			</div>
+
+
+			<div id="passphraseLoginInterface">
+				<br>
+				<br>
+				<header class="major">
+				<h2>Welcome back !</h2>
+				</header>
+				<p style="margin-top: 15px">Enter the password you created on first login to access your session</p>
+				<input type="text" id="passphraseUsername" class="form-control" placeholder="Username"></input>
+				<input type="password" id="passphrase" class="form-control" placeholder="Password"></input>
+
+				<button style="border-radius:50px; margin-top:15px;" id="PassphraseLoginBtn">Unlock Session</button>
+				
+				<div class="loaderEffect" style="float:right;" id="loaderEffect5"></div>
 			</div>
 
 			<div id="chat-container">
