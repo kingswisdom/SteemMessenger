@@ -11,6 +11,7 @@ mongo.connect(url, function(err, db){
 
 
 var chat = db.collection('chats');
+var latestMessages = db.collection('latestMessages');
 
 exports.getMessages = function(data, limit, out){
 	var query = chat.find({tags: { $all: [data.user, data.receiver]}});
@@ -28,21 +29,9 @@ exports.getLastMessage = function(data, out){
 }
 
 exports.getLatestMessages = function(data, out){
-    chat.aggregate([
-    	{$match: 
-    		{from: data.user}
-    	},
-    	{$sort: {
-    		_id:-1
-    	}},
-    	{$group: {
-    		_id: "$to",
-    		from: {$first: "$from"},
-    		message: {$first: "$message"},
-    		timestamp: { $first: "$timestamp" }
-    	}}
-    ]).toArray(function(err, res){
-        out(err, res);
+    var query = latestMessages.find({tags: { $all: [data.user]}});
+    query.limit(1).sort({timestamp:-1}).toArray(function(err, res){
+            out(err, res);
     });
 }
 
@@ -54,6 +43,14 @@ exports.saveMessage = function(data){
 		"message": data.message,
 		"timestamp": Date.now()
 	});
+    latestMessages.remove({tags: { $all: [data.user, data.to]}});
+    latestMessages.insert({
+        "from": data.name,
+        "to": data.to,
+        "tags": [data.name, data.to],
+        "message": data.message,
+        "timestamp": Date.now()
+    });
 }
 
 exports.deleteDiscussion = function(data){
