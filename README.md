@@ -101,8 +101,11 @@ Once you've logged in, you can now see your previous conversations you had ! You
 
 Here is how the function works :
 - [`SM.js`](https://github.com/kingswisdom/SteemMessenger/blob/main/assets/js/SM.js)
+
 ![](https://cdn.steemitimages.com/DQmQXEmDfm7uSxrQFeFutwbJBPmtC4zvMQ4BHy4ffNEgvJ8/image.png)
+
 - [`client.js`](https://github.com/kingswisdom/SteemMessenger/blob/main/assets/js/client.js)
+
 ![](https://steemitimages.com/DQmX8cWfzUMYFNVzTNQHQcp3deU8AHuRfcZHXu1ZTD9N7Gx/image.png)
 
 Your input is transmitted to Lara™ with `socket.emit`, and you can see how your message is encrypted before it goes to the server.
@@ -110,7 +113,9 @@ Your input is transmitted to Lara™ with `socket.emit`, and you can see how you
 Once Lara™ receive your encrypted container, she will decrypt it with her private key and check if you are who you claim to be. If Lara™ validates your identity, she'll send your encrypted message and the delivery informations to the database, and tell to the server to deliver it to your recipient. Your session token isn't stored on the server nor by Lara.
 
 Same thing when you receive a message, you can see in SM.js, the client will decode the container and append it to your conversation.
+
 - [`SM.js`](https://github.com/kingswisdom/SteemMessenger/blob/main/assets/js/SM.js)
+
 ![](https://steemitimages.com/DQmXm8XAvE7TbwzFefT1hKaA2HK1dhJF8fd5nugxo8Nmbkt/image.png)
 
 
