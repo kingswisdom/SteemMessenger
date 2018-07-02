@@ -42,13 +42,13 @@ __________________________________________
 As Steem Messenger™ is off-chain based, we can play around the block time limitation (3 seconds per block), and we don't need to constantly stream the blockchain to find if you just received a message. Every time you receive a message, a notification sound will occur, so you'll never miss one !
 
 -**Data transfer**
-As we don't rely on transfers to send messages securely, we can also play around the memo size limitation (2kb), which gives us the ability to theoretically send any size of file. We thus added the possibility to encrypt images and files and to send them to your recipient. Note that it can take quite a lot of time to encrypt a large size image, so we restricted the size limit to 100 Kb **for the moment**. Files are not stored on our database **for the moment**, which means your receiver will only receive them if he is connected. It also means when you disconnect from the app, or refresh the page, the image will disappear from the chat.
+Data transfer has been one of our major concern lately and we needed to optimize the speed of encryption. We thus started to update the encryption method, in the goal of using a symmetric encryption key.
 
 - **A new and unique encryption key**
 On your first login, you will automatically generate a new pair of encryption keys. This key will serve for your messages encryption only, and will never leave your computer. **We're thus proud to introduce the Steem Messenger™ pair of keys !**
 
 - **An original way of verifying your identity on the Steem Blockchain**
-To make the database truly secure and permissioned, we decided to use the memo pair of keys. When you send a message, you also send your private memo key to check your identity. This will preserve the database integrity, and makes it the first permissioned database on Steem ! It will also gives us the ability to prevent someone using your private key if your memo key was leaked on the Steem blockchain. We will never store or access any data/token/hash of your key on the Steem Messenger™'s server, nor on Lara™'s server. No MITM (Man In The Middle), no identity theft.
+To make the database truly secure and permissioned, we decided to use the memo pair of keys. When you send a message, you also send a token generated from your private memo key to check your identity. This will preserve the database integrity, and makes it the first permissioned database on Steem ! We will/can never store or access any data/token/hash of your key on the Steem Messenger™'s server, nor on Lara™'s server. No MITM (Man In The Middle), no identity theft.
 
 - **3 passes encryption**
 With a clever use of the `steem.memo.encode` function, we achieved to build a real and unique by design end to end encryption. Every bit of data that leaves your computer is carefully encrypted : your message is encoded with your **Steem Messenger™ Private Key**, which means Lara™ and the server can't read your messages. Then, informations about your message and your identity are encrypted with Lara™'s public key. The third pass is SSL, and brings a third layer of security. **We're proud to unveil the Triple Dose Algorithm™.**
@@ -65,7 +65,7 @@ All your messages are encrypted in your browser before they are sent to the serv
 With the help of the great companion **Lara™**, we are now able to share our database with other frontends developers. They will no longer have to find a solution for the authentication process and the security of an off chain database. At Steem Messenger™, we believe this factor will make the number of apps in the Steem ecosystem flourish, given the number of possibilities. From data hosting, to any kind of off chain transactions that only requires your identity to be proven.
 
 - **No Active/posting permissions required**
-We will never ever need your important keys to verify your identity. We believe the memo key is the perfect way to verify your identity through the Steem Blockchain without putting your account or funds at risk.
+We will never ever need your important keys to verify your identity. We believe generating a session token from the memo key is the perfect way to verify your identity through the Steem Blockchain without putting your account or funds at risk.
 
 - **Widget interface**
 Steem Messenger™ is designed for convenience, and modularity. As we want to extend the usage of this application to all the Steem ecosystem, we need to make a unique interface, that can fit in an extension for example.
@@ -80,34 +80,34 @@ _____________________________________
 #### Client side
 
 
-![](https://steemitimages.com/DQmULZJLEv6fdMZFXvdghaWhdzrG4nUtks9tPuPDvH4thPF/image.png)
+![](https://cdn.steemitimages.com/DQmXwpJnVxr6ZfJUehdzJFaq3QjrUF8WzR71Wzm8A5FZpUX/image.png)
 
 Now, this webpage is just here to present the project. Everythings happen when you click on the Steem Messenger™ button on the bottom right.
 
 The graphic style was enhanced, providing a beautiful minimalist interface, that can integrate easily with any Steem based front-end.
 
-You can connect to the interface by entering your personnal informations. Please remember you need exclusively your **private memo key**, as other keys would not work. Not to mention you should never use your active key and your password if you are not accessing to your account's funds.
+You can connect to the interface by entering your personnal informations. Please remember you need exclusively your **private memo key** for your first login, as other keys would not work. Not to mention you should never use your active key and/or your master key if you are not accessing to your account's funds.
 
 ![](https://steemitimages.com/DQmPT5JhdAB4U4UaaZEh5j7WcxwpXyx9xAL7iTNegY1a6VC/image.png)
 
+Thanks to @cryptohazard, the cryptography of Steem Messenger was updated, and has yet to be greatly improved, by adding ephemeral keys for getting forward secrecy, or switch the memo encryption to a faster method (AES-GCM).
 
+For the moment, the app will check the public memo key associated with your username (`pubWif = result[0]["memo_key"];`) and verify if the private key you specified is valid with `steem.auth.wifIsValid(privWif, pubWif);`. If everything is ok, it will generate an authentication token between you and Lara, and then send it to the server in a encrypted state. The server will then send you a response, validating your credentials or not. If this is the first time you log in, you'll then automatically generate a new pair of keys with your own computational power (the process takes around 2 sec). 
 
-It will check the public memo key associated with your username (`pubWif = result[0]["memo_key"];`) and verify if the private key you specified is valid with `steem.auth.wifIsValid(privWif, pubWif);`. If everything is ok, your private memo key is then sent to Lara™ in a encrypted state. The server will then send you a response, validating your credentials or not. If this is the first time you log in, you'll then automatically generate a new pair of keys with your own computational power (the process takes around 2 sec). 
-
-- [`SM.js`](https://github.com/kingswisdom/SteemMessenger/blob/main/assets/js/SM.js)
-![](https://steemitimages.com/DQmNhvcg9kQKoo1k1jcQ3rQFwhBTmsEX8k7aAYxfYWU3tMs/image.png) 
+- [`login.js`](https://github.com/kingswisdom/SteemMessenger/blob/main/assets/js/login.js)
+![](https://cdn.steemitimages.com/DQmeZWu7doP3q1jCZo7xqFcNnrvoSm7TFoZFHbk1PUZFsN3/image.png)
 
 Once you've logged in, you can now see your previous conversations you had ! You can also search for a recipient by name. Once you've selected your recipient, you'll automatically query the blockchain for your recipient's public memo key and encrypt your message with `var encoded = steem.memo.encode(uniquePrivateKey, publicMemoReceiver, text);`.
 
 Here is how the function works :
 - [`SM.js`](https://github.com/kingswisdom/SteemMessenger/blob/main/assets/js/SM.js)
-![](https://steemitimages.com/DQmWTNK7EsyhudM6vL5KrQG8Q4XfHVVPbhAkmbFHq4TBmHh/image.png)
+![](https://cdn.steemitimages.com/DQmQXEmDfm7uSxrQFeFutwbJBPmtC4zvMQ4BHy4ffNEgvJ8/image.png)
 - [`client.js`](https://github.com/kingswisdom/SteemMessenger/blob/main/assets/js/client.js)
 ![](https://steemitimages.com/DQmX8cWfzUMYFNVzTNQHQcp3deU8AHuRfcZHXu1ZTD9N7Gx/image.png)
 
 Your input is transmitted to Lara™ with `socket.emit`, and you can see how your message is encrypted before it goes to the server.
 
-Once Lara™ receive your encrypted container, she will decrypt it with her private key and check if you are who you claim to be. If Lara™ validates your identity, she'll send your encrypted message and the delivery informations to the database, and tell to the server to deliver it to your recipient. Your memo key is deleted right after your identity confirmation.
+Once Lara™ receive your encrypted container, she will decrypt it with her private key and check if you are who you claim to be. If Lara™ validates your identity, she'll send your encrypted message and the delivery informations to the database, and tell to the server to deliver it to your recipient. Your session token isn't stored on the server nor by Lara.
 
 Same thing when you receive a message, you can see in SM.js, the client will decode the container and append it to your conversation.
 - [`SM.js`](https://github.com/kingswisdom/SteemMessenger/blob/main/assets/js/SM.js)
@@ -119,11 +119,7 @@ The `raw` variable is the encrypted message received from the server. It is deco
 
 #### Server side
 
-Thanks to the witness @kennybll, the server now has a function to retrieve the last message from each conversation you had ! It gave us the possibility to create the "previous discussions" section. I'm really proud that more and more developpers get involved and helped us out in the making of this powerful messaging tool on top of the Steem Blockchain !
-
-Now the Steem Messenger™ counts one more member in the team ! This anonymous person was working in the French military IT security. He found this project really interesting and accepted to take care of the server security.
-
-The server is now hosted on one of our domain, and we started the private Beta testing session two weeks ago, without any security or privacy concern. We are now preparing our private server, with 32gb of high quality server RAM, and 2x E5 processors, which will give us enough power to handle the potential data load of the community. 
+We updated the serverdb.js, which handles the Mongo database. The previous implementation didn't work as needed, and so we updated this module. Now the data is handled correctly, and it solved a major issue where users could not see incoming messages on the "Recent discussions" screen.  
 
 
 
@@ -137,8 +133,6 @@ Simply use `npm install` into the directory, start `mongod`, and then run type `
 ### Private Beta Session
 _______________________________________
 For now, we cannot allow the public beta to be released, even though the app is ready to be used as is. The only reason retaining us is the fact that a lot of users leaked their memo keys on the blockchain lately. We will take the time to query the blockchain to find every memo key out there, and build a script that will verify if the key is a leaked one or not. By doing so, we will be able to avoid every identity theft attempts. 
-
-We are searching for a few people to test the messenger for a given period of time. Every person selected will have to choose one friend to test the application. If you are interested in testing one of the most exciting project on this blockchain, please feel free to submit your application in the comments section.
 
 ### Roadmap
 ___________________________________
@@ -156,6 +150,14 @@ We aim to be the most secure, fast, and reliable way to interact and chat with p
 
 ### Changelogs
 ________________________________________
+##### 0.0.5 :
+- Lara Module updated for better cryptography
+- Triple Dose Encryption Algorithm™ updated
+- Creation of the encrypted wallet on the localStorage
+- Creation of the passphrase creation/login screen 
+- Various bugs corrected
+- Total reorganization of the code, with modules and submodules (login.js, storage.js, UI.js...)
+
 ##### 0.0.4 :
 - Creation of the Lara™ module
 - Triple Dose Encryption Algorithm™
