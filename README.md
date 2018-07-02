@@ -41,7 +41,7 @@ __________________________________________
 - **Instant Messaging**
 As Steem Messenger™ is off-chain based, we can play around the block time limitation (3 seconds per block), and we don't need to constantly stream the blockchain to find if you just received a message. Every time you receive a message, a notification sound will occur, so you'll never miss one !
 
--**Data transfer**
+- **Data transfer**
 Data transfer has been one of our major concern lately and we needed to optimize the speed of encryption. We thus started to update the encryption method, in the goal of using a symmetric encryption key.
 
 - **A new and unique encryption key**
@@ -61,7 +61,7 @@ With Steem Messenger™, you can easily, with the click of a button, delete your
 - **Secure database**
 All your messages are encrypted in your browser before they are sent to the server, providing you an E2EE (End to End Encryption). Meaning that only you and your recipient can read your own messages, as it would take 10,000 centuries to successfully brute force your Steem Messenger key with a regular computer. No institutional agency can actually decode your messages without your keys, which makes Steem Messenger™ a great medium of communication, far more secure than the actual market need.
 
--**Modularity is here**
+- **Modularity is here**
 With the help of the great companion **Lara™**, we are now able to share our database with other frontends developers. They will no longer have to find a solution for the authentication process and the security of an off chain database. At Steem Messenger™, we believe this factor will make the number of apps in the Steem ecosystem flourish, given the number of possibilities. From data hosting, to any kind of off chain transactions that only requires your identity to be proven.
 
 - **No Active/posting permissions required**
