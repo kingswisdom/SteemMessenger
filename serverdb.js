@@ -30,7 +30,7 @@ exports.getLastMessage = function(data, out){
 
 exports.getLatestMessages = function(data, out){
     var query = latestMessages.find({tags: { $all: [data.user]}});
-    query.limit(1).sort({timestamp:-1}).toArray(function(err, res){
+    query.limit(50).sort({timestamp:1}).toArray(function(err, res){
             out(err, res);
     });
 }
@@ -43,7 +43,8 @@ exports.saveMessage = function(data){
 		"message": data.message,
 		"timestamp": Date.now()
 	});
-    latestMessages.remove({tags: { $all: [data.user, data.to]}});
+    latestMessages.remove({from:data.name, to:data.to});
+    latestMessages.remove({from:data.to, to:data.name});
     latestMessages.insert({
         "from": data.name,
         "to": data.to,

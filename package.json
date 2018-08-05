@@ -7,9 +7,8 @@
   "scripts": {
     "bundle": "browserify ./assets/js/client.js -o ./assets/js/bundle.js"
   },
-  "license": "Apache License 2.0",
+  "license": "MIT",
   "dependencies": {
-    "browserify": "^16.2.0",
     "bufferutil": "^3.0.3",
     "ejs": "^2.5.8",
     "express": "^4.16.3",

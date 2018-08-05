@@ -16,6 +16,7 @@ exports.listen = function(server){
         handleFile(socket);        
         fetchDiscussions(socket);
         handleClear(socket);
+        onIsWriting(socket);
     });
 }
    
@@ -51,10 +52,7 @@ function fetchDiscussion(socket){
 }
 
 function handleOutput(socket, out){
-        db.getLastMessage({
-            user:out.name,
-            receiver:out.to
-        }, function(err, res){
+        db.getLastMessage({user:out.name, receiver:out.to}, function(err, res){
             if(users[out.to] != undefined) {
                 socket.to(users[out.to].id).emit('output', res);
                 return socket.emit('output', res);
@@ -122,5 +120,16 @@ function handleLatestDiscussions(socket, data){
             return socket.emit('latest discussions', res);
         }        
     });
+}
+
+function onIsWriting(socket){
+    socket.on('is writing', function(data){
+        if(users[data.to] != undefined) {
+                socket.to(users[data.to].id).emit('recipient is writing', data);
+            }
+            else{
+            }
+
+    })
 }
 
