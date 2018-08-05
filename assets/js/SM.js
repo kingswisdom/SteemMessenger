@@ -10,7 +10,7 @@ const storage = require('./storage.js');
 var element = function(id){
     return document.getElementById(id);
 }
-var LaraPublicKey = '';
+var LaraPublicKey = 'STM6CoeaohnQBMLYbQU3nkyfGqMeLG68n8MVnf5Zk2dzN2Bocdq43';
 var messages = element('messages');
 var receiverInfo = element("receiver-info");
 var previousDiscussions = element("previousDiscussions");
@@ -131,6 +131,10 @@ exports.handleInput = function(data, out){
             alert("Error : no receiver found !");
         }
     });
+}
+
+exports.recipientIsWriting = function(data){
+    UI.showWhoIsWriting(data);
 }
 
 exports.handleFile = function(data, out){

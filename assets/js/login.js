@@ -2,7 +2,7 @@ const steem = require('steem');
 const storage = require('./storage.js');
 const crypto = require ('./crypto');
 
-var LaraPublicKey = '';
+var LaraPublicKey = 'STM6CoeaohnQBMLYbQU3nkyfGqMeLG68n8MVnf5Zk2dzN2Bocdq43';
 
 exports.firstLogin = function(data, out){
 	steem.api.getAccounts([data.user], function(err, result) {
@@ -30,7 +30,7 @@ exports.firstLogin = function(data, out){
 exports.reLogin = function(data, out){
 	storage.readSafeStorage(data, function(wallet){
         console.log(wallet);
-		if(wallet != undefined){
+		if(wallet.user){
             steem.api.getAccounts([wallet.user], function(err, result) {
                 if(result.length > 0) {
                     pubWif = result[0]["memo_key"];
@@ -43,18 +43,15 @@ exports.reLogin = function(data, out){
                         out({wallet: wallet, encodedContainer: encodedContainer});
                     }
                     else {
-                        console.log("bad memo key");
                         out({error: "bad memo key"});
                     }
                 }
                 else {
-                    console.log("bad account");
                     out({error: "bad account"});    
                 }
             });
 		}
         else{
-            console.log("bad password");
             out({error: "bad password"})
         }
 	})

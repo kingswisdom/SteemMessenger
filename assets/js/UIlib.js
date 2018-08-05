@@ -32,6 +32,7 @@ var loader4 = element("loaderEffect4");
 var loader5 = element("loaderEffect5");
 var loginter = element("login-interface");
 var chatCont = element("chat-container");
+var isWriting = element("isWriting");
 var fileSend = element('fileSend');
 var emojiList = element("emoji-list");
 var emojiContainer = element("emoji-container");
@@ -250,4 +251,20 @@ var notificationSound = new Audio('./audio/light.mp3');
 
   exports.notification = function(){
     notificationSound.play();
+  }
+
+  exports.showIsWriting = function(){
+    isWriting.style.display = "inline";
+  }
+
+  exports.hideIsWriting = function(){
+    isWriting.style.display = "none";
+  }
+
+  exports.isWritingValue = function(data){
+    isWriting.innerHTML = "@" + data.name + " is writing...";
+  }
+
+  exports.isWritingClearValue = function(){
+    isWriting.innerHTML = "";
   }

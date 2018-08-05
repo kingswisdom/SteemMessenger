@@ -65,3 +65,13 @@ exports.onSentShowChatTextArea = function(){
 	UI.focusChatTextInputArea();
 }
 
+exports.showWhoIsWriting = function(data){
+	UI.isWritingValue(data);
+	UI.showIsWriting();
+}
+
+exports.hideWhoIsWriting = function(){
+	UI.isWritingClearValue();
+	UI.hideIsWriting();
+}
+

@@ -10,8 +10,9 @@ exports.createSafeStorage = function(data, passphrase){
 
 exports.readSafeStorage = function(data, wallet){
 	var encryptedWallet = localStorage.getItem(data.user);
-	var decryptedWallet = CryptoJS.AES.decrypt(encryptedWallet, data.passphrase).toString(CryptoJS.enc.Utf8);
+	var decryptedWallet = CryptoJS.AES.decrypt(encryptedWallet, data.passphrase).toString(CryptoJS.enc.Utf8);	
 	var JSON_wallet = JSON.parse(decryptedWallet);
+	console.log(JSON_wallet);
 	wallet(JSON_wallet);
 }
 
