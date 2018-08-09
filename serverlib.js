@@ -17,6 +17,7 @@ exports.listen = function(server){
         fetchDiscussions(socket);
         handleClear(socket);
         onIsWriting(socket);
+        checkSubscription(socket);
     });
 }
    
@@ -45,9 +46,13 @@ function reinitialization(socket){
 
 function fetchDiscussion(socket){
     socket.on('fetchDiscussion', function(data) { 
-        db.getMessages({user:data.name,receiver:data.to}, 50, function(err, res){
-            return socket.emit('output', res);
+        Lara.processRequest(data, function(out){
+            db.getMessages({user:out.name,receiver:out.to}, 50, function(err, res){
+                //TODO : add function to encrypt res before sending it to client
+                return socket.emit('output', res);
+            });
         });
+        
     });
 }
 
@@ -66,7 +71,7 @@ function handleOutput(socket, out){
 
 function handleInput(socket){
     socket.on('input', function(data){
-        if(data.name == '' || data.to == '' || data.message == ''){
+        if(data.message == ''){
             return
         }
         else {
@@ -133,3 +138,20 @@ function onIsWriting(socket){
     })
 }
 
+function checkSubscription(socket){
+    socket.on('checkSubscription', function(data){
+        db.checkSubscription(data, function(err, res){
+            if (res.length){
+                var timeLeft = res.end - Date.now();
+                if(res.name == data.name && timeLeft > 0){
+                    socket.emit('time left', {end: timeLeft});
+                }
+                else{
+                    socket.emit('subscription ended', {end: res.end});
+                }
+            }
+        })
+    })
+}
+
+//TODO : add an encrypt function that will be called before each socket.emit
