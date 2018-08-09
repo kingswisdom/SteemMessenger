@@ -1,5 +1,6 @@
 const steem = require('steem');
 const crypto = require('./assets/js/crypto');
+const db = require('./serverdb.js')
 const LaraPrivateKey = "";
 
 exports.checkLogin = function(data, out){
@@ -50,3 +51,27 @@ exports.checkIdentity = function(data, out){
 		}
 	});
 };
+
+function processRequest = function(data, res){
+	rawContainer = steem.memo.decode(LaraPrivateKey, data.message);
+	raw = rawContainer.split("");
+	raw.shift();
+	raw = raw.join("");
+	var decodedContainer = JSON.parse(raw);
+	steem.api.getAccounts([decodedContainer.user], function(err, result){
+		if(result.length > 0) {
+			pubWif = result[0]["memo_key"];
+			var sessionKeys = crypto.generate_session_keys(LaraPrivateKey, pubWif);
+			console.log(decodedContainer.token);
+			var isvalid = crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
+			if(isvalid) {
+				console.log('Lara : Identity confirmed ! The request will be processed securely to the recipient !')
+				out({name: decodedContainer.user, to: decodedContainer.to});
+			}
+			else {
+				console.log("Lara : Someone just tried to forge a request as @"  + decodedContainer.user);
+				out(undefined);
+			}
+		}
+	});
+}
