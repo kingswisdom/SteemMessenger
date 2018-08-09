@@ -10,7 +10,7 @@ const storage = require('./storage.js');
 var element = function(id){
     return document.getElementById(id);
 }
-var LaraPublicKey = 'STM6CoeaohnQBMLYbQU3nkyfGqMeLG68n8MVnf5Zk2dzN2Bocdq43';
+var LaraPublicKey = '';
 var messages = element('messages');
 var receiverInfo = element("receiver-info");
 var previousDiscussions = element("previousDiscussions");
@@ -54,6 +54,8 @@ exports.passphraseLogin = function(data, result){
         }
     });
 }
+
+
 
 exports.initializeKeys = function(data, out){
     //data.key
@@ -100,7 +102,9 @@ exports.chooseFriend = function(data, out){
             receiverInf.textContent = "@" + data.to;
             receiverInfo.appendChild(receiverInf);
             UIlib.showReceiverInfo();
-            out({receiver: to});
+            var Container = "#" + JSON.stringify({user: data.name, to: data.to, token: authenticationToken});
+            var encodedContainer = steem.memo.encode(data.key, LaraPublicKey, Container);
+            out({encodedmsg: encodedContainer});
         }
         else {
             UIlib.hideLoader2();
