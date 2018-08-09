@@ -90,7 +90,7 @@
 				if(result == "ok"){
 					SM.initializeKeys({user: user, key: key, passphrase: newPassphrase.value}, function(out){
 						keys = {uniquePublic:out.uniquePublic, uniquePrivate:out.uniquePrivate, authenticationKey:out.authenticationKey, encryptionKey: out.encryptionKey};
-						UI.onNewPassphraseShowSuccessScreen(); 
+						UI.onNewPassphraseShowSuccessScreen();
 					});
 				}
 			})
@@ -102,7 +102,7 @@
 				var encodedContainer = result.encodedContainer;
 				user = wallet.user;
 		        key = wallet.privateKey;
-		        keys = {uniquePublic:wallet.uniquePublic, uniquePrivate:wallet.uniquePrivate};
+		        keys = {uniquePublic:wallet.uniquePublic, uniquePrivate:wallet.uniquePrivate, authenticationKey:out.authenticationKey, encryptionKey: out.encryptionKey};
 		        socket.emit('reinitialize', {encodedmsg: encodedContainer});
 		        UI.onValidPassphraseShowLoginSuccessScreen();
 			});
@@ -111,10 +111,9 @@
 		receiver.addEventListener('keydown', function(event){
 			if(event.which === 13 && event.shiftKey == false){
 				if(receiver.value != "") {
-					SM.chooseFriend({to:receiver.value}, function(out){
-						recipient = out.receiver;
+					SM.chooseFriend({name:user, to:receiver.value, key: key, keys: keys}, function(out){
 						receiver.value = "";
-						return socket.emit('fetchDiscussion', {name:user,to:recipient});
+						return socket.emit('fetchDiscussion', {message: out.encodedmsg});
 					});
 				}
 			}
@@ -159,8 +158,7 @@
 			if(event.which === 13 && event.shiftKey == false){
 				if(textarea.value != "") {
 					SM.handleInput({user:user,receiver:recipient,key:key,uniquePrivate:keys.uniquePrivate,message:textarea.value}, function(out){
-						encoded = out.encodedmsg;
-						return socket.emit('input', {name:user,	to:recipient, message:encoded});
+						return socket.emit('input', {message:out.encodedmsg});
 					});
 				}
 			}
