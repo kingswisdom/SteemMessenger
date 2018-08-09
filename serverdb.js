@@ -12,6 +12,7 @@ mongo.connect(url, function(err, db){
 
 var chat = db.collection('chats');
 var latestMessages = db.collection('latestMessages');
+var subscriptions = db.collection('subscriptions');
 
 exports.getMessages = function(data, limit, out){
 	var query = chat.find({tags: { $all: [data.user, data.receiver]}});
@@ -56,6 +57,23 @@ exports.saveMessage = function(data){
 
 exports.deleteDiscussion = function(data){
 	chat.remove({from:data.name, to:data.to});
+    latestMessages.remove({from:data.name});
 }
 
+exports.setSubscription = function(data){
+    subscriptions.remove({name: data.name});
+    subscriptions.insert({
+        "name": data.name,
+        "plan": data.plan,
+        "timestamp": Date.now(),
+        "end": Date.now() + 2678400000 //TODO : make this time a variable (in order to change it dynamically for different paid plans)
+    })
+}
+
+exports.checkSubscription = function(data, out){
+    var query = subscriptions.find({name: data.name});
+    query.limit(1).sort({timestamp:1}).toArray(function(err,res){
+        out(err, res);
+    })
+}
 });
