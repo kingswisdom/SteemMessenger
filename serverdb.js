@@ -57,7 +57,7 @@ exports.saveMessage = function(data){
 
 exports.deleteDiscussion = function(data){
 	chat.remove({from:data.name, to:data.to});
-    latestMessages.remove({from:data.name});
+    latestMessages.remove({from:data.name, to:data.to});
 }
 
 exports.setSubscription = function(data){
@@ -73,7 +73,8 @@ exports.setSubscription = function(data){
 exports.checkSubscription = function(data, out){
     var query = subscriptions.find({name: data.name});
     query.limit(1).sort({timestamp:1}).toArray(function(err,res){
-        out(err, res);
+        console.log(res)
+        out(res);
     })
 }
 });
