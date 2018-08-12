@@ -41,6 +41,7 @@ exports.onValidPassphraseShowLoginSuccessScreen = function(){
 }
 
 exports.returnToPreviousDiscussions = function(){
+    UI.hideNotSubscribed();
     UI.clearPreviousDiscussions();
 	UI.hideChatContainer();
 	UI.hideReceiverInfo();
@@ -51,6 +52,10 @@ exports.returnToPreviousDiscussions = function(){
 	UI.clearMessages();
 	UI.clearReceiverPicture();
 	UI.clearReceiverInf();
+}
+
+exports.onNotSubscribed = function(){
+	UI.showNotSubscribed();
 }
 
 exports.onSendHideChatTextArea = function(){
