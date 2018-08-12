@@ -28,6 +28,7 @@ function initialization(socket){
             console.log(out.name + " is connected !");
             socket.emit('logged');
             return handleLatestDiscussions(socket, {name: out.name});
+                        
         })
         
     });
@@ -39,6 +40,7 @@ function reinitialization(socket){
             users[out.name] = {"id": socket.id};
             console.log(out.name + " is connected !");
             return handleLatestDiscussions(socket, {name: out.name});
+    
         })
         
     });
@@ -76,6 +78,9 @@ function handleInput(socket){
         }
         else {
             Lara.checkIdentity(data, function(out){
+                if(out.error == "not subscribed"){
+                    return socket.emit("not subscribed")
+                }
                 if(out != undefined) {
                     console.log("Incoming message from @" + out.name + " to @" + out.to);
                     db.saveMessage({name: out.name, to: out.to, message: out.message});
