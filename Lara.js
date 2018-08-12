@@ -1,7 +1,7 @@
 const steem = require('steem');
 const crypto = require('./assets/js/crypto');
 const db = require('./serverdb.js')
-const LaraPrivateKey = "5KbdQtvyt9pMBv37RapH8D8WmRCmGyo8e7kXsRnybqjicgu9WSp";
+const LaraPrivateKey = "";
 
 exports.checkLogin = function(data, out){
 	console.log("server side calling crypto");
