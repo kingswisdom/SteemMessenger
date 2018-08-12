@@ -143,6 +143,10 @@
 			}
 		});
 
+		socket.on('not subscribed', function(){
+			UI.onNotSubscribed();
+		})
+
 		socket.on('recipient is writing', function(data){
 			if(data.name == recipient){
 				SM.recipientIsWriting(data);
