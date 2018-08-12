@@ -102,7 +102,7 @@
 				var encodedContainer = result.encodedContainer;
 				user = wallet.user;
 		        key = wallet.privateKey;
-		        keys = {uniquePublic:wallet.uniquePublic, uniquePrivate:wallet.uniquePrivate, authenticationKey:out.authenticationKey, encryptionKey: out.encryptionKey};
+		        keys = {uniquePublic:wallet.uniquePublic, uniquePrivate:wallet.uniquePrivate, authenticationKey:wallet.authenticationKey, encryptionKey: wallet.encryptionKey};		  
 		        socket.emit('reinitialize', {encodedmsg: encodedContainer});
 		        UI.onValidPassphraseShowLoginSuccessScreen();
 			});
@@ -111,7 +111,9 @@
 		receiver.addEventListener('keydown', function(event){
 			if(event.which === 13 && event.shiftKey == false){
 				if(receiver.value != "") {
+					console.log(key);
 					SM.chooseFriend({name:user, to:receiver.value, key: key, keys: keys}, function(out){
+						recipient = out.to;
 						receiver.value = "";
 						return socket.emit('fetchDiscussion', {message: out.encodedmsg});
 					});
@@ -199,9 +201,9 @@
 		});
 
 		exports.fetchDiscussion = function(data){
-			SM.chooseFriend({to:data.receiver}, function(out){
+			SM.chooseFriend({to:data.receiver, name:user, key: key, keys: keys}, function(out){
 				recipient = out.receiver;
-				return socket.emit('fetchDiscussion', {name:user,to:recipient});
+				return socket.emit('fetchDiscussion', {message: out.encodedmsg});
 			});
 		}
 
