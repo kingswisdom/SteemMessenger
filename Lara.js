@@ -1,7 +1,7 @@
 const steem = require('steem');
 const crypto = require('./assets/js/crypto');
 const db = require('./serverdb.js')
-const LaraPrivateKey = "";
+const LaraPrivateKey = "5KbdQtvyt9pMBv37RapH8D8WmRCmGyo8e7kXsRnybqjicgu9WSp";
 
 exports.checkLogin = function(data, out){
 	console.log("server side calling crypto");
@@ -52,7 +52,7 @@ exports.checkIdentity = function(data, out){
 	});
 };
 
-function processRequest = function(data, res){
+exports.processRequest = function(data, out){
 	rawContainer = steem.memo.decode(LaraPrivateKey, data.message);
 	raw = rawContainer.split("");
 	raw.shift();
