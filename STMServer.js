@@ -6,7 +6,7 @@ const memoError = "Invalid amount : Send 1 or 5 SBD to complete your subscriptio
 
 exports.start = function(){
 	streamBlockchain();
-}:
+}
 
 function streamBlockchain(){
 	steem.api.streamOperations("head", function(err, result) {
