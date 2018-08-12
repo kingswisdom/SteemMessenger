@@ -102,9 +102,12 @@ exports.chooseFriend = function(data, out){
             receiverInf.textContent = "@" + data.to;
             receiverInfo.appendChild(receiverInf);
             UIlib.showReceiverInfo();
+            console.log(data.key);
+            var sessionKeys = crypto.generate_session_keys(data.key, LaraPublicKey);
+            var authenticationToken = crypto.authentication_token(sessionKeys.authenticationKey);
             var Container = "#" + JSON.stringify({user: data.name, to: data.to, token: authenticationToken});
             var encodedContainer = steem.memo.encode(data.key, LaraPublicKey, Container);
-            out({encodedmsg: encodedContainer});
+            out({to: to, encodedmsg: encodedContainer});
         }
         else {
             UIlib.hideLoader2();
