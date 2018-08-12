@@ -379,6 +379,7 @@ exports.onValidPassphraseShowLoginSuccessScreen = function(){
 }
 
 exports.returnToPreviousDiscussions = function(){
+    UI.hideNotSubscribed();
     UI.clearPreviousDiscussions();
 	UI.hideChatContainer();
 	UI.hideReceiverInfo();
@@ -389,6 +390,10 @@ exports.returnToPreviousDiscussions = function(){
 	UI.clearMessages();
 	UI.clearReceiverPicture();
 	UI.clearReceiverInf();
+}
+
+exports.onNotSubscribed = function(){
+	UI.showNotSubscribed();
 }
 
 exports.onSendHideChatTextArea = function(){
@@ -441,6 +446,7 @@ var passphraseSelectorScreen = element('passphraseSelectorScreen');
 var createPassphraseBtn = element("createPassphraseBtn");
 var logsucc = element("login-success");
 var splash = element("splash");
+var notSubscribed = element("notSubscribed");
 var loader0 = element("loaderEffect0");
 var loader1 = element("loaderEffect1");
 var loader2 = element("loaderEffect2");
@@ -573,6 +579,13 @@ var notificationSound = new Audio('./audio/light.mp3');
     previousDiscussions.innerHTML = "";
   }
 
+  exports.showNotSubscribed = function(){
+    notSubscribed.style.display = "block";
+  }
+
+  exports.hideNotSubscribed = function(){
+    notSubscribed.style.display = "none";
+  }
   
 /*-------------------------------
 ------------Buttons--------------
@@ -831,6 +844,10 @@ var notificationSound = new Audio('./audio/light.mp3');
 				}
 			}
 		});
+
+		socket.on('not subscribed', function(){
+			UI.onNotSubscribed();
+		})
 
 		socket.on('recipient is writing', function(data){
 			if(data.name == recipient){
