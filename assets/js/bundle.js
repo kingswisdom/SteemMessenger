@@ -103,9 +103,12 @@ exports.chooseFriend = function(data, out){
             receiverInf.textContent = "@" + data.to;
             receiverInfo.appendChild(receiverInf);
             UIlib.showReceiverInfo();
+            console.log(data.key);
+            var sessionKeys = crypto.generate_session_keys(data.key, LaraPublicKey);
+            var authenticationToken = crypto.authentication_token(sessionKeys.authenticationKey);
             var Container = "#" + JSON.stringify({user: data.name, to: data.to, token: authenticationToken});
             var encodedContainer = steem.memo.encode(data.key, LaraPublicKey, Container);
-            out({encodedmsg: encodedContainer});
+            out({to: to, encodedmsg: encodedContainer});
         }
         else {
             UIlib.hideLoader2();
@@ -788,7 +791,7 @@ var notificationSound = new Audio('./audio/light.mp3');
 				var encodedContainer = result.encodedContainer;
 				user = wallet.user;
 		        key = wallet.privateKey;
-		        keys = {uniquePublic:wallet.uniquePublic, uniquePrivate:wallet.uniquePrivate, authenticationKey:out.authenticationKey, encryptionKey: out.encryptionKey};
+		        keys = {uniquePublic:wallet.uniquePublic, uniquePrivate:wallet.uniquePrivate, authenticationKey:wallet.authenticationKey, encryptionKey: wallet.encryptionKey};		  
 		        socket.emit('reinitialize', {encodedmsg: encodedContainer});
 		        UI.onValidPassphraseShowLoginSuccessScreen();
 			});
@@ -797,7 +800,9 @@ var notificationSound = new Audio('./audio/light.mp3');
 		receiver.addEventListener('keydown', function(event){
 			if(event.which === 13 && event.shiftKey == false){
 				if(receiver.value != "") {
+					console.log(key);
 					SM.chooseFriend({name:user, to:receiver.value, key: key, keys: keys}, function(out){
+						recipient = out.to;
 						receiver.value = "";
 						return socket.emit('fetchDiscussion', {message: out.encodedmsg});
 					});
@@ -885,9 +890,9 @@ var notificationSound = new Audio('./audio/light.mp3');
 		});
 
 		exports.fetchDiscussion = function(data){
-			SM.chooseFriend({to:data.receiver}, function(out){
+			SM.chooseFriend({to:data.receiver, name:user, key: key, keys: keys}, function(out){
 				recipient = out.receiver;
-				return socket.emit('fetchDiscussion', {name:user,to:recipient});
+				return socket.emit('fetchDiscussion', {message: out.encodedmsg});
 			});
 		}
 
