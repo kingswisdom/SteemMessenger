@@ -4,6 +4,10 @@ const steem = require("steem");
 const owner = "steem-messenger";
 const memoError = "Invalid amount : Send 1 or 5 SBD to complete your subscription. Please refer to our website for pricing";
 
+const specialEvent = "off";
+
+const specialEvent_Permlink = "";
+
 exports.start = function(){
 	streamBlockchain();
 }
@@ -19,6 +23,7 @@ function streamBlockchain(){
 					var amount = result[1].amount;
 					if (account == "steem-messenger"){
 						if (amount == "1.000 SBD"){
+							console.log(account + " has subscribed");
 							db.setSubscription({name: sender, plan: 1});
 						}
 						/*if (amount == "5.000 SBD"){
@@ -45,6 +50,14 @@ function streamBlockchain(){
 							}
 						});
 					}
+		        }
+		        if(specialEvent == "on"){
+		        	if(result[0] == 'custom_json'){
+						var ope = JSON.parse(result[1].json)
+						if (ope[0] == "reblog" && ope[1].author == "steem-messenger" && ope[1].permlink == specialEvent_Permlink){
+							console.log()
+						}
+			}
 		        }
 	    	}
 	    }    
