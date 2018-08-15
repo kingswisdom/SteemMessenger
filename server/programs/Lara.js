@@ -1,6 +1,6 @@
 const steem = require('steem');
-const crypto = require('./assets/js/crypto');
-const db = require('./serverdb.js')
+const crypto = require('../crypto');
+const db = require('./db.js')
 const LaraPrivateKey = "";
 
 exports.checkLogin = function(data, out){
@@ -36,7 +36,6 @@ exports.checkIdentity = function(data, out){
 	raw = raw.join("");
 	var decodedContainer = JSON.parse(raw);
 	steem.api.getAccounts([decodedContainer.user], function(err, result){
-
 		if(result.length > 0) {
 			db.checkSubscription({name: decodedContainer.user}, function(res){
 				console.log(decodedContainer.user)
