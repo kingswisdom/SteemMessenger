@@ -1,4 +1,4 @@
-const db = require('./serverdb.js');
+const db = require('./db.js');
 const steem = require("steem");
 
 const owner = "steem-messenger";
