@@ -1,9 +1,9 @@
 const app = require('express')();
 const express = require('express');
 const path = require('path');
-const serverLib = require('./serverlib.js');
+const serverLib = require('./server/serverlib.js');
 //const apiServerLib = require('./apiServerLib.js')
-const STMServer = require('./STMServer.js');
+const STMServer = require('./server/programs/STMServer.js');
 const ejs = require('ejs');
 const PORT = process.env.PORT || 4000;
 //const apiPORT = 3000;
@@ -19,8 +19,8 @@ apiServerLib.listen(server);*/ //TODO : Create apiServerLib.js
 
 STMServer.start();
 
-app.use(express.static(path.join(__dirname, './assets')));
+app.use(express.static(path.join(__dirname, './view')));
 app.set('view engine', 'ejs');
 app.get("/", function(req, res) {
-    res.render("../assets/index.ejs")
+    res.render("../view/pages/index.ejs")
 });
