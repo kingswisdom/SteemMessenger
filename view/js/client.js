@@ -57,70 +57,6 @@
 	if(socket !== undefined){
 		console.log('Connection to server successful!');
 
-		app.addEventListener("click",function(e) {
-			if(e.target) {
-				console.log(e.target.id);
-				 /*switch(e.target.id) {
-				    case "start":
-				      	return SM.checkIfAlreadyConnected();
-
-				    case "login":
-				      	SM.login({user:username.value, privWif:privMemoKey.value}, function(result){
-							user = result.user;
-							key = result.key;
-							return socket.emit('initialize', {encodedmsg: result.encodedmsg});
-						});
-
-				    case "PassphraseLoginBtn":
-				      	return cmd.getLastPost(message);
-
-				    case "returnToSelection":
-				      	return cmd.getLastPost(message);
-
-				    case "createPassphraseBtn":
-				      	return cmd.getLastPost(message)
-
-				    case "emoji-list":
-				      	return cmd.getLastPost(message);
-
-				    case "clear":
-				      	return cmd.getLastPost(message);
-
-				    default:
-					    if (command.startsWith("curate")) {
-					    	return cmd.curateArticle(message);
-					    }
-
-					    console.log('Unknown command');
-				  }*/
-			}
-		});
-
-		/*socket.on('safeSocket', function(data){
-			Lara.decodeSafeSocket(data, function(out){
-				if(out.operation !== undefined){
-					switch(out.operation) {
-				    	case "logged":
-				      		return SM.checkIfAlreadyConnected();
-				      	case "latest discussions":
-				      		return SM.checkIfAlreadyConnected();
-				      	case "output":
-				      		return SM.checkIfAlreadyConnected();
-				      	case "not subscribed":
-				      		return SM.checkIfAlreadyConnected();
-				      	case "recipient is writing":
-				      		return SM.checkIfAlreadyConnected();
-				      	case "file output":
-				      		return SM.checkIfAlreadyConnected();
-				      	case "cleared":
-				      		return SM.checkIfAlreadyConnected();
-
-				    }					
-				}
-			})
-		});*/
-
-
 		DaButton.addEventListener('click', function(){
 			if(chatOpen == 1){
 				document.getElementById("DaChat").style.display = "none";
@@ -146,43 +82,71 @@
 				document.getElementById("emoji-container").style.display = "block";
 			}
 		});
-		
-		startBtn.addEventListener('click', function(){
-			SM.checkIfAlreadyConnected();
-		});
 
-		loginBtn.addEventListener('click', function() {
-			SM.login({user:username.value, privWif:privMemoKey.value}, function(result){
-				user = result.user;
-				key = result.key;
-				return socket.emit('initialize', {encodedmsg: result.encodedmsg});
-			});
-		});
+		app.addEventListener("click",function(e) {
+			if(e.target) {
+				console.log(e.target.id);
+				 switch(e.target.id) {
+				    case "start":
+				      	return SM.checkIfAlreadyConnected();
 
-		createPassphraseBtn.addEventListener('click', function(){
-			SM.createWalletPassphrase({pass1: newPassphrase.value, pass2: newPassphrase2.value}, function(result){
-				if(result == "unmatching passphrases"){
-					UI.onPassphraseUnmatchShowError();
-				}
-				if(result == "ok"){
-					SM.initializeKeys({user: user, key: key, passphrase: newPassphrase.value}, function(out){
-						keys = {uniquePublic:out.uniquePublic, uniquePrivate:out.uniquePrivate, authenticationKey:out.authenticationKey, encryptionKey: out.encryptionKey};
-						UI.onNewPassphraseShowSuccessScreen();
-					});
-				}
-			})
-		});
+				    case "login":
+				      	SM.login({user:username.value, privWif:privMemoKey.value}, function(result){
+							user = result.user;
+							key = result.key;
+							return socket.emit('initialize', {encodedmsg: result.encodedmsg});
+						});
 
-		passphraseLoginBtn.addEventListener('click', function() {
-			SM.passphraseLogin({user:passphraseUsername.value, passphrase:passphrase.value}, function(result){
-				var wallet = result.wallet;
-				var encodedContainer = result.encodedContainer;
-				user = wallet.user;
-		        key = wallet.privateKey;
-		        keys = {uniquePublic:wallet.uniquePublic, uniquePrivate:wallet.uniquePrivate, authenticationKey:wallet.authenticationKey, encryptionKey: wallet.encryptionKey};		  
-		        socket.emit('reinitialize', {encodedmsg: encodedContainer});
-		        UI.onValidPassphraseShowLoginSuccessScreen();
-			});
+				    case "createPassphraseBtn":
+				      	SM.createWalletPassphrase({pass1: newPassphrase.value, pass2: newPassphrase2.value}, function(result){
+							if(result == "unmatching passphrases"){
+								UI.onPassphraseUnmatchShowError();
+							}
+							if(result == "ok"){
+								SM.initializeKeys({user: user, key: key, passphrase: newPassphrase.value}, function(out){
+									keys =  {
+											uniquePublic: out.uniquePublic,
+											uniquePrivate: out.uniquePrivate,
+											authenticationKey: out.authenticationKey,
+											encryptionKey: out.encryptionKey
+											};
+									UI.onNewPassphraseShowSuccessScreen();
+								});
+							}
+						});
+
+				    case "returnToSelection":
+						UI.returnToPreviousDiscussions();
+						recipient = undefined;						
+				      	return socket.emit('fetchDiscussions', {name:user});
+
+				    case "PassphraseLoginBtn":
+				      	SM.passphraseLogin({user:passphraseUsername.value, passphrase:passphrase.value}, function(result){
+							var wallet = result.wallet;
+							var encodedContainer = result.encodedContainer;
+							user = wallet.user;
+					        key = wallet.privateKey;
+					        keys =  {
+					        		uniquePublic: wallet.uniquePublic,
+					        		uniquePrivate: wallet.uniquePrivate, 
+					        		authenticationKey: wallet.authenticationKey, 
+					        		encryptionKey: wallet.encryptionKey
+					        		};		  
+					        socket.emit('reinitialize', {encodedmsg: encodedContainer});
+					        UI.onValidPassphraseShowLoginSuccessScreen();
+						});
+
+				    case "emoji-list":
+				      	if(e.target && e.target.nodeName == "LI"){
+				      		return textarea.value = textarea.value + " " + e.target.innerHTML;
+				      	}
+
+				    case "clear":
+				      	messages.innerHTML = "";
+				      	return socket.emit('clear', {name:user,to:recipient});
+
+				  }
+			}
 		});
 
 		passphrase.addEventListener('keydown', function(event){
@@ -199,10 +163,6 @@
 			}
 		});
 
-		/*settingsBtn.addEventListener('click', function(){
-			UI.openSettings();
-		});*/
-
 		receiver.addEventListener('keydown', function(event){
 			if(event.which === 13 && event.shiftKey == false){
 				if(receiver.value != "") {
@@ -214,6 +174,58 @@
 				}
 			}
 		});
+
+		textarea.addEventListener('keydown', function(event){
+			socket.emit('is writing', {name:user, to:recipient});
+			if(event.which === 13 && event.shiftKey == false){
+				if(textarea.value != "") {
+					SM.handleInput({user:user,receiver:recipient,key:key,uniquePrivate:keys.uniquePrivate,message:textarea.value}, function(out){
+						return socket.emit('input', {message:out.encodedmsg});
+					});
+				}
+			}
+		});
+
+		fileSend.addEventListener("change", function () {
+			if(this.files[0].size > 100000){
+				this.value = "";
+		        return alert("File is too big!");
+		    } 
+		    else {
+				var file = this.files[0];
+				var reader = new FileReader();
+				reader.onloadend = function() {
+		    		SM.handleFile({user:user, receiver:recipient, key:key, uniquePrivate:keys.uniquePrivate, file:reader.result}, function(out){
+		    			return socket.emit('file input', {message: out.encodedfile});
+		    		});
+		    	}
+		    	reader.readAsDataURL(file);
+		    }
+		});
+
+		/*socket.on('safeSocket', function(data){
+			Lara.decodeSafeSocket(data, function(out){
+				if(out.operation !== undefined){
+					switch(out.operation) {
+				    	case "logged":
+				      		return 
+				      	case "latest discussions":
+				      		return 
+				      	case "output":
+				      		return 
+				      	case "not subscribed":
+				      		return 
+				      	case "recipient is writing":
+				      		return 
+				      	case "file output":
+				      		return 
+				      	case "cleared":
+				      		return 
+
+				    }					
+				}
+			})
+		});*/
 
 		socket.on('logged', function(){
 			UI.onFirstLoginShowPassphraseSelectorScreen(); 
@@ -252,42 +264,9 @@
 			}
 		});
 
-		textarea.addEventListener('keydown', function(event){
-			socket.emit('is writing', {name:user, to:recipient});
-			if(event.which === 13 && event.shiftKey == false){
-				if(textarea.value != "") {
-					SM.handleInput({user:user,receiver:recipient,key:key,uniquePrivate:keys.uniquePrivate,message:textarea.value}, function(out){
-						return socket.emit('input', {message:out.encodedmsg});
-					});
-				}
-			}
-		});
-
-
-
-		fileSend.addEventListener("change", function () {
-			if(this.files[0].size > 100000){
-				this.value = "";
-		        return alert("File is too big!");
-		    } 
-		    else {
-				var file = this.files[0];
-				var reader = new FileReader();
-				reader.onloadend = function() {
-		    		SM.handleFile({user:user, receiver:recipient, key:key, uniquePrivate:keys.uniquePrivate, file:reader.result}, function(out){
-		    			return socket.emit('file input', {message: out.encodedfile});
-		    		});
-		    	}
-		    	reader.readAsDataURL(file);
-		    }
-		});
-
-
-		emojiList.addEventListener("click",function(e) {
-			if(e.target && e.target.nodeName == "LI") {
-				textarea.value = textarea.value + " " + e.target.innerHTML;
-			}
-		});
+		socket.on('cleared', function(){
+			messages.innerHTML = "";
+		});		
 
 		exports.fetchDiscussion = function(data){
 			SM.chooseFriend({to:data.receiver, name:user, key: key, keys: keys}, function(out){
@@ -295,24 +274,5 @@
 				return socket.emit('fetchDiscussion', {message: out.encodedmsg});
 			});
 		}
-
-		returnToSelection.addEventListener('click', function(){
-			socket.emit('fetchDiscussions', {name:user});
-			UI.returnToPreviousDiscussions();
-			recipient = undefined;
-		});
-
-		clearBtn.addEventListener('click', function(){
-			messages.innerHTML = "";
-			return socket.emit('clear', {
-				name:user,
-				to:recipient
-			});
-		});
-
-		socket.on('cleared', function(){
-			messages.innerHTML = "";
-		});
-
 	}
 })(jQuery);
