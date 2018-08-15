@@ -1,6 +1,6 @@
 const socketIO = require('socket.io');
-const db = require('./serverdb.js');
-const Lara = require('./Lara.js');
+const db = require('./programs/db.js');
+const Lara = require('./programs/Lara.js');
 
 var io;
 
@@ -95,17 +95,21 @@ function handleInput(socket){
 
 function handleFile(socket){
     socket.on('file input', function(data){
-        if(data.name == '' || data.file == '' || data.to == ''){
+        if(data.message == ''){
             return
         }
         else{
-            if(users[data.to] != undefined) {
-                socket.to(users[data.to].id).emit('file output', data);
-                return socket.emit('file output', data);
-            }
-            else{
-                return socket.emit('file output', data);
-            }
+            Lara.checkIdentity(data, function(out){
+                if(users[out.to] != undefined) {
+                    db.saveMessage({name: out.name, to: out.to, message: out.message});
+                    socket.to(users[out.to].id).emit('file output', out);
+                    return socket.emit('file output', out);
+                }
+                else{
+                    db.saveMessage({name: out.name, to: out.to, message: out.message});
+                    return socket.emit('file output', out);
+                }
+            });
         }
     })
 }   
