@@ -1,6 +1,33 @@
 var UI = require('./UIlib.js')
 
+var chatOpen;
+var emojiBoxOpen;
 
+exports.switchAppDisplay = function(){
+	if(chatOpen == 1){
+		document.getElementById("DaChat").style.display = "none";
+		$(".app").removeClass("full");
+		chatOpen = 0;
+	}
+	else {
+		chatOpen = 1;
+		$(".app").addClass("full");
+		document.getElementById("DaChat").style.display = "block";
+	}
+}
+
+exports.switchEmojisBoxDisplay = function(){
+	if(emojiBoxOpen == 1){
+		document.getElementById("emoji-container").style.display = "none";
+		$(".emojiBox").removeClass("full");
+		emojiBoxOpen = 0;
+	}
+	else {
+		emojiBoxOpen = 1;
+		$(".emojiBox").addClass("full");
+		document.getElementById("emoji-container").style.display = "block";
+	}
+}
 
 exports.onNotConnectedShowLoginInterface = function(){
 	UI.hideSplash();
