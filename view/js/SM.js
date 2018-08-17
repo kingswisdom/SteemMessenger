@@ -10,7 +10,7 @@ const storage = require('./storage.js');
 var element = function(id){
     return document.getElementById(id);
 }
-var LaraPublicKey = 'STM6CoeaohnQBMLYbQU3nkyfGqMeLG68n8MVnf5Zk2dzN2Bocdq43';
+var LaraPublicKey = 'STM8WW8JsjbcRhYhyjLuEbvYamMzPfZQzPB3fWK24hC5ibcSGP56V';
 var messages = element('messages');
 var receiverInfo = element("receiver-info");
 var previousDiscussions = element("previousDiscussions");
@@ -98,11 +98,7 @@ exports.chooseFriend = function(data, out){
             receiverInf.textContent = "@" + data.to;
             receiverInfo.appendChild(receiverInf);
             UIlib.showReceiverInfo();
-            var sessionKeys = crypto.generate_session_keys(data.key, LaraPublicKey);
-            var authenticationToken = crypto.authentication_token(sessionKeys.authenticationKey);
-            var Container = "#" + JSON.stringify({user: data.name, to: data.to, token: authenticationToken});
-            var encodedContainer = steem.memo.encode(data.key, LaraPublicKey, Container);
-            out({to: to, encodedmsg: encodedContainer});
+            out({to: to});
         }
         else {
             UIlib.hideLoader2();
@@ -120,11 +116,7 @@ exports.handleInput = function(data, out){
             var texte = "#" + data.message;
             var privateMemoKey = data.key;
             var encoded = steem.memo.encode(data.uniquePrivate, publicMemoReceiver, texte);
-            var sessionKeys = crypto.generate_session_keys(privateMemoKey, LaraPublicKey);
-            var authenticationToken = crypto.authentication_token(sessionKeys.authenticationKey);
-            var Container = "#" + JSON.stringify({user: data.user, to: data.receiver, token: authenticationToken, message: encoded});
-            var encodedContainer = steem.memo.encode(privateMemoKey, LaraPublicKey, Container);
-            out({encodedmsg: encodedContainer});
+            out({encodedmsg: encoded});
         }
         else {
             UIlib.showChatTextInputArea();
@@ -146,11 +138,7 @@ exports.handleFile = function(data, out){
             var publicMemoReceiver = result[0]["memo_key"];
             var file = "#" + data.file;
             var encoded = steem.memo.encode(data.uniquePrivate, publicMemoReceiver, file);
-            var sessionKeys = crypto.generate_session_keys(data.key, LaraPublicKey);
-            var authenticationToken = crypto.authentication_token(sessionKeys.authenticationKey);
-            var Container = "#" + JSON.stringify({user: data.user, to: data.receiver, token: authenticationToken, message: encoded});
-            var encodedContainer = steem.memo.encode(data.key, LaraPublicKey, Container);
-            out({encodedfile: encodedContainer});
+            out({encodedfile: encoded});
         }
         else {
             UIlib.hideLoader3();
@@ -161,7 +149,8 @@ exports.handleFile = function(data, out){
     });
 }
 
-exports.appendMessages = function(data, ind){
+exports.appendMessages = function(rawdata, ind){
+    var data = rawdata.message;
     for(var x = 0;x < data.length;x++){
         var raw = data[x].message;
         var author = data[x].from;
@@ -221,7 +210,8 @@ exports.appendMessages = function(data, ind){
 }
 
 
-exports.appendDiscussions = function(data, ind){
+exports.appendDiscussions = function(rawdata, ind){
+    var data = rawdata.message
     var discussionPicture;
     if(data.length){
         for(var x = 0;x < data.length;x++){
@@ -290,10 +280,11 @@ exports.appendDiscussions = function(data, ind){
 }
 
 exports.appendFile = function(data, ind){
-    var raw = data.file;
-    var author = data.name;
+    console.log(data)
+    var raw = data.message;
+    var author = data.user;
     author1 = author.toString();
-    var decoded = steem.memo.decode(ind.key, raw);
+    var decoded = steem.memo.decode(ind.uniqueKey, raw);
     var decodedFinal = decoded.split("");
     decodedFinal.shift();
     var decodedFinal = decodedFinal.join("");
@@ -309,7 +300,7 @@ exports.appendFile = function(data, ind){
         messageImage.setAttribute("width", "170");
         messages.appendChild(message);
         message.appendChild(messageImage);
-        UI.showChatTextInputArea();
+        UIlib.showChatTextInputArea();
         messages.scrollTop = messages.scrollHeight;
     }
     if(author1 == ind.receiver){
