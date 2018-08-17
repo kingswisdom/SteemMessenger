@@ -2,11 +2,12 @@
 	const io = require('socket.io-client');
 	const SM = require('./SM.js');
 	const UI = require('./UI.js');
+	const Lara = require('./Lara-client.js')
 
 	var element = function(id){
 		return document.getElementById(id);
 	}
-
+	var body = element('thisisit');
 	var DaButton = element('DaButton');
 	var app = element('app');
 	var returnToSelection = element('returnToSelection');
@@ -50,140 +51,96 @@
 	var recipient;
 	var socket = io.connect();
 	var keys;
-	var chatOpen;
-	var emojiBoxOpen;
 
 	// Check for connection
 	if(socket !== undefined){
 		console.log('Connection to server successful!');
 
-		DaButton.addEventListener('click', function(){
-			if(chatOpen == 1){
-				document.getElementById("DaChat").style.display = "none";
-				$(".app").removeClass("full");
-				chatOpen = 0;
-			}
-			else {
-				chatOpen = 1;
-				$(".app").addClass("full");
-				document.getElementById("DaChat").style.display = "block";
-			}
-		});
-
-		emojiBtn.addEventListener('click', function(){
-			if(emojiBoxOpen == 1){
-				document.getElementById("emoji-container").style.display = "none";
-				$(".emojiBox").removeClass("full");
-				emojiBoxOpen = 0;
-    		} 
-			else {
-				emojiBoxOpen = 1;
-				$(".emojiBox").addClass("full");
-				document.getElementById("emoji-container").style.display = "block";
-			}
-		});
-
-		app.addEventListener("click",function(e) {
+		body.addEventListener("click",function(e) {
 			if(e.target) {
-				console.log(e.target.id);
-				 switch(e.target.id) {
-				    case "start":
-				      	return SM.checkIfAlreadyConnected();
+				switch(e.target.id) {
+					case "start":
+						return SM.checkIfAlreadyConnected();
 
-				    case "login":
-				      	SM.login({user:username.value, privWif:privMemoKey.value}, function(result){
-							user = result.user;
-							key = result.key;
-							return socket.emit('initialize', {encodedmsg: result.encodedmsg});
-						});
+					case "login":
+						return login();
 
-				    case "createPassphraseBtn":
-				      	SM.createWalletPassphrase({pass1: newPassphrase.value, pass2: newPassphrase2.value}, function(result){
-							if(result == "unmatching passphrases"){
-								UI.onPassphraseUnmatchShowError();
-							}
-							if(result == "ok"){
-								SM.initializeKeys({user: user, key: key, passphrase: newPassphrase.value}, function(out){
-									keys =  {
-											uniquePublic: out.uniquePublic,
-											uniquePrivate: out.uniquePrivate,
-											authenticationKey: out.authenticationKey,
-											encryptionKey: out.encryptionKey
-											};
-									UI.onNewPassphraseShowSuccessScreen();
-								});
-							}
-						});
+					case "createPassphraseBtn":
+						return createPassphrase();
 
-				    case "returnToSelection":
-						UI.returnToPreviousDiscussions();
-						recipient = undefined;						
-				      	return socket.emit('fetchDiscussions', {name:user});
+					case "returnToSelection":
+						return returnToPreviousDiscussions();						
 
 				    case "PassphraseLoginBtn":
-				      	SM.passphraseLogin({user:passphraseUsername.value, passphrase:passphrase.value}, function(result){
-							var wallet = result.wallet;
-							var encodedContainer = result.encodedContainer;
-							user = wallet.user;
-					        key = wallet.privateKey;
-					        keys =  {
-					        		uniquePublic: wallet.uniquePublic,
-					        		uniquePrivate: wallet.uniquePrivate, 
-					        		authenticationKey: wallet.authenticationKey, 
-					        		encryptionKey: wallet.encryptionKey
-					        		};		  
-					        socket.emit('reinitialize', {encodedmsg: encodedContainer});
-					        UI.onValidPassphraseShowLoginSuccessScreen();
-						});
-
-				    case "emoji-list":
-				      	if(e.target && e.target.nodeName == "LI"){
-				      		return textarea.value = textarea.value + " " + e.target.innerHTML;
-				      	}
+				    	return passphraseLogin();				    	
 
 				    case "clear":
-				      	messages.innerHTML = "";
-				      	return socket.emit('clear', {name:user,to:recipient});
+				    	return clearMessages();
 
-				  }
-			}
-		});
+				    case "DaButton":
+				    	return UI.switchAppDisplay();
 
-		passphrase.addEventListener('keydown', function(event){
-			if(event.which === 13 && event.shiftKey == false){
-				SM.passphraseLogin({user:passphraseUsername.value, passphrase:passphrase.value}, function(result){
-					var wallet = result.wallet;
-					var encodedContainer = result.encodedContainer;
-					user = wallet.user;
-			        key = wallet.privateKey;
-			        keys = {uniquePublic:wallet.uniquePublic, uniquePrivate:wallet.uniquePrivate, authenticationKey:wallet.authenticationKey, encryptionKey: wallet.encryptionKey};		  
-			        socket.emit('reinitialize', {encodedmsg: encodedContainer});
-			        UI.onValidPassphraseShowLoginSuccessScreen();
-				});
-			}
-		});
-
-		receiver.addEventListener('keydown', function(event){
-			if(event.which === 13 && event.shiftKey == false){
-				if(receiver.value != "") {
-					SM.chooseFriend({name:user, to:receiver.value, key: key, keys: keys}, function(out){
-						recipient = out.to;
-						receiver.value = "";
-						return socket.emit('fetchDiscussion', {message: out.encodedmsg});
-					});
+				    case "emojiBtn":
+				    	return UI.switchEmojisBoxDisplay();
 				}
 			}
 		});
 
-		textarea.addEventListener('keydown', function(event){
-			socket.emit('is writing', {name:user, to:recipient});
-			if(event.which === 13 && event.shiftKey == false){
-				if(textarea.value != "") {
-					SM.handleInput({user:user,receiver:recipient,key:key,uniquePrivate:keys.uniquePrivate,message:textarea.value}, function(out){
-						return socket.emit('input', {message:out.encodedmsg});
-					});
+		app.addEventListener('keydown', function(event){
+			if(event.target){
+				switch(event.target.id){
+					case "passphrase":
+						if(event.which === 13 && event.shiftKey == false){
+							return passphraseLogin();
+						}
+					case "receiver":
+						if(event.which === 13 && event.shiftKey == false){
+							return getReceiver();
+						}
+					case "textarea":
+						/*Lara.encodeSafeSocket({request: "is writing", identity: user, user: user, to: recipient}, key, function(out){
+							socket.emit("safeSocket", out);
+							console.log("bad socket")
+						});*/
+						if(event.which === 13 && event.shiftKey == false){
+							return sendMessage();
+						}
 				}
 			}
+		});
+
+		socket.on('safeSocket', function(data){
+			Lara.decodeSafeSocket(data, key, function(out){
+				console.log("socket : " + out.request)
+				if(out.request !== undefined){
+					switch(out.request) {
+				    	case "logged":
+				      		return UI.onFirstLoginShowPassphraseSelectorScreen();
+
+				      	case "latest discussions":
+				      		return SM.appendDiscussions(out, {id:user, key:key, uniqueKey:keys.uniquePrivate});
+
+				      	case "output":
+				      		UI.hideWhoIsWriting();
+							return SM.appendMessages(out, {id:user, key:key, uniqueKey:keys.uniquePrivate, receiver:recipient});
+
+				      	case "not subscribed":
+				      		return UI.onNotSubscribed();
+
+				      	case "recipient is writing":
+				      		if(data.user == recipient){
+								return SM.recipientIsWriting(out);
+							}
+
+				      	case "file output":
+				      		return SM.appendFile(out, {id:user,key:key,uniqueKey:keys.uniquePrivate,receiver:recipient});
+
+				      	case "cleared":
+				      		return messages.innerHTML = "";
+
+				    }					
+				}
+			})
 		});
 
 		fileSend.addEventListener("change", function () {
@@ -196,82 +153,117 @@
 				var reader = new FileReader();
 				reader.onloadend = function() {
 		    		SM.handleFile({user:user, receiver:recipient, key:key, uniquePrivate:keys.uniquePrivate, file:reader.result}, function(out){
-		    			return socket.emit('file input', {message: out.encodedfile});
+		    			Lara.encodeSafeSocket({request: "file input", identity: user, user: user, to: recipient, message: out.encodedfile}, key, function(res){
+							return socket.emit("safeSocket", res);
+						});
 		    		});
 		    	}
 		    	reader.readAsDataURL(file);
 		    }
 		});
 
-		/*socket.on('safeSocket', function(data){
-			Lara.decodeSafeSocket(data, function(out){
-				if(out.operation !== undefined){
-					switch(out.operation) {
-				    	case "logged":
-				      		return 
-				      	case "latest discussions":
-				      		return 
-				      	case "output":
-				      		return 
-				      	case "not subscribed":
-				      		return 
-				      	case "recipient is writing":
-				      		return 
-				      	case "file output":
-				      		return 
-				      	case "cleared":
-				      		return 
-
-				    }					
-				}
-			})
-		});*/
-
-		socket.on('logged', function(){
-			UI.onFirstLoginShowPassphraseSelectorScreen(); 
-		})
-
-		socket.on('latest discussions', function(data){
-			if(key !== undefined) {
-				if(data.length) {
-					return SM.appendDiscussions(data, {id:user, key:key, uniqueKey:keys.uniquePrivate});
-				}
+		emojiList.addEventListener("click",function(e) {
+			if(e.target && e.target.nodeName == "LI") {
+				textarea.value = textarea.value + " " + e.target.innerHTML;
 			}
 		});
 
-		socket.on('output', function(data){
-			if(key !== undefined) {
-				if(data.length) {
-					UI.hideWhoIsWriting();
-					return SM.appendMessages(data, {id:user, key:key, uniqueKey:keys.uniquePrivate, receiver:recipient});
-				}
-			}
-		});
-
-		socket.on('not subscribed', function(){
-			UI.onNotSubscribed();
-		})
-
-		socket.on('recipient is writing', function(data){
-			if(data.name == recipient){
-				SM.recipientIsWriting(data);
-			}
-		})
-
-		socket.on('file output', function(data){
-			if(key !== undefined) {
-					return SM.appendFile(data, {id:user,key:key,receiver:recipient});
-			}
-		});
-
-		socket.on('cleared', function(){
-			messages.innerHTML = "";
-		});		
+		
 
 		exports.fetchDiscussion = function(data){
-			SM.chooseFriend({to:data.receiver, name:user, key: key, keys: keys}, function(out){
+			SM.chooseFriend({to:data.receiver, user:user}, function(out){
 				recipient = out.to;
-				return socket.emit('fetchDiscussion', {message: out.encodedmsg});
+				Lara.encodeSafeSocket({request: "getDiscussion", identity: user, user: user, to: recipient}, key, function(res){
+					return socket.emit("safeSocket", res);
+				});
+			});
+		}
+
+		function login(){
+			SM.login({user:username.value, privWif:privMemoKey.value}, function(result){
+				console.log(result)
+				user = result.user;
+				key = result.key;
+				return socket.emit('initialize', {encodedmsg: result.encodedmsg});
+			});
+		}
+
+		function createPassphrase(){
+			SM.createWalletPassphrase({pass1: newPassphrase.value, pass2: newPassphrase2.value}, function(result){
+				if(result == "unmatching passphrases"){
+					UI.onPassphraseUnmatchShowError();
+				}
+				if(result == "ok"){
+					SM.initializeKeys({user: user, key: key, passphrase: newPassphrase.value}, function(out){
+						keys =  {
+								uniquePublic: out.uniquePublic,
+								uniquePrivate: out.uniquePrivate,
+								authenticationKey: out.authenticationKey,
+								encryptionKey: out.encryptionKey
+								};
+						UI.onNewPassphraseShowSuccessScreen();
+					});
+				}
+			});
+		}
+
+		function returnToPreviousDiscussions(){
+			UI.returnToPreviousDiscussions();
+			recipient = undefined;
+			Lara.encodeSafeSocket({request: "getDiscussions", identity: user, user: user}, key, function(res){
+				return socket.emit("safeSocket", res);
+			});
+		}
+
+		function getReceiver(){
+			if(receiver.value != "") {
+				SM.chooseFriend({user:user, to:receiver.value}, function(out){
+					recipient = out.to;
+					receiver.value = "";
+					Lara.encodeSafeSocket({request: "getDiscussion", identity: user, user: user, to: recipient}, key, function(res){
+						return socket.emit("safeSocket", res);
+					});
+				});
+			}
+		}
+
+		function sendMessage(){
+			if(textarea.value != "") {
+				SM.handleInput({user:user,receiver:recipient,key:key,uniquePrivate:keys.uniquePrivate,message:textarea.value}, function(out){
+					Lara.encodeSafeSocket({request: "input", identity: user, user: user, to: recipient, message: out.encodedmsg}, key, function(res){
+						return socket.emit("safeSocket", res);
+					});
+				});
+			}
+		}
+
+		function passphraseLogin(){
+			SM.passphraseLogin({user:passphraseUsername.value, passphrase:passphrase.value}, function(result){
+				var wallet = result.wallet;
+				var encodedContainer = result.encodedContainer;
+				user = wallet.user;
+				key = wallet.privateKey;
+				keys =  {
+						uniquePublic: wallet.uniquePublic,
+						uniquePrivate: wallet.uniquePrivate,
+						authenticationKey: wallet.authenticationKey,
+						encryptionKey: wallet.encryptionKey
+						};
+				socket.emit('reinitialize', {encodedmsg: encodedContainer});
+				UI.onValidPassphraseShowLoginSuccessScreen();
+			});
+		}
+
+		function printEmoji(){
+			if(e.target && e.target.nodeName == "LI"){
+				return textarea.value = textarea.value + " " + e.target.innerHTML;
+			}
+		}
+
+		function clearMessages(){
+			messages.innerHTML = "";
+			Lara.encodeSafeSocket({request: "clear", identity: user, user: user, to: recipient}, key, function(res){
+				return socket.emit("safeSocket", res);
 			});
 		}
 	}
