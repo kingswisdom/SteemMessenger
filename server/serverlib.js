@@ -11,23 +11,47 @@ exports.listen = function(server){
     io.sockets.on('connection', function(socket){
         initialization(socket);
         reinitialization(socket);
-        fetchDiscussion(socket);
-        handleInput(socket);       
-        handleFile(socket);        
-        fetchDiscussions(socket);
-        handleClear(socket);
-        onIsWriting(socket);
-        checkSubscription(socket);
+        SafeSocket(socket);
     });
 }
-   
+
+function SafeSocket(socket){
+    socket.on('safeSocket', function(data){
+        Lara.decodeSafeSocket(data, function(out){
+            console.log(out);
+            if(out.request != undefined){
+                switch(out.request) {
+                    case "getDiscussion":
+                        return getDiscussion(out, socket);
+
+                    case "getDiscussions":
+                        return getDiscussions(out, socket);
+
+                    case "input":
+                        return handleInput(out, socket);
+
+                    case "file input":
+                        return handleFile(out, socket);
+
+                    case "clear":
+                        return handleClear(out, socket);
+
+                    case "is writing":
+                        return onIsWriting(out, socket);
+                }
+            }
+        });
+    });
+}  
+
 function initialization(socket){
     socket.on('initialize', function(data){
         Lara.checkLogin({encodedmsg: data.encodedmsg}, function(out){
-            users[out.name] = {"id": socket.id};
-            console.log(out.name + " is connected !");
-            socket.emit('logged');
-            return handleLatestDiscussions(socket, {name: out.name});
+            users[out.user] = {"id": socket.id};
+            Lara.encodeSafeSocket({request: "logged", identity: out.user, user: out.user}, function(res){
+                socket.emit('safeSocket', res);
+                return handleLatestDiscussions({user: out.user}, socket);
+            });
                         
         })
         
@@ -37,130 +61,108 @@ function initialization(socket){
 function reinitialization(socket){
     socket.on('reinitialize', function(data){
         Lara.checkLogin({encodedmsg: data.encodedmsg}, function(out){
-            users[out.name] = {"id": socket.id};
-            console.log(out.name + " is connected !");
-            return handleLatestDiscussions(socket, {name: out.name});
+            users[out.user] = {"id": socket.id};
+            return handleLatestDiscussions({user: out.user}, socket);
     
         })
         
     });
 }
 
-function fetchDiscussion(socket){
-    socket.on('fetchDiscussion', function(data) { 
-        Lara.processRequest(data, function(out){
-            db.getMessages({user:out.name,receiver:out.to}, 50, function(err, res){
-                //TODO : add function to encrypt res before sending it to client
-                return socket.emit('output', res);
-            });
-        });
-        
+function getDiscussion(data, socket){
+    db.getMessages({user:data.user,receiver:data.to}, 50, function(err, res){
+        Lara.encodeSafeSocket({request: "output", identity: data.user, user: data.user, message: res}, function(out){
+            return socket.emit('safeSocket', out);
+        });        
     });
 }
 
-function handleOutput(socket, out){
-        db.getLastMessage({user:out.name, receiver:out.to}, function(err, res){
-            if(users[out.to] != undefined) {
-                socket.to(users[out.to].id).emit('output', res);
-                return socket.emit('output', res);
-            }
-            else{
-                return socket.emit('output', res);
-            }
-        });
-    
-}
-
-function handleInput(socket){
-    socket.on('input', function(data){
-        if(data.message == ''){
-            return
-        }
-        else {
-            Lara.checkIdentity(data, function(out){
-                if(out.error == "not subscribed"){
-                    return socket.emit("not subscribed")
-                }
-                if(out != undefined) {
-                    console.log("Incoming message from @" + out.name + " to @" + out.to);
-                    db.saveMessage({name: out.name, to: out.to, message: out.message});
-                    return handleOutput(socket, out);
-                }
-                else {
-                }                
-            });            
-        }
-    });  
-}
-
-function handleFile(socket){
-    socket.on('file input', function(data){
-        if(data.message == ''){
-            return
+function handleInput(data, socket){
+    db.checkSubscription({user: data.user}, function(res){
+        if(res.length > 0 && res[0].user != undefined && res[0].end >= Date.now()){
+            db.saveMessage({user: data.user, to: data.to, message: data.message});
+            return handleOutput(data, socket);
         }
         else{
-            Lara.checkIdentity(data, function(out){
-                if(users[out.to] != undefined) {
-                    db.saveMessage({name: out.name, to: out.to, message: out.message});
-                    socket.to(users[out.to].id).emit('file output', out);
-                    return socket.emit('file output', out);
-                }
-                else{
-                    db.saveMessage({name: out.name, to: out.to, message: out.message});
-                    return socket.emit('file output', out);
-                }
+            Lara.encodeSafeSocket({request: "not subscribed", identity: data.user, user: data.user}, function(out){
+                return socket.emit("safeSocket", out);
             });
         }
-    })
-}   
-
-function fetchDiscussions(socket){
-    socket.on('fetchDiscussions', function(data){
-        return handleLatestDiscussions(socket, data);
     });
 }
+
+function handleFile(data, socket){
+    db.checkSubscription({user: data.user}, function(res){
+        if(res.length > 0 && res[0].user != undefined && res[0].end >= Date.now()){
+            if(users[data.to] != undefined) {
+                db.saveMessage({user: data.user, to: data.to, message: data.message});
+                Lara.encodeSafeSocket({request: "file output", identity: data.user, user: data.user, to: data.to, message: data.message}, function(out){
+                    socket.emit("safeSocket", out);
+                });
+                Lara.encodeSafeSocket({request: "file output", identity: data.to, user: data.user, to: data.to, message: data.message}, function(out){
+                    return socket.to(users[data.to].id).emit("safeSocket", out);
+                });
+            }
+            else{
+                db.saveMessage({user: data.user, to: data.to, message: data.message});
+                Lara.encodeSafeSocket({request: "file output", identity: data.user, user: data.user, to: data.to, message: data.message}, function(out){
+                    return socket.emit("safeSocket", out);
+                });
+            }
+        }
+        else{
+            Lara.encodeSafeSocket({request: "not subscribed", identity: data.user, user: data.user}, function(out){
+                return socket.emit("safeSocket", out);
+            });
+        }
+    });
+}   
+
+function getDiscussions(data, socket){
+    return handleLatestDiscussions(data, socket);
+}
        
-function handleClear(socket){
-    socket.on('clear', function(data){
-        db.deleteDiscussion({name:data.name, to:data.to}, function(){
-            return socket.emit('cleared');
+function handleClear(data, socket){
+    db.deleteDiscussion({user:data.user, to:data.to}, function(){
+        Lara.encodeSafeSocket({request: "cleared", identity: data.user, user: data.user}, function(out){
+            return socket.emit("safeSocket", out);
         });
     });
 }
 
-function handleLatestDiscussions(socket, data){
-    db.getLatestMessages({user:data.name}, function(err, res){
+function handleLatestDiscussions(data, socket){
+    db.getLatestMessages({user:data.user}, function(err, res){
         if(res.length){
-            return socket.emit('latest discussions', res);
+            Lara.encodeSafeSocket({request: "latest discussions", identity: data.user, user: data.user, message: res}, function(out){
+                return socket.emit("safeSocket", out);
+            });
         }        
     });
 }
 
-function onIsWriting(socket){
-    socket.on('is writing', function(data){
-        if(users[data.to] != undefined) {
-                socket.to(users[data.to].id).emit('recipient is writing', data);
+function onIsWriting(data, socket){
+    if(users[data.to] != undefined) {
+        Lara.encodeSafeSocket({request: "recipient is writing", identity: data.to, user: data.user, data: data}, function(out){
+            return socket.to(users[data.to].id).emit("safeSocket", out);
+        });
+    }
+}
+
+function handleOutput(data, socket){
+        db.getLastMessage({user:data.user, receiver:data.to}, function(err, res){
+            if(users[data.to] != undefined) {
+                Lara.encodeSafeSocket({request: "output", identity: data.user, user: data.user, message: res}, function(out){
+                    socket.emit("safeSocket", res);
+                });
+                Lara.encodeSafeSocket({request: "output", identity: data.to, user: data.user, message: res}, function(out){
+                    socket.to(users[data.to].id).emit("safeSocket", out);
+                });                
             }
             else{
+                Lara.encodeSafeSocket({request: "output", identity: data.user, user: data.user, to: data.to, message: res}, function(out){
+                    return socket.emit("safeSocket", out);
+                });
             }
-
-    })
+        });
+    
 }
-
-function checkSubscription(socket){
-    socket.on('checkSubscription', function(data){
-        db.checkSubscription(data, function(err, res){
-            if (res.length){
-                var timeLeft = res.end - Date.now();
-                if(res.name == data.name && timeLeft > 0){
-                    socket.emit('time left', {end: timeLeft});
-                }
-                else{
-                    socket.emit('subscription ended', {end: res.end});
-                }
-            }
-        })
-    })
-}
-
-//TODO : add an encrypt function that will be called before each socket.emit
