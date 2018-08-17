@@ -17,7 +17,7 @@ var subscriptions = db.collection('subscriptions');
 exports.getMessages = function(data, limit, out){
 	var query = chat.find({tags: { $all: [data.user, data.receiver]}});
 	query.limit(limit).sort({timestamp:1}).toArray(function(err, res){
-		console.log
+		console.log(res)
     	out(err, res);
 	});
 }
@@ -25,6 +25,7 @@ exports.getMessages = function(data, limit, out){
 exports.getLastMessage = function(data, out){
 	var query = chat.find({tags: { $all: [data.user, data.receiver]}});
 	query.limit(1).sort({timestamp:-1}).toArray(function(err, res){
+        console.log(res)
 		out(err, res);
 	});
 }
@@ -32,38 +33,39 @@ exports.getLastMessage = function(data, out){
 exports.getLatestMessages = function(data, out){
     var query = latestMessages.find({tags: { $all: [data.user]}});
     query.limit(50).sort({timestamp:1}).toArray(function(err, res){
-            out(err, res);
+        console.log(res)
+        out(err, res);
     });
 }
 
 exports.saveMessage = function(data){
 	chat.insert({
-		"from": data.name,
+		"from": data.user,
 		"to": data.to,
-		"tags": [data.name, data.to],
+		"tags": [data.user, data.to],
 		"message": data.message,
 		"timestamp": Date.now()
 	});
-    latestMessages.remove({from:data.name, to:data.to});
-    latestMessages.remove({from:data.to, to:data.name});
+    latestMessages.remove({from:data.user, to:data.to});
+    latestMessages.remove({from:data.to, to:data.user});
     latestMessages.insert({
-        "from": data.name,
+        "from": data.user,
         "to": data.to,
-        "tags": [data.name, data.to],
+        "tags": [data.user, data.to],
         "message": data.message,
         "timestamp": Date.now()
     });
 }
 
 exports.deleteDiscussion = function(data){
-	chat.remove({from:data.name, to:data.to});
-    latestMessages.remove({from:data.name, to:data.to});
+	chat.remove({from:data.user, to:data.to});
+    latestMessages.remove({from:data.user, to:data.to});
 }
 
 exports.setSubscription = function(data){
-    subscriptions.remove({name: data.name});
+    subscriptions.remove({user: data.user});
     subscriptions.insert({
-        "name": data.name,
+        "user": data.user,
         "plan": data.plan,
         "timestamp": Date.now(),
         "end": Date.now() + 2678400000 //TODO : make this time a variable (in order to change it dynamically for different paid plans)
@@ -71,7 +73,7 @@ exports.setSubscription = function(data){
 }
 
 exports.checkSubscription = function(data, out){
-    var query = subscriptions.find({name: data.name});
+    var query = subscriptions.find({user: data.user});
     query.limit(1).sort({timestamp:1}).toArray(function(err,res){
         console.log(res)
         out(res);
