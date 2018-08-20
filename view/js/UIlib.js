@@ -20,6 +20,7 @@ var clearBtn = element('clear');
 var loginBtn = element('login');
 var friendBtn = element('friend');
 var startBtn = element('start');
+var leakedWarning = element('leakedWarning');
 var passphraseSelectorScreen = element('passphraseSelectorScreen');
 var createPassphraseBtn = element("createPassphraseBtn");
 var logsucc = element("login-success");
@@ -135,6 +136,14 @@ var notificationSound = new Audio('./audio/light.mp3');
 
   exports.hideLoginSuccess = function(){
     logsucc.style.display = "none";
+  }
+
+  exports.showLeakedKeyWarning = function(){
+    leakedWarning.style.display = "block";
+  }
+
+  exports.hideLeakedKeyWarning = function(){
+    leakedWarning.style.display = "none";
   }
 
   exports.showChatContainer = function(){
@@ -270,7 +279,7 @@ var notificationSound = new Audio('./audio/light.mp3');
   }
 
   exports.isWritingValue = function(data){
-    isWriting.innerHTML = "@" + data.name + " is writing...";
+    isWriting.innerHTML = "@" + data.user + " is writing...";
   }
 
   exports.isWritingClearValue = function(){
