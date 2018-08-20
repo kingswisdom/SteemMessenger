@@ -1,7 +1,9 @@
 const steem = require('steem');
 const crypto = require('../crypto');
 const db = require('./db.js')
-const LaraPrivateKey = "";
+const config = require('../../config.json');
+
+const LaraPrivateKey = config.LaraKeys.Memo.Private;
 
 exports.checkLogin = function(data, out){
 	console.log("server side calling crypto");
@@ -13,17 +15,25 @@ exports.checkLogin = function(data, out){
 	steem.api.getAccounts([decodedContainer.user], function(err, result){
 		if(result.length > 0) {
 			pubWif = result[0]["memo_key"];
-			var sessionKeys = crypto.generate_session_keys(LaraPrivateKey, pubWif);
-			console.log(decodedContainer.token);
-			var isvalid = crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
-			if(isvalid) {
-				console.log('Lara : Connexion approved !')
-				out({user: decodedContainer.user});
-			}
-			else {
-				console.log("Lara : Someone  just tried to bypass authentication check as @" + decodedContainer.user);
-				out(undefined);
-			}
+			db.checkIfLeakedKey({user: decodedContainer.user}, function(res){ 
+				if(res == "not leaked"){
+					var sessionKeys = crypto.generate_session_keys(LaraPrivateKey, pubWif);
+					console.log(decodedContainer.token);
+					var isvalid = crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
+						if(isvalid) {
+							console.log('Lara : Connexion approved !')
+							out({user: decodedContainer.user});
+						}
+						else {
+							console.log("Lara : Someone  just tried to bypass authentication check as @" + decodedContainer.user);
+							out(undefined);
+						}
+				}
+				if(res == "leaked"){
+					out({user: decodedContainer.user, error: "leaked"});
+				}
+			});
+			
 		}
 	})
 }
