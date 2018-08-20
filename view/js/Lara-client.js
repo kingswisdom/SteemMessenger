@@ -1,7 +1,27 @@
 const steem = require("steem");
+const libcrypto = require('@steemit/libcrypto');
 const crypto = require ('./crypto');
+const storage = require('./storage.js');
 
 var LaraAccount = "lara-bot" 
+
+
+
+exports.initializeKeys = function(data, out){
+    var uniqueMemoKeys = libcrypto.generateKeys();
+    var uniquePrivate = uniqueMemoKeys.private;
+    var uniquePublic = uniqueMemoKeys.public;
+    /* check that the session keys generation works client side*/
+    steem.api.getAccounts([LaraAccount], function(err, result){
+		if(result.length > 0) {
+			pubWif = result[0]["memo_key"];
+			var sessionKeys = crypto.generate_session_keys(data.key, pubWif);
+		    var wallet = '{"user":"' + data.user + '","privateKey":"' + data.key + '","uniquePrivate":"' + uniquePrivate + '","uniquePublic":"' + uniquePublic + '","authenticationKey":"' + sessionKeys.authenticationKey + '","encryptionKey":"' + sessionKeys.encryptionKey + '"}'
+		    storage.createSafeStorage(wallet, data.passphrase);
+		    out({user: data.user, privateKey: data.key, uniquePrivate: uniquePrivate, uniquePublic: uniquePublic, authenticationKey: sessionKeys.authenticationKey, encryptionKey: sessionKeys.encryptionKey });
+		}
+	});
+    }
 
 exports.decodeSafeSocket = function(data, key, out){
 	console.log(data, key)
@@ -38,4 +58,18 @@ exports.encodeSafeSocket = function(data, key, out){
             out({encodedmsg: encodedContainer});
 		}
 	});
+}
+
+exports.encodeMessage = function(data, out){
+	var preOp = "#" + data.message;
+	var encoded = steem.memo.encode(data.key, data.publicMemoReceiver, preOp);
+	out({encoded: encoded})
+}
+
+exports.decodeMessage = function(data, out){
+	var decoded = steem.memo.decode(data.key, data.message);
+	var decodedFinal = decoded.split("");
+	decodedFinal.shift();
+	var decodedFinal = decodedFinal.join("");
+	out({decoded: decodedFinal})
 }
