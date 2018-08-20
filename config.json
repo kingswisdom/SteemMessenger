@@ -1,0 +1,42 @@
+{
+	"account":	"steem-messenger",
+	"LaraAccount": "lara-bot",
+	"db": "mongodb://127.0.0.1/steemMessenger",
+	"specialEvent":	{
+						"state": "off", 
+						"permLink": "insert permLink"
+					},
+	"errors":	{
+					"subscription":	{
+										"invalidAmount": "Invalid amount : Send 1 or 5 SBD to complete your subscription. Please refer to our website for pricing"
+									}
+				},
+	"accountKeys": {
+						"Active":	{
+										"Public": "",
+								    	"Private": ""
+									},
+						"Posting":	{
+										"Public": "",
+										"Private": ""
+								   	}, 
+						"Memo":		{
+								   		"Public": "", 
+								   		"Private": ""
+									}
+					},
+	"LaraKeys": {
+						"Active":	{
+										"Public": "",
+								    	"Private": ""
+									},
+						"Posting":	{
+										"Public": "",
+										"Private": ""
+								   	}, 
+						"Memo":		{
+								   		"Public": "", 
+								   		"Private": ""
+									}
+					}
+}
