@@ -106,6 +106,9 @@
 				    	case "logged":
 				      		return UI.onFirstLoginShowPassphraseSelectorScreen();
 
+				      	case "leaked":
+				      		return UI.onLeakedKeyShowWarning();
+
 				      	case "latest discussions":
 				      		return SM.appendDiscussions(out, {id:user, key:key, uniqueKey:keys.uniquePrivate});
 
