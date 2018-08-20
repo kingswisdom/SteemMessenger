@@ -8,9 +8,7 @@
 		return document.getElementById(id);
 	}
 	var body = element('thisisit');
-	var DaButton = element('DaButton');
 	var app = element('app');
-	var returnToSelection = element('returnToSelection');
 	var messages = element('messages');
 	var textarea = element('textarea');
 	var username = element('username');
@@ -19,15 +17,8 @@
 	var newPassphrase2 = element('newPassphrase2');
 	var passphraseUsername = element('passphraseUsername');
 	var passphrase = element('passphrase');
-	var passphraseLoginBtn = element('PassphraseLoginBtn');
 	var receiver = element('receiver');
-	var clearBtn = element('clear');
-	var loginBtn = element('login');
-	var friendBtn = element('friend');
-	var startBtn = element('start');
 	//var settingsBtn = element('settingsBtn');
-	var createPassphraseBtn = element("createPassphraseBtn");
-	var splash = element("splash");
 	var loader0 = element("loaderEffect0");
 	var loader1 = element("loaderEffect1");
 	var loader2 = element("loaderEffect2");
@@ -35,7 +26,6 @@
 	var loader4 = element("loaderEffect4");
 	var loader5 = element("loaderEffect5");
 	var fileSend = element('fileSend');
-	var emojiBtn = element('emojiBtn');
 	var emojiList = element("emoji-list");
 	loader0.style.display = "none";
 	loader1.style.display = "none";
@@ -47,7 +37,6 @@
 
 	var user;
 	var key;
-	var cookieB;
 	var recipient;
 	var socket = io.connect();
 	var keys;
@@ -194,7 +183,7 @@
 					UI.onPassphraseUnmatchShowError();
 				}
 				if(result == "ok"){
-					SM.initializeKeys({user: user, key: key, passphrase: newPassphrase.value}, function(out){
+					Lara.initializeKeys({user: user, key: key, passphrase: newPassphrase.value}, function(out){
 						keys =  {
 								uniquePublic: out.uniquePublic,
 								uniquePrivate: out.uniquePrivate,
