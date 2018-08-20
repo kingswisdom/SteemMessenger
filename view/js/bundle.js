@@ -41975,9 +41975,29 @@ module.exports = yeast;
 
 },{}],257:[function(require,module,exports){
 const steem = require("steem");
+const libcrypto = require('@steemit/libcrypto');
 const crypto = require ('./crypto');
+const storage = require('./storage.js');
 
 var LaraAccount = "lara-bot" 
+
+
+
+exports.initializeKeys = function(data, out){
+    var uniqueMemoKeys = libcrypto.generateKeys();
+    var uniquePrivate = uniqueMemoKeys.private;
+    var uniquePublic = uniqueMemoKeys.public;
+    /* check that the session keys generation works client side*/
+    steem.api.getAccounts([LaraAccount], function(err, result){
+		if(result.length > 0) {
+			pubWif = result[0]["memo_key"];
+			var sessionKeys = crypto.generate_session_keys(data.key, pubWif);
+		    var wallet = '{"user":"' + data.user + '","privateKey":"' + data.key + '","uniquePrivate":"' + uniquePrivate + '","uniquePublic":"' + uniquePublic + '","authenticationKey":"' + sessionKeys.authenticationKey + '","encryptionKey":"' + sessionKeys.encryptionKey + '"}'
+		    storage.createSafeStorage(wallet, data.passphrase);
+		    out({user: data.user, privateKey: data.key, uniquePrivate: uniquePrivate, uniquePublic: uniquePublic, authenticationKey: sessionKeys.authenticationKey, encryptionKey: sessionKeys.encryptionKey });
+		}
+	});
+    }
 
 exports.decodeSafeSocket = function(data, key, out){
 	console.log(data, key)
@@ -42015,20 +42035,31 @@ exports.encodeSafeSocket = function(data, key, out){
 		}
 	});
 }
-},{"./crypto":262,"steem":253}],258:[function(require,module,exports){
+
+exports.encodeMessage = function(data, out){
+	var preOp = "#" + data.message;
+	var encoded = steem.memo.encode(data.key, data.publicMemoReceiver, preOp);
+	out({encoded: encoded})
+}
+
+exports.decodeMessage = function(data, out){
+	var decoded = steem.memo.decode(data.key, data.message);
+	var decodedFinal = decoded.split("");
+	decodedFinal.shift();
+	var decodedFinal = decodedFinal.join("");
+	out({decoded: decodedFinal})
+}
+},{"./crypto":262,"./storage.js":271,"@steemit/libcrypto":1,"steem":253}],258:[function(require,module,exports){
 const steem = require("steem");
 const client = require("./client.js");
-const libcrypto = require('@steemit/libcrypto');
-const crypto = require ('./crypto');
 const UIlib = require('./UIlib.js');
 const UI = require('./UI.js');
 const login = require('./login.js')
-const storage = require('./storage.js');
+const Lara = require('./Lara-client.js')
 
 var element = function(id){
     return document.getElementById(id);
 }
-var LaraPublicKey = 'STM8WW8JsjbcRhYhyjLuEbvYamMzPfZQzPB3fWK24hC5ibcSGP56V';
 var messages = element('messages');
 var receiverInfo = element("receiver-info");
 var previousDiscussions = element("previousDiscussions");
@@ -42071,19 +42102,6 @@ exports.passphraseLogin = function(data, result){
             result(out);
         }
     });
-}
-
-
-
-exports.initializeKeys = function(data, out){
-    var uniqueMemoKeys = libcrypto.generateKeys();
-    var uniquePrivate = uniqueMemoKeys.private;
-    var uniquePublic = uniqueMemoKeys.public;
-    /* check that the session keys generation works client side*/
-    var sessionKeys = crypto.generate_session_keys(data.key, LaraPublicKey);
-    var wallet = '{"user":"' + data.user + '","privateKey":"' + data.key + '","uniquePrivate":"' + uniquePrivate + '","uniquePublic":"' + uniquePublic + '","authenticationKey":"' + sessionKeys.authenticationKey + '","encryptionKey":"' + sessionKeys.encryptionKey + '"}'
-    storage.createSafeStorage(wallet, data.passphrase);
-    out({user: data.user, privateKey: data.key, uniquePrivate: uniquePrivate, uniquePublic: uniquePublic, authenticationKey: sessionKeys.authenticationKey, encryptionKey: sessionKeys.encryptionKey });
 }
 
 exports.createWalletPassphrase = function(data, result){
@@ -42131,10 +42149,9 @@ exports.handleInput = function(data, out){
     steem.api.getAccounts([data.receiver], function(err, result) {
         if(result.length > 0) {
             var publicMemoReceiver = result[0]["memo_key"];
-            var texte = "#" + data.message;
-            var privateMemoKey = data.key;
-            var encoded = steem.memo.encode(data.uniquePrivate, publicMemoReceiver, texte);
-            out({encodedmsg: encoded});
+            Lara.encodeMessage({message: data.message, key: data.uniquePrivate, publicMemoReceiver: publicMemoReceiver}, function(res){
+                out({encodedmsg: res.encoded})
+            });
         }
         else {
             UIlib.showChatTextInputArea();
@@ -42154,9 +42171,9 @@ exports.handleFile = function(data, out){
     steem.api.getAccounts([data.receiver], function(err, result) {
         if(result.length > 0) {
             var publicMemoReceiver = result[0]["memo_key"];
-            var file = "#" + data.file;
-            var encoded = steem.memo.encode(data.uniquePrivate, publicMemoReceiver, file);
-            out({encodedfile: encoded});
+            Lara.encodeMessage({message: data.file, key: data.uniquePrivate, publicMemoReceiver: publicMemoReceiver}, function(res){
+                out({encodedfile: res.encoded})
+            });
         }
         else {
             UIlib.hideLoader3();
@@ -42174,53 +42191,47 @@ exports.appendMessages = function(rawdata, ind){
         var author = data[x].from;
         author1 = author.toString();
         if(author1 == ind.id) {
-            var decoded = steem.memo.decode(ind.uniqueKey, raw);
-            var decodedFinal = decoded.split("");
-            decodedFinal.shift();
-            var decodedFinal = decodedFinal.join("");
-            var timestamp = document.createElement('div');
-            timestamp.setAttribute('align', 'right');
-            timestamp.setAttribute('class', 'timestamp');
-            timestamp.textContent = new Date(data[x].timestamp).getHours() < 13 ? `${new Date(data[x].timestamp).getHours()}: ${new Date(data[x].timestamp).getMinutes()} AM` : `${new Date(data[x].timestamp).getHours() - 12}: ${new Date(data[x].timestamp).getMinutes()} PM`
-            var message = document.createElement('div');
-            message.setAttribute('class', 'msg-containerblue');
-            message.setAttribute('align', 'right');
-            var messageText = document.createElement('div');
-            messageText.setAttribute('align', 'left');
-            messageText.setAttribute('class', 'msg-container-text');
-            messageText.textContent = decodedFinal;
-            messages.appendChild(message);
-            message.appendChild(messageText);
-            messages.appendChild(timestamp);
-            UIlib.hideLoader3();
-            UIlib.showChatTextInputArea();
-            UIlib.clearChatTextInputArea();
-            UIlib.focusChatTextInputArea();
-            messages.scrollTop = messages.scrollHeight;
-            //messages.insertBefore(message, messages.firstChild);
+            Lara.decodeMessage({key: ind.uniqueKey, message: raw}, function(out){
+                var timestamp = document.createElement('div');
+                timestamp.setAttribute('align', 'right');
+                timestamp.setAttribute('class', 'timestamp');
+                timestamp.textContent = new Date(data[x].timestamp).getHours() < 13 ? `${new Date(data[x].timestamp).getHours()}: ${new Date(data[x].timestamp).getMinutes()} AM` : `${new Date(data[x].timestamp).getHours() - 12}: ${new Date(data[x].timestamp).getMinutes()} PM`
+                var message = document.createElement('div');
+                message.setAttribute('class', 'msg-containerblue');
+                message.setAttribute('align', 'right');
+                var messageText = document.createElement('div');
+                messageText.setAttribute('align', 'left');
+                messageText.setAttribute('class', 'msg-container-text');
+                messageText.textContent = out.decoded;
+                messages.appendChild(message);
+                message.appendChild(messageText);
+                messages.appendChild(timestamp);
+                UIlib.hideLoader3();
+                UIlib.showChatTextInputArea();
+                UIlib.clearChatTextInputArea();
+                UIlib.focusChatTextInputArea();
+                messages.scrollTop = messages.scrollHeight;
+            });
         }
         if(author1 == ind.receiver) {
-            var decoded = steem.memo.decode(ind.key, raw);
-            var decodedFinal = decoded.split("");
-            decodedFinal.shift();
-            var decodedFinal = decodedFinal.join("");
-            var timestamp = document.createElement('div');
-            timestamp.setAttribute('align', 'left');
-            timestamp.setAttribute('class', 'timestamp');
-            timestamp.textContent = new Date(data[x].timestamp).getHours() < 13 ? `${new Date(data[x].timestamp).getHours()}: ${new Date(data[x].timestamp).getMinutes()} AM` : `${new Date(data[x].timestamp).getHours() - 12}: ${new Date(data[x].timestamp).getMinutes()} PM`
-            var message = document.createElement('div');
-            message.setAttribute('class', 'msg-container');
-            message.setAttribute('align', 'left');
-            var messageText = document.createElement('div');
-            messageText.setAttribute('align', 'left');
-            messageText.setAttribute('class', 'msg-container-text');
-            messageText.textContent = decodedFinal;
-            messages.appendChild(message);
-            message.appendChild(messageText);
-            messages.appendChild(timestamp);
-            messages.scrollTop = messages.scrollHeight;
-            UIlib.notification();
-            //messages.insertBefore(message, messages.firstChild);
+            Lara.decodeMessage({key: ind.key, message: raw}, function(out){
+                var timestamp = document.createElement('div');
+                timestamp.setAttribute('align', 'left');
+                timestamp.setAttribute('class', 'timestamp');
+                timestamp.textContent = new Date(data[x].timestamp).getHours() < 13 ? `${new Date(data[x].timestamp).getHours()}: ${new Date(data[x].timestamp).getMinutes()} AM` : `${new Date(data[x].timestamp).getHours() - 12}: ${new Date(data[x].timestamp).getMinutes()} PM`
+                var message = document.createElement('div');
+                message.setAttribute('class', 'msg-container');
+                message.setAttribute('align', 'left');
+                var messageText = document.createElement('div');
+                messageText.setAttribute('align', 'left');
+                messageText.setAttribute('class', 'msg-container-text');
+                messageText.textContent = out.decoded;
+                messages.appendChild(message);
+                message.appendChild(messageText);
+                messages.appendChild(timestamp);
+                messages.scrollTop = messages.scrollHeight;
+                UIlib.notification();
+            });
         }
         else {
         }
@@ -42239,56 +42250,54 @@ exports.appendDiscussions = function(rawdata, ind){
             var author2 = data[x].to;
             author2 = author2.toString();
             if(author == ind.id) {
-                var decoded = steem.memo.decode(ind.uniqueKey, raw);
-                var decodedFinal = decoded.split("");
-                decodedFinal.shift();
-                part = decodedFinal.slice(0, 34);
-                var decodedFinal = part.join("") + "...";
-                var discussion = document.createElement('div');
-                discussion.setAttribute('class', 'discussionOld');
-                var discpicture = document.createElement("img");
-                discpicture.setAttribute("src", "https://steemitimages.com/u/" + author2 + "/avatar");
-                discpicture.setAttribute("height", "36");
-                discpicture.setAttribute("width", "36");
-                discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 15px;");
-                discussion.appendChild(discpicture)
-                discussion.addEventListener("click", (function(author2) {
-                    return function () {
-                        client.fetchDiscussion({receiver: author2});
-                    }
-                })(author2));
-                var discussionText = document.createElement('div');
-                discussionText.setAttribute('align', 'left');
-                discussionText.innerHTML = "<b>@" + author2 + "</b>" + " <br>" + "<p>" + decodedFinal + "</p>";
-                previousDiscussions.insertBefore(discussion, previousDiscussions.firstChild);
-                discussion.appendChild(discussionText);
-
-
+                Lara.decodeMessage({key: ind.uniqueKey, message: raw}, function(out){
+                    var decodedFinal = out.decoded.split("");
+                    part = decodedFinal.slice(0, 34);
+                    var decodedFinal = part.join("") + "...";
+                    var discussion = document.createElement('div');
+                    discussion.setAttribute('class', 'discussionOld');
+                    var discpicture = document.createElement("img");
+                    discpicture.setAttribute("src", "https://steemitimages.com/u/" + author2 + "/avatar");
+                    discpicture.setAttribute("height", "36");
+                    discpicture.setAttribute("width", "36");
+                    discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 15px;");
+                    discussion.appendChild(discpicture)
+                    discussion.addEventListener("click", (function(author2) {
+                        return function () {
+                            client.fetchDiscussion({receiver: author2});
+                        }
+                    })(author2));
+                    var discussionText = document.createElement('div');
+                    discussionText.setAttribute('align', 'left');
+                    discussionText.innerHTML = "<b>@" + author2 + "</b>" + " <br>" + "<p>" + decodedFinal + "</p>";
+                    previousDiscussions.insertBefore(discussion, previousDiscussions.firstChild);
+                    discussion.appendChild(discussionText);
+                });
             }
             else {
-                var decoded = steem.memo.decode(ind.key, raw);
-                var decodedFinal = decoded.split("");
-                decodedFinal.shift();
-                part = decodedFinal.slice(0, 34);
-                var decodedFinal = part.join("") + "...";
-                var discussion = document.createElement('div');
-                discussion.setAttribute('class', 'discussionNew');
-                var discpicture = document.createElement("img");
-                discpicture.setAttribute("src", "https://steemitimages.com/u/" + author + "/avatar");
-                discpicture.setAttribute("height", "36");
-                discpicture.setAttribute("width", "36");
-                discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 15px;");
-                discussion.appendChild(discpicture)
-                discussion.addEventListener("click", (function(author) {
-                    return function () {
-                        client.fetchDiscussion({receiver: author});
-                    }
-                })(author));
-                var discussionText = document.createElement('div');
-                discussionText.setAttribute('align', 'left');
-                discussionText.innerHTML = "<b>@" + author + "</b>" + " <br>" + "<p>" + decodedFinal + "</p>";
-                previousDiscussions.insertBefore(discussion, previousDiscussions.firstChild);
-                discussion.appendChild(discussionText);
+               Lara.decodeMessage({key: ind.key, message: raw}, function(out){
+                    var decodedFinal = out.decoded.split("");
+                    part = decodedFinal.slice(0, 34);
+                    var decodedFinal = part.join("") + "...";
+                    var discussion = document.createElement('div');
+                    discussion.setAttribute('class', 'discussionNew');
+                    var discpicture = document.createElement("img");
+                    discpicture.setAttribute("src", "https://steemitimages.com/u/" + author + "/avatar");
+                    discpicture.setAttribute("height", "36");
+                    discpicture.setAttribute("width", "36");
+                    discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 15px;");
+                    discussion.appendChild(discpicture)
+                    discussion.addEventListener("click", (function(author) {
+                        return function () {
+                            client.fetchDiscussion({receiver: author});
+                        }
+                    })(author));
+                    var discussionText = document.createElement('div');
+                    discussionText.setAttribute('align', 'left');
+                    discussionText.innerHTML = "<b>@" + author + "</b>" + " <br>" + "<p>" + decodedFinal + "</p>";
+                    previousDiscussions.insertBefore(discussion, previousDiscussions.firstChild);
+                    discussion.appendChild(discussionText);
+                });                
             }
         }
     }
@@ -42302,43 +42311,50 @@ exports.appendFile = function(data, ind){
     var raw = data.message;
     var author = data.user;
     author1 = author.toString();
-    var decoded = steem.memo.decode(ind.uniqueKey, raw);
-    var decodedFinal = decoded.split("");
-    decodedFinal.shift();
-    var decodedFinal = decodedFinal.join("");
-    var image = new Image();
-    image.src = decodedFinal;
+    
     if(author1 == ind.id){
-        var message = document.createElement('div');
-        message.setAttribute('class', 'msg-containerblue');
-        message.setAttribute('align', 'right');
-        var messageImage = document.createElement("img");
-        messageImage.setAttribute("src", image.src);
-        messageImage.setAttribute("height", "170");
-        messageImage.setAttribute("width", "170");
-        messages.appendChild(message);
-        message.appendChild(messageImage);
-        UIlib.showChatTextInputArea();
-        messages.scrollTop = messages.scrollHeight;
+        Lara.decodeMessage({key: ind.uniqueKey, message: raw}, function(out){
+            var decoded = out.decoded;
+            var image = new Image();
+            image.src = decoded;
+            var message = document.createElement('div');
+            message.setAttribute('class', 'msg-containerblue');
+            message.setAttribute('align', 'right');
+            var messageImage = document.createElement("img");
+            messageImage.setAttribute("src", image.src);
+            messageImage.setAttribute("height", "170");
+            messageImage.setAttribute("width", "170");
+            messages.appendChild(message);
+            message.appendChild(messageImage);
+            UIlib.showChatTextInputArea();
+            messages.scrollTop = messages.scrollHeight;
+        });
+
     }
     if(author1 == ind.receiver){
-        var message = document.createElement('div');
-        message.setAttribute('class', 'msg-container');
-        message.setAttribute('align', 'left');
-        var messageImage = document.createElement("img");
-        messageImage.setAttribute("src", image.src);
-        messageImage.setAttribute("height", "170");
-        messageImage.setAttribute("width", "170");
-        messages.appendChild(message);
-        message.appendChild(messageImage);
-        messages.scrollTop = messages.scrollHeight;
-        UIlib.notification();
+        Lara.decodeMessage({key: ind.key, message: raw}, function(out){
+            var decoded = out.decoded;
+            var image = new Image();
+            image.src = decoded;
+            var message = document.createElement('div');
+            message.setAttribute('class', 'msg-container');
+            message.setAttribute('align', 'left');
+            var messageImage = document.createElement("img");
+            messageImage.setAttribute("src", image.src);
+            messageImage.setAttribute("height", "170");
+            messageImage.setAttribute("width", "170");
+            messages.appendChild(message);
+            message.appendChild(messageImage);
+            messages.scrollTop = messages.scrollHeight;
+            UIlib.notification();
+        });
+        
     }
     else{
     }
 }
 
-},{"./UI.js":259,"./UIlib.js":260,"./client.js":261,"./crypto":262,"./login.js":270,"./storage.js":271,"@steemit/libcrypto":1,"steem":253}],259:[function(require,module,exports){
+},{"./Lara-client.js":257,"./UI.js":259,"./UIlib.js":260,"./client.js":261,"./login.js":270,"steem":253}],259:[function(require,module,exports){
 var UI = require('./UIlib.js')
 
 var chatOpen;
@@ -42740,9 +42756,7 @@ var notificationSound = new Audio('./audio/light.mp3');
 		return document.getElementById(id);
 	}
 	var body = element('thisisit');
-	var DaButton = element('DaButton');
 	var app = element('app');
-	var returnToSelection = element('returnToSelection');
 	var messages = element('messages');
 	var textarea = element('textarea');
 	var username = element('username');
@@ -42751,15 +42765,8 @@ var notificationSound = new Audio('./audio/light.mp3');
 	var newPassphrase2 = element('newPassphrase2');
 	var passphraseUsername = element('passphraseUsername');
 	var passphrase = element('passphrase');
-	var passphraseLoginBtn = element('PassphraseLoginBtn');
 	var receiver = element('receiver');
-	var clearBtn = element('clear');
-	var loginBtn = element('login');
-	var friendBtn = element('friend');
-	var startBtn = element('start');
 	//var settingsBtn = element('settingsBtn');
-	var createPassphraseBtn = element("createPassphraseBtn");
-	var splash = element("splash");
 	var loader0 = element("loaderEffect0");
 	var loader1 = element("loaderEffect1");
 	var loader2 = element("loaderEffect2");
@@ -42767,7 +42774,6 @@ var notificationSound = new Audio('./audio/light.mp3');
 	var loader4 = element("loaderEffect4");
 	var loader5 = element("loaderEffect5");
 	var fileSend = element('fileSend');
-	var emojiBtn = element('emojiBtn');
 	var emojiList = element("emoji-list");
 	loader0.style.display = "none";
 	loader1.style.display = "none";
@@ -42779,7 +42785,6 @@ var notificationSound = new Audio('./audio/light.mp3');
 
 	var user;
 	var key;
-	var cookieB;
 	var recipient;
 	var socket = io.connect();
 	var keys;
@@ -42926,7 +42931,7 @@ var notificationSound = new Audio('./audio/light.mp3');
 					UI.onPassphraseUnmatchShowError();
 				}
 				if(result == "ok"){
-					SM.initializeKeys({user: user, key: key, passphrase: newPassphrase.value}, function(out){
+					Lara.initializeKeys({user: user, key: key, passphrase: newPassphrase.value}, function(out){
 						keys =  {
 								uniquePublic: out.uniquePublic,
 								uniquePrivate: out.uniquePrivate,
@@ -44096,6 +44101,7 @@ exports.deleteSafeStorage = function(data, passphrase){
 	var user = JSON_data.user;
  	localStorage.removeItem(user);
 }
+
 },{"crypto-js":51,"scryptsy":193}],272:[function(require,module,exports){
 var asn1 = exports;
 
