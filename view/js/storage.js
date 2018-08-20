@@ -4,10 +4,12 @@ var scrypt = require('scryptsy');
 exports.createSafeStorage = function(data, passphrase){
 	var JSON_data = JSON.parse(data);
 	var user = JSON_data.user;
-	generateSalt(user, function(out){
+	generateSalt({user:user}, function(out){
 		var salt = out.salt;
+		console.log(salt);
 		var kdfResult = scrypt(passphrase, salt, 65536, 8, 2, 64)
 		var encryptedWallet = CryptoJS.AES.encrypt(data, kdfResult.toString('hex')).toString();
+		console.log(encryptedWallet)
 		localStorage.setItem(user, encryptedWallet);		
 	});
 	
@@ -48,8 +50,9 @@ exports.deleteSafeStorage = function(data, passphrase){
  	localStorage.removeItem(user);
 }
 
-function generateSalt = function(data, out){
+function generateSalt(data, out){
 	var salt = "6CoeaohnQBMLYbQU3nkyfGqMeLG68n8MVnf5Zk2dzN2Bocdq43";
-	var kdfResult = scrypt(data.user, salt, 16384, 8, 1, 64);
+	var kdfResult = scrypt(data.user, salt, 16384, 8, 1, 64).toString('hex');
+	console.log(kdfResult);
 	out({salt: kdfResult});
 }
