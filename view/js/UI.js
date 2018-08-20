@@ -40,6 +40,12 @@ exports.onFirstLoginShowPassphraseSelectorScreen = function(){
 	UI.showPassphraseSelectorScreen();
 }
 
+exports.onLeakedKeyShowWarning = function(){
+	UI.hideLoader1();
+	UI.hideLoginInterface();
+	UI.showLeakedKeyWarning();
+}
+
 exports.onNewPassphraseShowSuccessScreen = function(){
 	UI.hideLoader4();
     UI.showPassphraseLoginBtn();
