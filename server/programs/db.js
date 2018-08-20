@@ -1,5 +1,7 @@
 const mongo = require('mongodb').MongoClient;
-const url = process.env.MONGO_URI || "mongodb://127.0.0.1/steemMessenger";
+const config = require('../../config.json');
+
+const url = process.env.MONGO_URI || config.db;
 
 mongo.connect(url, function(err, db){
     if(err){
@@ -13,6 +15,7 @@ mongo.connect(url, function(err, db){
 var chat = db.collection('chats');
 var latestMessages = db.collection('latestMessages');
 var subscriptions = db.collection('subscriptions');
+var leakedKeys = db.collection('leakedKeys');
 
 exports.getMessages = function(data, limit, out){
 	var query = chat.find({tags: { $all: [data.user, data.receiver]}});
@@ -64,12 +67,31 @@ exports.deleteDiscussion = function(data){
 
 exports.setSubscription = function(data){
     subscriptions.remove({user: data.user});
-    subscriptions.insert({
+    if(data.plan == 0){
+        subscriptions.insert({
         "user": data.user,
         "plan": data.plan,
         "timestamp": Date.now(),
-        "end": Date.now() + 2678400000 //TODO : make this time a variable (in order to change it dynamically for different paid plans)
-    })
+        "end": Date.now() + 669600000
+        });
+    }
+    if(data.plan == 1){
+        subscriptions.insert({
+        "user": data.user,
+        "plan": data.plan,
+        "timestamp": Date.now(),
+        "end": Date.now() + 2678400000
+        });
+    }
+    if(data.plan == 2){
+        subscriptions.insert({
+        "user": data.user,
+        "plan": data.plan,
+        "timestamp": Date.now(),
+        "end": Date.now() + 2678400000
+        });
+    }
+    
 }
 
 exports.checkSubscription = function(data, out){
@@ -77,6 +99,18 @@ exports.checkSubscription = function(data, out){
     query.limit(1).sort({timestamp:1}).toArray(function(err,res){
         console.log(res)
         out(res);
-    })
+    });
+}
+
+exports.checkIfLeakedKey = function(data, out){
+    var query = leakedKeys.find({user: data.user});
+    query.limit(1).toArray(function(err,res){
+        if(res.length){
+            out("leaked");
+        }
+        else{
+            out("not leaked");
+        }
+    });
 }
 });
