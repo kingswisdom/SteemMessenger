@@ -24,3 +24,23 @@ app.set('view engine', 'ejs');
 app.get("/", function(req, res) {
     res.render("../view/pages/index.ejs")
 });
+
+app.get("/login",function(req, res){
+	res.render("../view/pages/login.ejs")
+});
+
+app.get("/infos/what-is-steem-messenger",function(req, res){
+	res.render("../view/pages/learn_more.ejs")
+});
+
+app.get("/infos/what-is-steem",function(req, res){
+	res.render("../view/pages/page2.ejs")
+});
+
+app.get("/infos/privacy",function(req, res){
+	res.render("../view/pages/page3.ejs")
+});
+
+app.get("/infos/our-values",function(req, res){
+	res.render("../view/pages/page4.ejs")
+});
