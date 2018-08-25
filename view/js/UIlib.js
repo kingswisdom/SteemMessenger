@@ -166,7 +166,8 @@ var notificationSound = new Audio('./audio/light.mp3');
     previousDiscussions.innerHTML = "";
   }
 
-  exports.showNotSubscribed = function(){
+  exports.showNotSubscribed = function(data){
+    notSubscribed.innerHTML = '<h2>Not subscribed ?</h2><p>In order to send messages, you need to pick up a paid plan.</p><div class="expanded landing__section" style="padding: 11pt 0;"><div class="container"><div class="steps__inner"><div class="step"><div class="price-box" style="width:194px; height: 350px;"><h2 class="pricing-plan">Starter</h2><div class="price">1<small> upvote/week</small></div><hr><ul class="pricing-info"><li>Maximum security</li><li>100 Kb max/file transfer</li></ul><a href="https://steemconnect.com/sign/vote?from='+data.id+'&author=steem-messenger&permlink='+data.permlink+'" class="button hero__buttonblack">Get started</a></div></div><div class="step"><div class="price-box popular" style="width:194px; height: 350px;"><div class="popular-text" style="left: 44%;">Popular</div><h2 class="pricing-plan">Regular</h2><div class="price"><sup class="currency">SBD</sup>1<small>/month</small></div><hr><ul class="pricing-info"><li>Access to special events</li><li>2 Mb max/file transfer</li></ul><a href="https://steemconnect.com/sign/transfer?from='+data.id+'&to=steem-messenger&amount=1.000%20SBD" class="button button__accent">Get started</a></div></div><div class="step"><div class="price-box" style="width:194px; height: 350px;"><h2 class="pricing-plan">Plus</h2><div class="price"><sup class="currency">SBD</sup>5<small>/month</small></div><hr><ul class="pricing-info"><li>Developers API</li><li>10 Mb max/file transfer</li></ul><a href="https://steemconnect.com/sign/transfer?from='+data.id+'&to=steem-messenger&amount=5.000%20SBD" class="button hero__buttonblack">Get started</a></div></div></div></div></div></div>'
     notSubscribed.style.display = "block";
   }
 
