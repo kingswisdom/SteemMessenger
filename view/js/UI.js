@@ -87,8 +87,11 @@ exports.returnToPreviousDiscussions = function(){
 	UI.clearReceiverInf();
 }
 
-exports.onNotSubscribed = function(){
-	UI.showNotSubscribed();
+exports.onNotSubscribed = function(data){
+	document.getElementById("DaChat").style.display = "none";
+	$(".app").removeClass("full");
+	$(".app").addClass("subscription");
+	UI.showNotSubscribed(data);
 }
 
 exports.onSendHideChatTextArea = function(){
