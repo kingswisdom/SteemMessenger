@@ -38,6 +38,9 @@ function SafeSocket(socket){
 
                     case "is writing":
                         return onIsWriting(out, socket);
+
+                    case "add to blacklist":
+                        return addToBlacklist(out, socket);
                 }
             }
         });
@@ -47,11 +50,19 @@ function SafeSocket(socket){
 function initialization(socket){
     socket.on('initialize', function(data){
         Lara.checkLogin({encodedmsg: data.encodedmsg}, function(out){
-            users[out.user] = {"id": socket.id};
-            Lara.encodeSafeSocket({request: "logged", identity: out.user, user: out.user}, function(res){
-                socket.emit('safeSocket', res);
-                return handleLatestDiscussions({user: out.user}, socket);
-            });
+            if(out.error == "leaked"){
+                Lara.encodeSafeSocket({request: "leaked", identity: out.user, user: out.user}, function(res){
+                    return socket.emit('safeSocket', res);
+                });
+            }
+            else{
+                users[out.user] = {"id": socket.id};
+                Lara.encodeSafeSocket({request: "logged", identity: out.user, user: out.user}, function(res){
+                    socket.emit('safeSocket', res);
+                    return handleLatestDiscussions({user: out.user}, socket);
+                });
+            }
+
                         
         })
         
@@ -80,8 +91,18 @@ function getDiscussion(data, socket){
 function handleInput(data, socket){
     db.checkSubscription({user: data.user}, function(res){
         if(res.length > 0 && res[0].user != undefined && res[0].end >= Date.now()){
-            db.saveMessage({user: data.user, to: data.to, message: data.message});
-            return handleOutput(data, socket);
+            db.checkIfBlacklisted({user: data.user, to: data.to}, function(res2){
+                if(res2 == "no"){
+                    db.saveMessage({user: data.user, to: data.to, message: data.message});
+                    return handleOutput(data, socket);
+                }
+                if(res2 == "yes"){
+                    Lara.encodeSafeSocket({request: "blacklisted", identity: data.user, user: data.user, to: data.to}, function(out){
+                        return socket.emit("safeSocket", out);
+                    });
+                }
+            });
+            
         }
         else{
             Lara.encodeSafeSocket({request: "not subscribed", identity: data.user, user: data.user}, function(out){
@@ -146,6 +167,10 @@ function onIsWriting(data, socket){
             return socket.to(users[data.to].id).emit("safeSocket", out);
         });
     }
+}
+
+function addToBlacklist(data, socket){
+    db.addToBlacklist({user: data.user, to:data.to});
 }
 
 function handleOutput(data, socket){
