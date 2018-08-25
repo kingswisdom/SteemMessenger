@@ -17,7 +17,7 @@ exports.start = function(){
 function streamBlockchain(){
 	steem.api.streamOperations("head", function(err, result) {
 		try {
-			if(result.length){
+			if(result){
 		        if (result[0] == 'transfer') {
 		            var memoContent = result[1].memo;
 					var sender = result[1].from;
@@ -29,7 +29,6 @@ function streamBlockchain(){
 					var leak3 = memoContent.indexOf("5H");
 					if (account == "steem-messenger"){
 						if (amount == "1.000 SBD"){
-							console.log(account + " has subscribed");
 							db.setSubscription({user: sender, plan: 1});
 						}
 						/*if (amount == "5.000 SBD"){
@@ -64,7 +63,7 @@ function streamBlockchain(){
 		        	if(result[0] == 'custom_json'){
 						var ope = JSON.parse(result[1].json)
 						if (ope[0] == "reblog" && ope[1].author == "steem-messenger" && ope[1].permlink == specialEvent_Permlink){
-							console.log()
+							db.specialEvent_setSubscription({user: ope[1].account, part: 1});
 						}
 					}
 					if (result[0] == 'vote') {
@@ -72,14 +71,8 @@ function streamBlockchain(){
 						var author = result[1].author;
 						var permlink = result[1].permlink;
 						var weight = result[1].weight;
-						if (author == "steem-messenger"){
-							steem.api.getDiscussionsByBlog({tag: author, limit: 1}, function(err, result){
-								if (specialEvent_Permlink == result[0].permlink){
-									if(weight == 10000){
-										db.setSubscription({user: voter, plan: 0});
-									}
-								}
-							});
+						if (author == "steem-messenger" && permlink == specialEvent_Permlink && weight == 10000){
+							db.specialEvent_setSubscription({user: voter, part: 2});
 						}
 					}
 		        }
