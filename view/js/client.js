@@ -71,6 +71,9 @@
 
 				    case "emojiBtn":
 				    	return UI.switchEmojisBoxDisplay();
+
+				    case "settings":
+				    	return UI.openSettings();
 				}
 			}
 		});
@@ -117,7 +120,10 @@
 							return SM.appendMessages(out, {id:user, key:key, uniqueKey:keys.uniquePrivate, receiver:recipient});
 
 				      	case "not subscribed":
-				      		return UI.onNotSubscribed();
+				      		return SM.showPlans({id:user});
+
+				      	case "blacklisted":
+				      		return alert("This user blacklisted you ! You are not allowed to send him messages");
 
 				      	case "recipient is writing":
 				      		if(data.user == recipient){
