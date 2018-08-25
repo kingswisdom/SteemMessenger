@@ -29,8 +29,24 @@ exports.checkLogin = function(data, out){
 							out(undefined);
 						}
 				}
-				if(res == "leaked"){
-					out({user: decodedContainer.user, error: "leaked"});
+				else{
+					var isvalid = steem.auth.wifIsValid(res.privWif, pubWif);
+					if(isvalid == true){
+						out({user: decodedContainer.user, error: "leaked"});
+					}
+					if (isvalid == false) {
+						var sessionKeys = crypto.generate_session_keys(LaraPrivateKey, pubWif);
+						console.log(decodedContainer.token);
+						var isvalid = crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
+						if(isvalid) {
+							console.log('Lara : Connexion approved !')
+							out({user: decodedContainer.user});
+						}
+						else {
+							console.log("Lara : Someone  just tried to bypass authentication check as @" + decodedContainer.user);
+							out(undefined);
+						}
+					}
 				}
 			});
 			
