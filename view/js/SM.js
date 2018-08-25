@@ -62,6 +62,13 @@ exports.createWalletPassphrase = function(data, result){
     }
 }
 
+exports.showPlans = function(data){
+    steem.api.getDiscussionsByBlog({tag: "steem-messenger", limit: 1}, function(err, result){
+        var permlink = result[0].permlink;
+        return UI.onNotSubscribed({id:data.user, permlink: permlink});
+    });    
+}
+
 exports.chooseFriend = function(data, out){
     UIlib.showLoader2();
     var to = data.to;
@@ -93,7 +100,7 @@ exports.chooseFriend = function(data, out){
 
 exports.handleInput = function(data, out){
     UIlib.hideChatTextInputArea();
-    UIlib.showLoader3()
+    UIlib.showLoader3();
     steem.api.getAccounts([data.receiver], function(err, result) {
         if(result.length > 0) {
             var publicMemoReceiver = result[0]["memo_key"];
@@ -180,14 +187,12 @@ exports.appendMessages = function(rawdata, ind){
                 messages.scrollTop = messages.scrollHeight;
                 UIlib.notification();
             });
-        }
-        else {
-        }
+        }     
     }
 }
 
 
-exports.appendDiscussions = function(rawdata, ind){
+exports.appendDiscussions = function(rawdata, ind, blacklist){
     var data = rawdata.message
     var discussionPicture;
     if(data.length){
@@ -223,7 +228,7 @@ exports.appendDiscussions = function(rawdata, ind){
                 });
             }
             else {
-               Lara.decodeMessage({key: ind.key, message: raw}, function(out){
+                Lara.decodeMessage({key: ind.key, message: raw}, function(out){
                     var decodedFinal = out.decoded.split("");
                     part = decodedFinal.slice(0, 34);
                     var decodedFinal = part.join("") + "...";
@@ -246,11 +251,8 @@ exports.appendDiscussions = function(rawdata, ind){
                     previousDiscussions.insertBefore(discussion, previousDiscussions.firstChild);
                     discussion.appendChild(discussionText);
                 });                
-            }
+            }            
         }
-    }
-    else{
-
     }
 }
 
@@ -258,8 +260,7 @@ exports.appendFile = function(data, ind){
     console.log(data)
     var raw = data.message;
     var author = data.user;
-    author1 = author.toString();
-    
+    author1 = author.toString();    
     if(author1 == ind.id){
         Lara.decodeMessage({key: ind.uniqueKey, message: raw}, function(out){
             var decoded = out.decoded;
@@ -297,7 +298,5 @@ exports.appendFile = function(data, ind){
             UIlib.notification();
         });
         
-    }
-    else{
     }
 }
