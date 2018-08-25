@@ -21,9 +21,13 @@ var passphraseString80 = "This is an 80-character phrase which you probably wonâ
 
 console.log("========================\nstarting Benchmark \n========================")
 suite.add('default',function(){
-    var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,15), 8, 1, 44);
+    var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,14), 8, 1, 44);
     var result = kdfResult.toString('hex').toString();
   })
+  .add('power15',function(){
+      var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,15), 8, 1, 44);
+      var result = kdfResult.toString('hex').toString();
+    })
   .add('power16',function(){
       var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,16), 8, 1, 44);
       var result = kdfResult.toString('hex').toString();
