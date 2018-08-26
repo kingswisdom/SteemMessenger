@@ -20,19 +20,18 @@ exports.createSafeStorage = function(data, passphrase){
 exports.readSafeStorage = function(data, out){
 	var wallet = localStorage.getItem(data.user);
 	try{
-
-			var ope = JSON.parse(wallet);
-			var params = ope.params;
-			var salt = params.salt;
-			console.log(ope)
-			var kdfResult = scrypt(data.passphrase, salt, params.N, params.r, params.p, params.keyLen)
-			var decryptedWallet = CryptoJS.AES.decrypt(ope.encryptedWallet, kdfResult.toString('hex')).toString(CryptoJS.enc.Utf8);
-			var JSON_wallet = JSON.parse(decryptedWallet);
-			out(JSON_wallet);
+		var ope = JSON.parse(wallet);
+		var params = ope.params;
+		var salt = params.salt;
+		console.log(ope)
+		var kdfResult = scrypt(data.passphrase, salt, params.N, params.r, params.p, params.keyLen)
+		var decryptedWallet = CryptoJS.AES.decrypt(ope.encryptedWallet, kdfResult.toString('hex')).toString(CryptoJS.enc.Utf8);
+		var JSON_wallet = JSON.parse(decryptedWallet);
+		out(JSON_wallet);
 	}
 	catch(err) {
-    	out(err);
-    }
+    		out(err);
+	}
 
 }
 
