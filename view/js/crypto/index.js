@@ -27,6 +27,7 @@ Crypto.authentication_token = function (authenticationKey){
 //TODO derive a session token from authenticationKey and date/hour or smth else
 	return authenticationKey;
 }
+
 Crypto.verify_client_authentication = function (receivedtoken, authenticationKey){
 	//TODO modify this when previous function is modified
 	var computedToken = this.authentication_token(authenticationKey);
@@ -51,7 +52,6 @@ Crypto.encrypt = function (encryptionKey,data){
 		var rawEncryptionKey = sjcl.codec.base64url.toBits(encryptionKey);
 		var ciphertext = sjcl.encrypt(rawEncryptionKey, data, {mode : "gcm"});
 		var rawct = sjcl.json.decode(ciphertext);
-		console.log(sjcl.codec.base64url.fromBits(rawct.ct));
 		var rawOutput = {iv:sjcl.codec.base64url.fromBits(rawct.iv),
 			mode : "gcm", cipher :"aes",
 			ct:sjcl.codec.base64url.fromBits(rawct.ct)};
@@ -78,7 +78,7 @@ Crypto.decrypt = function(decryptionKey,data){
 	try{
 		var rawDecryptionKey = sjcl.codec.base64url.toBits(decryptionKey);
 		//convert base64url to base64
-		data = data.replace('-','+').replace('_','/')
+		data = data.replace(/-/g,'+').replace(/_/g,'/')
 		var plaintext = sjcl.decrypt(rawDecryptionKey, data);
 		return plaintext;
 	}catch(err) {
