@@ -59,7 +59,7 @@ Crypto.encrypt = function (encryptionKey,data){
 		return output;
 
 	}catch(err) {//should happen only if the encryption key is not base64url
-	 	out(err);
+	 	return err;
 	}
 }
 
@@ -83,10 +83,18 @@ Crypto.decrypt = function(decryptionKey,data){
 		return plaintext;
 	}catch(err) {
 		//either the raw dercyption key is not base64url
-		//eitheer the decryption fail: which comes from
+		//either the decryption fail: which is because
 			//the decryption key is not the good one
 			//or/and the authentication tag is wrong
-  	out(err);
+		return err;
 	}
+}
+
+Crypto.bufferToBase64url  = function(buf){
+	//strangelly I did not find another way to properly turn
+	// scrypt Buffer output into a base64url that work with sjcl
+	return sjcl.codec.base64url.fromBits(
+		sjcl.codec.hex.toBits(buf.toString('hex'))
+	)
 }
 module.exports = Crypto;
