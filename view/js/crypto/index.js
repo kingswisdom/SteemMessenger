@@ -34,7 +34,6 @@ Crypto.verify_client_authentication = function (receivedtoken, authenticationKey
 }
 
 // TODO look at z85 for file encryption
-// TODO take care of format error and decryption error
 // TODO do we want to use the extra data or what?
 /**
 
@@ -48,15 +47,20 @@ Crypto.verify_client_authentication = function (receivedtoken, authenticationKey
 
  */
 Crypto.encrypt = function (encryptionKey,data){
-	var rawEncryptionKey = sjcl.codec.base64url.toBits(encryptionKey);
-	var ciphertext = sjcl.encrypt(rawEncryptionKey, data, {mode : "gcm"});
-	var rawct = sjcl.json.decode(ciphertext);
-	console.log(sjcl.codec.base64url.fromBits(rawct.ct));
-	var rawOutput = {iv:sjcl.codec.base64url.fromBits(rawct.iv),
-		mode : "gcm", cipher :"aes",
-		ct:sjcl.codec.base64url.fromBits(rawct.ct)};
-	var output = sjcl.json.encode(rawOutput);
-	return output;
+	try{
+		var rawEncryptionKey = sjcl.codec.base64url.toBits(encryptionKey);
+		var ciphertext = sjcl.encrypt(rawEncryptionKey, data, {mode : "gcm"});
+		var rawct = sjcl.json.decode(ciphertext);
+		console.log(sjcl.codec.base64url.fromBits(rawct.ct));
+		var rawOutput = {iv:sjcl.codec.base64url.fromBits(rawct.iv),
+			mode : "gcm", cipher :"aes",
+			ct:sjcl.codec.base64url.fromBits(rawct.ct)};
+		var output = sjcl.json.encode(rawOutput);
+		return output;
+
+	}catch(err) {//should happen only if the encryption key is not base64url
+	 	out(err);
+	}
 }
 
 /**
@@ -71,10 +75,18 @@ Crypto.encrypt = function (encryptionKey,data){
 
  */
 Crypto.decrypt = function(decryptionKey,data){
-	var rawDecryptionKey = sjcl.codec.base64url.toBits(decryptionKey);
-	//convert base64url to base64
-	data = data.replace('-','+').replace('_','/')
-	var plaintext = sjcl.decrypt(rawDecryptionKey, data);
-	return plaintext;
+	try{
+		var rawDecryptionKey = sjcl.codec.base64url.toBits(decryptionKey);
+		//convert base64url to base64
+		data = data.replace('-','+').replace('_','/')
+		var plaintext = sjcl.decrypt(rawDecryptionKey, data);
+		return plaintext;
+	}catch(err) {
+		//either the raw dercyption key is not base64url
+		//eitheer the decryption fail: which comes from
+			//the decryption key is not the good one
+			//or/and the authentication tag is wrong
+  	out(err);
+	}
 }
 module.exports = Crypto;
