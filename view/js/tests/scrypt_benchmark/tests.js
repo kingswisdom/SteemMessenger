@@ -17,28 +17,29 @@ var passphraseString40 = "This is a 40-character string of English";
 var passphraseString80 = "This is an 80-character phrase which you probably won’t be able to crack easily.";
 
 // We expect the result to be used with AES-GCM
-// So the size key=32 bytes and IV = 12 bytes ==> 44 bytes for scrypt output
+// So the size key=32 bytes  for scrypt output
+// IV a generated randomly and separately from the key
 
 console.log("========================\nstarting Benchmark \n========================")
 suite.add('default',function(){
-    var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,14), 8, 1, 44);
-    var result = kdfResult.toString('hex').toString();
+    var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,14), 8, 1, 32);
+    var result = kdfResult.toString('hex');
   })
   .add('power15',function(){
-      var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,15), 8, 1, 44);
-      var result = kdfResult.toString('hex').toString();
+      var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,15), 8, 1, 32);
+      var result = kdfResult.toString('hex');
     })
   .add('power16',function(){
-      var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,16), 8, 1, 44);
-      var result = kdfResult.toString('hex').toString();
+      var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,16), 8, 1, 32);
+      var result = kdfResult.toString('hex');
     })
     .add('power17',function(){
-        var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,17), 8, 1, 44);
-        var result = kdfResult.toString('hex').toString();
+        var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,17), 8, 1, 32);
+        var result = kdfResult.toString('hex');
       })
       .add('power18',function(){
-          var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,17), 8, 1, 44);
-          var result = kdfResult.toString('hex').toString();
+          var kdfResult = scrypt(passphraseString80, salt, Math.pow(2,18), 8, 1, 32);
+          var result = kdfResult.toString('hex');
         })
   .on('cycle', function(event) {
     console.log(String(event.target)+" => average time "+ String(event.target.times.cycle) + " seconds");
