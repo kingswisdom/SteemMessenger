@@ -5,6 +5,7 @@ const Lara = require('./programs/Lara.js');
 var io;
 
 var users = [];
+var users_sockets = [];
 
 exports.listen = function(server){
     io = socketIO.listen(server);
@@ -17,7 +18,8 @@ exports.listen = function(server){
 
 function SafeSocket(socket){
     socket.on('safeSocket', function(data){
-        Lara.decodeSafeSocket(data, function(out){
+        var username = users_sockets[socket.id].name;
+        Lara.decodeSafeSocket(data, username, function(out){
             console.log(out);
             if(out.request != undefined){
                 switch(out.request) {
@@ -57,6 +59,7 @@ function initialization(socket){
             }
             else{
                 users[out.user] = {"id": socket.id};
+                users_sockets[socket.id] = {"name": out.user};
                 Lara.encodeSafeSocket({request: "logged", identity: out.user, user: out.user}, function(res){
                     socket.emit('safeSocket', res);
                     return handleLatestDiscussions({user: out.user}, socket);
@@ -73,6 +76,7 @@ function reinitialization(socket){
     socket.on('reinitialize', function(data){
         Lara.checkLogin({encodedmsg: data.encodedmsg}, function(out){
             users[out.user] = {"id": socket.id};
+            users_sockets[socket.id] = {"name": out.user};
             return handleLatestDiscussions({user: out.user}, socket);
     
         })
