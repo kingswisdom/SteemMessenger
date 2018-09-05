@@ -1,5 +1,6 @@
 const steem = require('steem');
-const crypto = require('../crypto');
+//const crypto = require('../crypto');
+const crypto = require('../../view/js/crypto');
 const db = require('./db.js')
 const config = require('../../config.json');
 
@@ -15,9 +16,10 @@ exports.checkLogin = function(data, out){
 	steem.api.getAccounts([decodedContainer.user], function(err, result){
 		if(result.length > 0) {
 			pubWif = result[0]["memo_key"];
-			db.checkIfLeakedKey({user: decodedContainer.user}, function(res){ 
+			db.checkIfLeakedKey({user: decodedContainer.user}, function(res){
 				if(res == "not leaked"){
 					var sessionKeys = crypto.generate_session_keys(LaraPrivateKey, pubWif);
+					console.log("authentication token");
 					console.log(decodedContainer.token);
 					var isvalid = crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
 						if(isvalid) {
@@ -49,7 +51,7 @@ exports.checkLogin = function(data, out){
 					}
 				}
 			});
-			
+
 		}
 	})
 }
@@ -87,7 +89,7 @@ exports.checkIdentity = function(data, out){
 	});
 };
 
-exports.decodeSafeSocket = function(data, out){
+exports.decodeSafeSocket = function(data, username, out){
 	rawContainer = steem.memo.decode(LaraPrivateKey, data.encodedmsg);
 	raw = rawContainer.split("");
 	raw.shift();
