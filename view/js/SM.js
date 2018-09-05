@@ -66,7 +66,7 @@ exports.showPlans = function(data){
     steem.api.getDiscussionsByBlog({tag: "steem-messenger", limit: 1}, function(err, result){
         var permlink = result[0].permlink;
         return UI.onNotSubscribed({id:data.user, permlink: permlink});
-    });    
+    });
 }
 
 exports.chooseFriend = function(data, out){
@@ -104,7 +104,8 @@ exports.handleInput = function(data, out){
     steem.api.getAccounts([data.receiver], function(err, result) {
         if(result.length > 0) {
             var publicMemoReceiver = result[0]["memo_key"];
-            Lara.encodeMessage({message: data.message, key: data.uniquePrivate, publicMemoReceiver: publicMemoReceiver}, function(res){
+            var sessionKeys = crypto.generate_session_keys(data.key,publicMemoReceiver);
+            Lara.encodeMessage({message: data.message, sharedKey:sessionKeys.encryptionKey, key: data.uniquePrivate, publicMemoReceiver: publicMemoReceiver}, function(res){
                 out({encodedmsg: res.encoded})
             });
         }
@@ -126,7 +127,8 @@ exports.handleFile = function(data, out){
     steem.api.getAccounts([data.receiver], function(err, result) {
         if(result.length > 0) {
             var publicMemoReceiver = result[0]["memo_key"];
-            Lara.encodeMessage({message: data.file, key: data.uniquePrivate, publicMemoReceiver: publicMemoReceiver}, function(res){
+            var sessionKeys = crypto.generate_session_keys(data.key,publicMemoReceiver);
+            Lara.encodeMessage({message: data.file, sharedKey:sessionKeys.encryptionKey, key: data.uniquePrivate, publicMemoReceiver: publicMemoReceiver}, function(res){
                 out({encodedfile: res.encoded})
             });
         }
@@ -146,7 +148,7 @@ exports.appendMessages = function(rawdata, ind){
         var author = data[x].from;
         author1 = author.toString();
         if(author1 == ind.id) {
-            Lara.decodeMessage({key: ind.uniqueKey, message: raw}, function(out){
+            Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
                 var timestamp = document.createElement('div');
                 timestamp.setAttribute('align', 'right');
                 timestamp.setAttribute('class', 'timestamp');
@@ -169,7 +171,7 @@ exports.appendMessages = function(rawdata, ind){
             });
         }
         if(author1 == ind.receiver) {
-            Lara.decodeMessage({key: ind.key, message: raw}, function(out){
+            Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
                 var timestamp = document.createElement('div');
                 timestamp.setAttribute('align', 'left');
                 timestamp.setAttribute('class', 'timestamp');
@@ -187,7 +189,7 @@ exports.appendMessages = function(rawdata, ind){
                 messages.scrollTop = messages.scrollHeight;
                 UIlib.notification();
             });
-        }     
+        }
     }
 }
 
@@ -203,7 +205,7 @@ exports.appendDiscussions = function(rawdata, ind, blacklist){
             var author2 = data[x].to;
             author2 = author2.toString();
             if(author == ind.id) {
-                Lara.decodeMessage({key: ind.uniqueKey, message: raw}, function(out){
+                Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
                     var decodedFinal = out.decoded.split("");
                     part = decodedFinal.slice(0, 34);
                     var decodedFinal = part.join("") + "...";
@@ -228,7 +230,7 @@ exports.appendDiscussions = function(rawdata, ind, blacklist){
                 });
             }
             else {
-                Lara.decodeMessage({key: ind.key, message: raw}, function(out){
+                Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
                     var decodedFinal = out.decoded.split("");
                     part = decodedFinal.slice(0, 34);
                     var decodedFinal = part.join("") + "...";
@@ -250,19 +252,20 @@ exports.appendDiscussions = function(rawdata, ind, blacklist){
                     discussionText.innerHTML = "<b>@" + author + "</b>" + " <br>" + "<p>" + decodedFinal + "</p>";
                     previousDiscussions.insertBefore(discussion, previousDiscussions.firstChild);
                     discussion.appendChild(discussionText);
-                });                
-            }            
+                });
+            }
         }
     }
 }
 
+//TODO ind? while in client.js we get appendFile(out,data)...
 exports.appendFile = function(data, ind){
     console.log(data)
     var raw = data.message;
     var author = data.user;
-    author1 = author.toString();    
+    author1 = author.toString();
     if(author1 == ind.id){
-        Lara.decodeMessage({key: ind.uniqueKey, message: raw}, function(out){
+        Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
             var decoded = out.decoded;
             var image = new Image();
             image.src = decoded;
@@ -281,7 +284,7 @@ exports.appendFile = function(data, ind){
 
     }
     if(author1 == ind.receiver){
-        Lara.decodeMessage({key: ind.key, message: raw}, function(out){
+        Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
             var decoded = out.decoded;
             var image = new Image();
             image.src = decoded;
@@ -297,6 +300,6 @@ exports.appendFile = function(data, ind){
             messages.scrollTop = messages.scrollHeight;
             UIlib.notification();
         });
-        
+
     }
 }

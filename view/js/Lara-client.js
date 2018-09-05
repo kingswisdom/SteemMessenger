@@ -3,7 +3,7 @@ const libcrypto = require('@steemit/libcrypto');
 const crypto = require ('./crypto');
 const storage = require('./storage.js');
 
-var LaraAccount = "lara-bot" 
+var LaraAccount = "lara-bot"
 
 
 
@@ -11,7 +11,6 @@ exports.initializeKeys = function(data, out){
     var uniqueMemoKeys = libcrypto.generateKeys();
     var uniquePrivate = uniqueMemoKeys.private;
     var uniquePublic = uniqueMemoKeys.public;
-    /* check that the session keys generation works client side*/
     steem.api.getAccounts([LaraAccount], function(err, result){
 		if(result.length > 0) {
 			pubWif = result[0]["memo_key"];
@@ -62,14 +61,22 @@ exports.encodeSafeSocket = function(data, key, out){
 
 exports.encodeMessage = function(data, out){
 	var preOp = "#" + data.message;
-	var encoded = steem.memo.encode(data.key, data.publicMemoReceiver, preOp);
+	var encoded = crypto.encrypt(data.sharedKey, preOp);
+  console.log("encrypted message" + encoded);
 	out({encoded: encoded})
 }
 
+//TODO test encode+decodeMess
 exports.decodeMessage = function(data, out){
-	var decoded = steem.memo.decode(data.key, data.message);
-	var decodedFinal = decoded.split("");
-	decodedFinal.shift();
-	var decodedFinal = decodedFinal.join("");
-	out({decoded: decodedFinal})
+  steem.api.getAccounts([data.receiver], function(err, result) {
+    var pubWif = result[0]["memo_key"];
+    var sessionKeys = crypto.generate_session_keys(data.key,pubWif);
+    var decoded = crypto.decrypt(sessionKeys.encryptionKey, data.message);
+  	var decodedFinal = decoded.split("");
+  	decodedFinal.shift();
+  	var decodedFinal = decodedFinal.join("");
+    console.log("decoded message"+decodedFinal);
+  	out({decoded: decodedFinal});
+  });
+
 }
