@@ -1,5 +1,7 @@
 const steem = require("steem");
 const client = require("./client.js");
+const crypto = require ('./crypto');
+const config = require('./config.json');
 const UIlib = require('./UIlib.js');
 const UI = require('./UI.js');
 const login = require('./login.js')
@@ -63,7 +65,7 @@ exports.createWalletPassphrase = function(data, result){
 }
 
 exports.showPlans = function(data){
-    steem.api.getDiscussionsByBlog({tag: "steem-messenger", limit: 1}, function(err, result){
+    steem.api.getDiscussionsByBlog({tag: config.SMaccount, limit: 1}, function(err, result){
         var permlink = result[0].permlink;
         return UI.onNotSubscribed({id:data.user, permlink: permlink});
     });
