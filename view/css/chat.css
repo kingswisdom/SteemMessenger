@@ -359,6 +359,24 @@
 
 	}
 
+	.app.subscription
+	{
+		width: 750px;
+		height: 500px;
+		border-radius: 3%;
+		background: #fcfdff;
+		text-align: center;
+		padding-top: 3px;
+		z-index: 3;
+		font-size: 13px;
+		position: fixed;
+		overflow:auto;
+		bottom: 95px;
+		right: 20px;
+		box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.24), 0 1.5px 6px rgba(0, 0, 0, 0.12);
+		transition: height .3s, top .3s, width .3s, border-radius .2s .1s, background .0s .6s;
+	}
+
 	
 	.DaChatBox
 	{
@@ -439,6 +457,15 @@
 	}
 
 	.leakedWarning{
+		display: none;
+		-webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
+       -moz-animation: fadein 2s; /* Firefox < 16 */
+        -ms-animation: fadein 2s; /* Internet Explorer */
+         -o-animation: fadein 2s; /* Opera < 12.1 */
+            animation: fadein 2s;
+	}
+
+	.notSubscribed{
 		display: none;
 		-webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
        -moz-animation: fadein 2s; /* Firefox < 16 */
