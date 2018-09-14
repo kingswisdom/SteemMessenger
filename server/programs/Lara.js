@@ -1,5 +1,4 @@
 const steem = require('steem');
-//const crypto = require('../crypto');
 const crypto = require('../../view/js/crypto');
 const db = require('./db.js')
 const config = require('../../config.json');

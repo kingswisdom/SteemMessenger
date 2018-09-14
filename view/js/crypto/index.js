@@ -7,24 +7,19 @@ var Signature = require('./steem-js/auth/ecc/src/signature'),
 
 var Crypto = {};
 
-
+//TODO derive a session key from sessions(date/hour or smth else)
+//TODO generate a key per file and encrypt that key with the session encryption key
 
 Crypto.generate_session_keys = function (private_wif, public_key){
-	//console.log(private_wif);
   var private_key = KeyPrivate.fromWif(private_wif);
   var shared_secret = private_key.get_shared_secret(public_key);
-	//console.log(base58.encode(shared_secret));
-	var authenticationKey = base58.encode(hash.HmacSHA256(shared_secret,"Authentication key"));
-	//TODO change message encryption from steem.auth.memo to AES-GCM
-	var encryptionKey = base58.encode(hash.HmacSHA256(shared_secret,"Encryption key"));
-	//console.log(authenticationKey);
-	//console.log(encryptionKey);
-	//console.log("end crypto func");
+	var authenticationKey = this.bufferToBase64url(hash.HmacSHA256(shared_secret,"Authentication key"));
+	var encryptionKey = this.bufferToBase64url(hash.HmacSHA256(shared_secret,"Encryption key"));
+
   return {"authenticationKey": authenticationKey, "encryptionKey": encryptionKey};
 };
 
 Crypto.authentication_token = function (authenticationKey){
-//TODO derive a session token from authenticationKey and date/hour or smth else
 	return authenticationKey;
 }
 
@@ -42,7 +37,7 @@ Crypto.verify_client_authentication = function (receivedtoken, authenticationKey
 
  * @param {string} encryptionKey A base64url encoded symmetric key
 
- * @param {string} data base64url string. Make sure that data is a printable string.
+ * @param {string} data string. Make sure that data is a printable (base64url if possible) string.
 
  * @return {string} The flat json ciphertext.
 
@@ -69,7 +64,7 @@ Crypto.encrypt = function (encryptionKey,data){
 
  * @param {string} decryptionKey A base64url encoded symmetric key. Error if it is not the right key
 
- * @param {string} data base64url string. Make sure that data is a printable string.
+ * @param {string} data string. Make sure that data is a printable (base64url if possible) string.
 
  * @return {string} The flat json ciphertext.
 

@@ -4,6 +4,7 @@ const UIlib = require('./UIlib.js');
 const UI = require('./UI.js');
 const login = require('./login.js')
 const Lara = require('./Lara-client.js')
+const crypto = require ('./crypto');
 
 var element = function(id){
     return document.getElementById(id);
