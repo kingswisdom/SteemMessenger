@@ -2,7 +2,7 @@ const steem = require('steem');
 const storage = require('./storage.js');
 const crypto = require ('./crypto');
 
-var LaraPublicKey = 'STM6CoeaohnQBMLYbQU3nkyfGqMeLG68n8MVnf5Zk2dzN2Bocdq43';
+var LaraPublicKey = 'STM8WW8JsjbcRhYhyjLuEbvYamMzPfZQzPB3fWK24hC5ibcSGP56V';
 
 exports.firstLogin = function(data, out){
 	steem.api.getAccounts([data.user], function(err, result) {

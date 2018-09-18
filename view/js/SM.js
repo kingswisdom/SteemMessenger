@@ -1,22 +1,18 @@
-const steem = require("steem");
-const client = require("./client.js");
-const crypto = require ('./crypto');
-const config = require('./config.json');
-const UIlib = require('./UIlib.js');
-const UI = require('./UI.js');
-const login = require('./login.js')
-const Lara = require('./Lara-client.js')
-const crypto = require ('./crypto');
+const steem         = require("steem");
+const client        = require("./client.js");
+const crypto        = require ('./crypto');
+const config        = require('./config.json');
+const UIlib         = require('./UIlib.js');
+const UI            = require('./UI.js');
+const login         = require('./login.js')
+const Lara          = require('./Lara-client.js')
 
-var element = function(id){
-    return document.getElementById(id);
-}
-var messages = element('messages');
-var receiverInfo = element("receiver-info");
-var previousDiscussions = element("previousDiscussions");
-receiverInfo.style.display = "none";
+var element = function(id){ return document.getElementById(id); }
 
-
+var messages                    = element('messages');
+var receiverInfo                = element("receiver-info");
+var previousDiscussions         = element("previousDiscussions");
+receiverInfo.style.display      = "none"; //TODO : edit the css and add this style as native parameter, then delete this line
 
 
 exports.checkIfAlreadyConnected = function(){
@@ -57,7 +53,6 @@ exports.passphraseLogin = function(data, result){
 
 exports.createWalletPassphrase = function(data, result){
     if(data.pass1 === data.pass2){
-
         result("ok");
     }
     else{
@@ -77,22 +72,23 @@ exports.chooseFriend = function(data, out){
     var to = data.to;
     steem.api.getAccounts([to], function(err, result) {
         if(result.length > 0) {
+            var pubWif = result[0]["memo_key"];
             UIlib.hideLoader2();
             UIlib.hideLoginSuccess();
             UIlib.showChatContainer();
             var receiverInf = document.createElement('div');
-            receiverInf.setAttribute("id", "receiverInf");
+                receiverInf.setAttribute("id", "receiverInf");                
+                receiverInf.textContent = "@" + data.to;
             var receiverpicture = document.createElement("img");
-            receiverpicture.setAttribute("id", "receiverpicture");
-            receiverpicture.setAttribute("src", "https://steemitimages.com/u/" + to + "/avatar");
-            receiverpicture.setAttribute("height", "36");
-            receiverpicture.setAttribute("width", "36");
-            receiverpicture.setAttribute("style", "border-radius:50%;margin-top: 5px;margin-left: 5px;");
+                receiverpicture.setAttribute("id", "receiverpicture");
+                receiverpicture.setAttribute("src", "https://steemitimages.com/u/" + to + "/avatar");
+                receiverpicture.setAttribute("height", "36");
+                receiverpicture.setAttribute("width", "36");
+                receiverpicture.setAttribute("style", "border-radius:50%;margin-top: 5px;margin-left: 5px;");
             receiverInfo.appendChild(receiverpicture);
-            receiverInf.textContent = "@" + data.to;
             receiverInfo.appendChild(receiverInf);
             UIlib.showReceiverInfo();
-            out({to: to});
+            out({to: to, pubWif: pubWif});
         }
         else {
             UIlib.hideLoader2();
@@ -106,8 +102,8 @@ exports.handleInput = function(data, out){
     UIlib.showLoader3();
     steem.api.getAccounts([data.receiver], function(err, result) {
         if(result.length > 0) {
-            var publicMemoReceiver = result[0]["memo_key"];
-            var sessionKeys = crypto.generate_session_keys(data.key,publicMemoReceiver);
+            var publicMemoReceiver  = result[0]["memo_key"];
+            var sessionKeys         = crypto.generate_session_keys(data.key,publicMemoReceiver);
             Lara.encodeMessage({message: data.message, sharedKey:sessionKeys.encryptionKey, key: data.uniquePrivate, publicMemoReceiver: publicMemoReceiver}, function(res){
                 out({encodedmsg: res.encoded})
             });
@@ -129,8 +125,8 @@ exports.handleFile = function(data, out){
     UIlib.showLoader3();
     steem.api.getAccounts([data.receiver], function(err, result) {
         if(result.length > 0) {
-            var publicMemoReceiver = result[0]["memo_key"];
-            var sessionKeys = crypto.generate_session_keys(data.key,publicMemoReceiver);
+            var publicMemoReceiver  = result[0]["memo_key"];
+            var sessionKeys         = crypto.generate_session_keys(data.key,publicMemoReceiver);
             Lara.encodeMessage({message: data.file, sharedKey:sessionKeys.encryptionKey, key: data.uniquePrivate, publicMemoReceiver: publicMemoReceiver}, function(res){
                 out({encodedfile: res.encoded})
             });
@@ -146,26 +142,37 @@ exports.handleFile = function(data, out){
 
 exports.appendMessages = function(rawdata, ind){
     var data = rawdata.message;
-    for(var x = 0;x < data.length;x++){
-        var raw = data[x].message;
-        var author = data[x].from;
-        author1 = author.toString();
+    console.log(data);
+    for(let x = 0;  x < data.length;    x++){
+
+        var raw             = data[x].message;
+        var author          = data[x].from;
+        var author1         = author.toString();
+        var currentTime     = Date.now();
+        var timestamp       = data[x].timestamp;
+        var relativeTime    = timeDifference(timestamp);
+
         if(author1 == ind.id) {
-            Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
-                var timestamp = document.createElement('div');
-                timestamp.setAttribute('align', 'right');
-                timestamp.setAttribute('class', 'timestamp');
-                timestamp.textContent = new Date(data[x].timestamp).getHours() < 13 ? `${new Date(data[x].timestamp).getHours()}: ${new Date(data[x].timestamp).getMinutes()} AM` : `${new Date(data[x].timestamp).getHours() - 12}: ${new Date(data[x].timestamp).getMinutes()} PM`
+            Lara.decodeMessage({key: ind.key, receiver: ind.receiver, recipient_pubWIF: ind.recipient_pubWIF, message: raw}, function(out){
+
+                var time = document.createElement('div');
+                    time.setAttribute('align', 'right');
+                    time.setAttribute('class', 'timestamp');                    
+                    time.textContent = relativeTime; console.log(relativeTime);
+
                 var message = document.createElement('div');
-                message.setAttribute('class', 'msg-containerblue');
-                message.setAttribute('align', 'right');
+                    message.setAttribute('class', 'msg-containerblue');
+                    message.setAttribute('style', 'order:'+x+';');
+                    message.setAttribute('align', 'right');
+
                 var messageText = document.createElement('div');
-                messageText.setAttribute('align', 'left');
-                messageText.setAttribute('class', 'msg-container-text');
-                messageText.textContent = out.decoded;
+                    messageText.setAttribute('align', 'left');
+                    messageText.setAttribute('class', 'msg-container-text');
+                    messageText.textContent = out.decoded;
+
                 messages.appendChild(message);
                 message.appendChild(messageText);
-                messages.appendChild(timestamp);
+                messages.appendChild(time);
                 UIlib.hideLoader3();
                 UIlib.showChatTextInputArea();
                 UIlib.clearChatTextInputArea();
@@ -174,18 +181,22 @@ exports.appendMessages = function(rawdata, ind){
             });
         }
         if(author1 == ind.receiver) {
-            Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
+            Lara.decodeMessage({key: ind.key, receiver: ind.receiver, recipient_pubWIF: ind.recipient_pubWIF, message: raw}, function(out){
+
                 var timestamp = document.createElement('div');
-                timestamp.setAttribute('align', 'left');
-                timestamp.setAttribute('class', 'timestamp');
-                timestamp.textContent = new Date(data[x].timestamp).getHours() < 13 ? `${new Date(data[x].timestamp).getHours()}: ${new Date(data[x].timestamp).getMinutes()} AM` : `${new Date(data[x].timestamp).getHours() - 12}: ${new Date(data[x].timestamp).getMinutes()} PM`
+                    timestamp.setAttribute('align', 'left');
+                    timestamp.setAttribute('class', 'timestamp');
+                    timestamp.textContent = relativeTime;
+
                 var message = document.createElement('div');
-                message.setAttribute('class', 'msg-container');
-                message.setAttribute('align', 'left');
+                    message.setAttribute('class', 'msg-container');
+                    message.setAttribute('align', 'left');
+
                 var messageText = document.createElement('div');
-                messageText.setAttribute('align', 'left');
-                messageText.setAttribute('class', 'msg-container-text');
-                messageText.textContent = out.decoded;
+                    messageText.setAttribute('align', 'left');
+                    messageText.setAttribute('class', 'msg-container-text');
+                    messageText.textContent = out.decoded;
+
                 messages.appendChild(message);
                 message.appendChild(messageText);
                 messages.appendChild(timestamp);
@@ -202,13 +213,15 @@ exports.appendDiscussions = function(rawdata, ind, blacklist){
     var discussionPicture;
     if(data.length){
         for(var x = 0;x < data.length;x++){
-            var raw = data[x].message;
-            var author = data[x].from;
-            author = author.toString();
-            var author2 = data[x].to;
-            author2 = author2.toString();
+
+            var raw         = data[x].message;
+            var author      = data[x].from;
+                author      = author.toString();
+            var author2     = data[x].to;
+                author2     = author2.toString();
+
             if(author == ind.id) {
-                Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
+                Lara.decodeDiscussion({key: ind.key, receiver: author2, message: raw}, function(out){
                     var decodedFinal = out.decoded.split("");
                     part = decodedFinal.slice(0, 34);
                     var decodedFinal = part.join("") + "...";
@@ -233,7 +246,7 @@ exports.appendDiscussions = function(rawdata, ind, blacklist){
                 });
             }
             else {
-                Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
+                Lara.decodeDiscussion({key: ind.key, receiver: author, message: raw}, function(out){
                     var decodedFinal = out.decoded.split("");
                     part = decodedFinal.slice(0, 34);
                     var decodedFinal = part.join("") + "...";
@@ -264,14 +277,14 @@ exports.appendDiscussions = function(rawdata, ind, blacklist){
 //TODO ind? while in client.js we get appendFile(out,data)...
 exports.appendFile = function(data, ind){
     console.log(data)
-    var raw = data.message;
-    var author = data.user;
-    author1 = author.toString();
+    var raw         = data.message;
+    var author      = data.user;
+    var author1     = author.toString();
     if(author1 == ind.id){
         Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
-            var decoded = out.decoded;
-            var image = new Image();
-            image.src = decoded;
+            var decoded     = out.decoded;
+            var image       = new Image();
+                image.src   = decoded;
             var message = document.createElement('div');
             message.setAttribute('class', 'msg-containerblue');
             message.setAttribute('align', 'right');
@@ -281,7 +294,9 @@ exports.appendFile = function(data, ind){
             messageImage.setAttribute("width", "170");
             messages.appendChild(message);
             message.appendChild(messageImage);
+            UIlib.hideLoader3();
             UIlib.showChatTextInputArea();
+            UIlib.clearChatTextInputArea();
             messages.scrollTop = messages.scrollHeight;
         });
 
@@ -304,5 +319,43 @@ exports.appendFile = function(data, ind){
             UIlib.notification();
         });
 
+    }
+}
+
+function timeDifference(previous) {
+    var current         = Date.now();
+    var msPerMinute     = 60 * 1000;
+    var msPerHour       = msPerMinute * 60;
+    var msPerDay        = msPerHour * 24;
+    var msPerMonth      = msPerDay * 30;
+    var msPerYear       = msPerDay * 365;
+    var elapsed         = current - previous;
+
+    if (elapsed < 2000) {
+         return Math.round(elapsed/1000) + ' second ago';   
+    }
+
+    else if (elapsed < msPerMinute) {
+         return Math.round(elapsed/1000) + ' seconds ago';   
+    }
+
+    else if (elapsed < msPerHour) {
+         return Math.round(elapsed/msPerMinute) + ' minutes ago';   
+    }
+
+    else if (elapsed < msPerDay ) {
+         return Math.round(elapsed/msPerHour ) + ' hours ago';   
+    }
+
+    else if (elapsed < msPerMonth) {
+        return Math.round(elapsed/msPerDay) + ' days ago';   
+    }
+
+    else if (elapsed < msPerYear) {
+        return Math.round(elapsed/msPerMonth) + ' months ago';   
+    }
+
+    else {
+        return Math.round(elapsed/msPerYear ) + ' years ago';   
     }
 }

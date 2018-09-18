@@ -120,7 +120,6 @@ function handleFile(data, socket){
     db.checkSubscription({user: data.user}, function(res){
         if(res.length > 0 && res[0].user != undefined && res[0].end >= Date.now()){
             if(users[data.to] != undefined) {
-                db.saveMessage({user: data.user, to: data.to, message: data.message});
                 Lara.encodeSafeSocket({request: "file output", identity: data.user, user: data.user, to: data.to, message: data.message}, function(out){
                     socket.emit("safeSocket", out);
                 });
@@ -129,7 +128,6 @@ function handleFile(data, socket){
                 });
             }
             else{
-                db.saveMessage({user: data.user, to: data.to, message: data.message});
                 Lara.encodeSafeSocket({request: "file output", identity: data.user, user: data.user, to: data.to, message: data.message}, function(out){
                     return socket.emit("safeSocket", out);
                 });
@@ -181,7 +179,7 @@ function handleOutput(data, socket){
         db.getLastMessage({user:data.user, receiver:data.to}, function(err, res){
             if(users[data.to] != undefined) {
                 Lara.encodeSafeSocket({request: "output", identity: data.user, user: data.user, message: res}, function(out){
-                    socket.emit("safeSocket", res);
+                    socket.emit("safeSocket", out);
                 });
                 Lara.encodeSafeSocket({request: "output", identity: data.to, user: data.user, message: res}, function(out){
                     socket.to(users[data.to].id).emit("safeSocket", out);

@@ -38,6 +38,7 @@
 	var user;
 	var key;
 	var recipient;
+	var recipient_pubWIF;
 	var socket = io.connect();
 	var keys;
 
@@ -117,7 +118,7 @@
 
 				      	case "output":
 				      		UI.hideWhoIsWriting();
-							return SM.appendMessages(out, {id:user, key:key, uniqueKey:keys.uniquePrivate, receiver:recipient});
+							return SM.appendMessages(out, {id:user, key:key, uniqueKey:keys.uniquePrivate, receiver:recipient, recipient_pubWIF: recipient_pubWIF});
 
 				      	case "not subscribed":
 				      		return SM.showPlans({id:user});
@@ -171,6 +172,7 @@
 		exports.fetchDiscussion = function(data){
 			SM.chooseFriend({to:data.receiver, user:user}, function(out){
 				recipient = out.to;
+				recipient_pubWIF = out.pubWif;
 				Lara.encodeSafeSocket({request: "getDiscussion", identity: user, user: user, to: recipient}, key, function(res){
 					return socket.emit("safeSocket", res);
 				});
@@ -216,7 +218,8 @@
 		function getReceiver(){
 			if(receiver.value != "") {
 				SM.chooseFriend({user:user, to:receiver.value}, function(out){
-					recipient = out.to;
+					recipient = out.to;				
+					recipient_pubWIF = out.pubWif;
 					receiver.value = "";
 					Lara.encodeSafeSocket({request: "getDiscussion", identity: user, user: user, to: recipient}, key, function(res){
 						return socket.emit("safeSocket", res);
