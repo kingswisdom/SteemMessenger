@@ -66,21 +66,6 @@ exports.encodeMessage = function(data, out){
 	out({encoded: encoded})
 }
 
-//TODO test encode+decodeMess
-exports.decodeDiscussion = function(data, out){
-  steem.api.getAccounts([data.receiver], function(err, result) {
-    var pubWif = result[0]["memo_key"];
-    var sessionKeys = crypto.generate_session_keys(data.key,pubWif);
-    var decoded = crypto.decrypt(sessionKeys.encryptionKey, data.message);
-  	var decodedFinal = decoded.split("");
-  	decodedFinal.shift();
-  	var decodedFinal = decodedFinal.join("");
-    console.log("decoded message"+decodedFinal);
-  	out({decoded: decodedFinal});
-  });
-
-}
-
 exports.decodeMessage = function(data, out){
     var pubWif = data.recipient_pubWIF;
     var sessionKeys = crypto.generate_session_keys(data.key,pubWif);
