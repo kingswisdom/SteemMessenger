@@ -88,7 +88,8 @@ exports.chooseFriend = function(data, out){
             receiverInfo.appendChild(receiverpicture);
             receiverInfo.appendChild(receiverInf);
             UIlib.showReceiverInfo();
-            out({to: to, pubWif: pubWif});
+            var sessionKeys = crypto.generate_session_keys(data.key,pubWif);
+            out({to: to, sharedKey: sessionKeys.encryptionKey, pubWif: pubWif});
         }
         else {
             UIlib.hideLoader2();
@@ -100,20 +101,9 @@ exports.chooseFriend = function(data, out){
 exports.handleInput = function(data, out){
     UIlib.hideChatTextInputArea();
     UIlib.showLoader3();
-    steem.api.getAccounts([data.receiver], function(err, result) {
-        if(result.length > 0) {
-            var publicMemoReceiver  = result[0]["memo_key"];
-            var sessionKeys         = crypto.generate_session_keys(data.key,publicMemoReceiver);
-            Lara.encodeMessage({message: data.message, sharedKey:sessionKeys.encryptionKey, key: data.uniquePrivate, publicMemoReceiver: publicMemoReceiver}, function(res){
-                out({encodedmsg: res.encoded})
-            });
-        }
-        else {
-            UIlib.showChatTextInputArea();
-            UIlib.clearChatTextInputArea();
-            alert("Error : no receiver found !");
-        }
-    });
+    Lara.encodeMessage({message: data.message, sharedKey:data.sharedKey}, function(res){
+        out({encodedmsg: res.encoded})
+    });    
 }
 
 exports.recipientIsWriting = function(data){
@@ -122,21 +112,9 @@ exports.recipientIsWriting = function(data){
 
 exports.handleFile = function(data, out){
     UIlib.hideChatTextInputArea();
-    UIlib.showLoader3();
-    steem.api.getAccounts([data.receiver], function(err, result) {
-        if(result.length > 0) {
-            var publicMemoReceiver  = result[0]["memo_key"];
-            var sessionKeys         = crypto.generate_session_keys(data.key,publicMemoReceiver);
-            Lara.encodeMessage({message: data.file, sharedKey:sessionKeys.encryptionKey, key: data.uniquePrivate, publicMemoReceiver: publicMemoReceiver}, function(res){
-                out({encodedfile: res.encoded})
-            });
-        }
-        else {
-            UIlib.hideLoader3();
-            UIlib.showChatTextInputArea();
-            UIlib.clearChatTextInputArea();
-            alert("Error : no receiver found !");
-        }
+    UIlib.showLoader3();    
+    Lara.encodeMessage({message: data.file, sharedKey: data.sharedKey}, function(res){
+        out({encodedfile: res.encoded})
     });
 }
 
@@ -153,7 +131,7 @@ exports.appendMessages = function(rawdata, ind){
         var relativeTime    = timeDifference(timestamp);
 
         if(author1 == ind.id) {
-            Lara.decodeMessage({key: ind.key, receiver: ind.receiver, recipient_pubWIF: ind.recipient_pubWIF, message: raw}, function(out){
+            Lara.decodeMessage2({sharedKey: ind.sharedKey, message: raw}, function(out){
 
                 var time = document.createElement('div');
                     time.setAttribute('align', 'right');
@@ -181,7 +159,7 @@ exports.appendMessages = function(rawdata, ind){
             });
         }
         if(author1 == ind.receiver) {
-            Lara.decodeMessage({key: ind.key, receiver: ind.receiver, recipient_pubWIF: ind.recipient_pubWIF, message: raw}, function(out){
+            Lara.decodeMessage2({sharedKey: ind.sharedKey, message: raw}, function(out){
 
                 var timestamp = document.createElement('div');
                     timestamp.setAttribute('align', 'left');
@@ -301,7 +279,7 @@ exports.appendFile = function(data, ind){
     var author      = data.user;
     var author1     = author.toString();
     if(author1 == ind.id){
-        Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
+        Lara.decodeMessage2({sharedKey: ind.sharedKey, message: raw}, function(out){
             var decoded     = out.decoded;
             var image       = new Image();
                 image.src   = decoded;
@@ -325,7 +303,7 @@ exports.appendFile = function(data, ind){
 
     }
     if(author1 == ind.receiver){
-        Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
+        Lara.decodeMessage2({sharedKey: ind.sharedKey, message: raw}, function(out){
             var decoded = out.decoded;
             var image = new Image();
                 image.src = decoded;

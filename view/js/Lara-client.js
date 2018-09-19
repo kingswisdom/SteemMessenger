@@ -62,16 +62,27 @@ exports.encodeSafeSocket = function(data, key, out){
 exports.encodeMessage = function(data, out){
 	var preOp = "#" + data.message;
 	var encoded = crypto.encrypt(data.sharedKey, preOp);
-  console.log("encrypted message" + encoded);
+  	console.log("encrypted message" + encoded);
 	out({encoded: encoded})
 }
+
 
 exports.decodeMessage = function(data, out){
     var pubWif = data.recipient_pubWIF;
     var sessionKeys = crypto.generate_session_keys(data.key,pubWif);
     var decoded = crypto.decrypt(sessionKeys.encryptionKey, data.message);
   	var decodedFinal = decoded.split("");
-  	decodedFinal.shift();
+  		decodedFinal.shift();
+  	var decodedFinal = decodedFinal.join("");
+    console.log("decoded message"+decodedFinal);
+  	out({decoded: decodedFinal});
+
+}
+
+exports.decodeMessage2 = function(data, out){
+    var decoded = crypto.decrypt(data.sharedKey, data.message);
+  	var decodedFinal = decoded.split("");
+  		decodedFinal.shift();
   	var decodedFinal = decodedFinal.join("");
     console.log("decoded message"+decodedFinal);
   	out({decoded: decodedFinal});
