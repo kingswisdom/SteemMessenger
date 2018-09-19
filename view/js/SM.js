@@ -211,66 +211,86 @@ exports.appendMessages = function(rawdata, ind){
 exports.appendDiscussions = function(rawdata, ind, blacklist){
     var data = rawdata.message
     var discussionPicture;
+    var recipients = [];
     if(data.length){
-        for(var x = 0;x < data.length;x++){
-
-            var raw         = data[x].message;
-            var author      = data[x].from;
-                author      = author.toString();
-            var author2     = data[x].to;
-                author2     = author2.toString();
-
-            if(author == ind.id) {
-                Lara.decodeDiscussion({key: ind.key, receiver: author2, message: raw}, function(out){
-                    var decodedFinal = out.decoded.split("");
-                    part = decodedFinal.slice(0, 34);
-                    var decodedFinal = part.join("") + "...";
-                    var discussion = document.createElement('div');
-                    discussion.setAttribute('class', 'discussionOld');
-                    var discpicture = document.createElement("img");
-                    discpicture.setAttribute("src", "https://steemitimages.com/u/" + author2 + "/avatar");
-                    discpicture.setAttribute("height", "36");
-                    discpicture.setAttribute("width", "36");
-                    discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 15px;");
-                    discussion.appendChild(discpicture)
-                    discussion.addEventListener("click", (function(author2) {
-                        return function () {
-                            client.fetchDiscussion({receiver: author2});
-                        }
-                    })(author2));
-                    var discussionText = document.createElement('div');
-                    discussionText.setAttribute('align', 'left');
-                    discussionText.innerHTML = "<b>@" + author2 + "</b>" + " <br>" + "<p>" + decodedFinal + "</p>";
-                    previousDiscussions.insertBefore(discussion, previousDiscussions.firstChild);
-                    discussion.appendChild(discussionText);
-                });
+        for(let i = 0; i < data.length; i++){
+            if(data[i].from == ind.id){
+                recipients[i] = data[i].to;
             }
-            else {
-                Lara.decodeDiscussion({key: ind.key, receiver: author, message: raw}, function(out){
-                    var decodedFinal = out.decoded.split("");
-                    part = decodedFinal.slice(0, 34);
-                    var decodedFinal = part.join("") + "...";
-                    var discussion = document.createElement('div');
-                    discussion.setAttribute('class', 'discussionNew');
-                    var discpicture = document.createElement("img");
-                    discpicture.setAttribute("src", "https://steemitimages.com/u/" + author + "/avatar");
-                    discpicture.setAttribute("height", "36");
-                    discpicture.setAttribute("width", "36");
-                    discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 15px;");
-                    discussion.appendChild(discpicture)
-                    discussion.addEventListener("click", (function(author) {
-                        return function () {
-                            client.fetchDiscussion({receiver: author});
-                        }
-                    })(author));
-                    var discussionText = document.createElement('div');
-                    discussionText.setAttribute('align', 'left');
-                    discussionText.innerHTML = "<b>@" + author + "</b>" + " <br>" + "<p>" + decodedFinal + "</p>";
-                    previousDiscussions.insertBefore(discussion, previousDiscussions.firstChild);
-                    discussion.appendChild(discussionText);
-                });
+            else{
+                recipients[i] = data[i].from;
             }
+            
         }
+        steem.api.getAccounts(recipients, function(err, result){
+            for(var x = 0;x < result.length;x++){
+                var pubWif      = result[x]["memo_key"];
+                var raw         = data[x].message;
+                var author      = data[x].from;
+                    author      = author.toString();
+                var author2     = data[x].to;
+                    author2     = author2.toString();
+
+                if(author == ind.id) {
+                    Lara.decodeMessage({key: ind.key, receiver: author2, recipient_pubWIF: pubWif, message: raw}, function(out){
+
+                        var decodedFinal = out.decoded.split("");
+                            decodedFinal = decodedFinal.slice(0, 34);
+                            decodedFinal = decodedFinal.join("") + "...";
+
+                        var discussion = document.createElement('div');
+                            discussion.setAttribute('class', 'discussionOld');
+
+                        var discpicture = document.createElement("img");
+                            discpicture.setAttribute("src", "https://steemitimages.com/u/" + author2 + "/avatar");
+                            discpicture.setAttribute("height", "36");
+                            discpicture.setAttribute("width", "36");
+                            discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 15px;");
+                        
+                        discussion.appendChild(discpicture);
+                        discussion.addEventListener("click", (function(author2) {
+                            return function () {
+                                client.fetchDiscussion({receiver: author2});
+                            }
+                        })(author2));
+                        var discussionText = document.createElement('div');
+                        discussionText.setAttribute('align', 'left');
+                        discussionText.innerHTML = "<b>@" + author2 + "</b>" + " <br>" + "<p>" + decodedFinal + "</p>";
+                        previousDiscussions.insertBefore(discussion, previousDiscussions.firstChild);
+                        discussion.appendChild(discussionText);
+                    });
+                }
+                else {
+                    Lara.decodeMessage({key: ind.key, receiver: author, recipient_pubWIF: pubWif, message: raw}, function(out){
+                        
+                        var decodedFinal = out.decoded.split("");
+                            decodedFinal = decodedFinal.slice(0, 34);
+                            decodedFinal = decodedFinal.join("") + "...";
+                        
+                        var discussion = document.createElement('div');
+                            discussion.setAttribute('class', 'discussionNew');
+                        
+                        var discpicture = document.createElement("img");
+                            discpicture.setAttribute("src", "https://steemitimages.com/u/" + author + "/avatar");
+                            discpicture.setAttribute("height", "36");
+                            discpicture.setAttribute("width", "36");
+                            discpicture.setAttribute("style", "float:left;border-radius:50%;border-width:2px;bordercolor:#fff;margin-top: 12px;margin-left: 5px;margin-right: 15px;");
+                        
+                        discussion.appendChild(discpicture)
+                        discussion.addEventListener("click", (function(author) {
+                            return function () {
+                                client.fetchDiscussion({receiver: author});
+                            }
+                        })(author));
+                        var discussionText = document.createElement('div');
+                        discussionText.setAttribute('align', 'left');
+                        discussionText.innerHTML = "<b>@" + author + "</b>" + " <br>" + "<p>" + decodedFinal + "</p>";
+                        previousDiscussions.insertBefore(discussion, previousDiscussions.firstChild);
+                        discussion.appendChild(discussionText);
+                    });
+                }
+            }
+        });           
     }
 }
 
@@ -285,13 +305,16 @@ exports.appendFile = function(data, ind){
             var decoded     = out.decoded;
             var image       = new Image();
                 image.src   = decoded;
+
             var message = document.createElement('div');
-            message.setAttribute('class', 'msg-containerblue');
-            message.setAttribute('align', 'right');
+                message.setAttribute('class', 'msg-containerblue');
+                message.setAttribute('align', 'right');
+
             var messageImage = document.createElement("img");
-            messageImage.setAttribute("src", image.src);
-            messageImage.setAttribute("height", "170");
-            messageImage.setAttribute("width", "170");
+                messageImage.setAttribute("src", image.src);
+                messageImage.setAttribute("height", "170");
+                messageImage.setAttribute("width", "170");
+
             messages.appendChild(message);
             message.appendChild(messageImage);
             UIlib.hideLoader3();
@@ -305,14 +328,17 @@ exports.appendFile = function(data, ind){
         Lara.decodeMessage({key: ind.key, receiver: ind.receiver, message: raw}, function(out){
             var decoded = out.decoded;
             var image = new Image();
-            image.src = decoded;
+                image.src = decoded;
+
             var message = document.createElement('div');
-            message.setAttribute('class', 'msg-container');
-            message.setAttribute('align', 'left');
+                message.setAttribute('class', 'msg-container');
+                message.setAttribute('align', 'left');
+                
             var messageImage = document.createElement("img");
-            messageImage.setAttribute("src", image.src);
-            messageImage.setAttribute("height", "170");
-            messageImage.setAttribute("width", "170");
+                messageImage.setAttribute("src", image.src);
+                messageImage.setAttribute("height", "170");
+                messageImage.setAttribute("width", "170");
+                
             messages.appendChild(message);
             message.appendChild(messageImage);
             messages.scrollTop = messages.scrollHeight;
