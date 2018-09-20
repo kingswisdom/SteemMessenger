@@ -23,6 +23,11 @@ Crypto.authentication_token = function (authenticationKey){
 	return authenticationKey;
 }
 
+//TODO Paranoia question: the current implementation is vulnerable to timing attack
+// see https://github.com/nodejs/node-v0.x-archive/issues/8560
+// we can fix this using, apparently, constant time comparison with using
+// https://nodejs.org/api/crypto.html#crypto_crypto_timingsafeequal_a_b
+// or/and add a server nonce per session in the authentication token
 Crypto.verify_client_authentication = function (receivedtoken, authenticationKey){
 	//TODO modify this when previous function is modified
 	var computedToken = this.authentication_token(authenticationKey);
