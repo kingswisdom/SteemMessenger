@@ -16,6 +16,7 @@ exports.checkLogin = function(data, out){
 	} catch (e) {
 		console.error("Parsing error:", e);
 		out(undefined);
+		return;
 	}
 	steem.api.getAccounts([decodedContainer.user], function(err, result){
 		if(result.length > 0) {
@@ -67,7 +68,13 @@ exports.checkIdentity = function(data, out){
 	raw = rawContainer.split("");
 	raw.shift();
 	raw = raw.join("");
-	var decodedContainer = JSON.parse(raw);
+	try {
+		var decodedContainer = JSON.parse(raw);
+	} catch (e) {
+		console.error("Parsing error:", e);
+		out(undefined);
+		return;
+	}
 	steem.api.getAccounts([decodedContainer.user], function(err, result){
 		if(result.length > 0) {
 			db.checkSubscription({user: decodedContainer.user}, function(res){
