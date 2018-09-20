@@ -6,12 +6,17 @@ const config = require('../../config.json');
 const LaraPrivateKey = config.LaraKeys.Memo.Private;
 
 exports.checkLogin = function(data, out){
-	console.log("server side calling crypto");
 	rawContainer = steem.memo.decode(LaraPrivateKey, data.encodedmsg);
 	raw = rawContainer.split("");
 	raw.shift();
 	raw = raw.join("");
-	var decodedContainer = JSON.parse(raw);
+	//Check if decryption gives a JSON
+	try {
+		var decodedContainer = JSON.parse(raw);
+	} catch (e) {
+		console.error("Parsing error:", e);
+		out(undefined);
+	}
 	steem.api.getAccounts([decodedContainer.user], function(err, result){
 		if(result.length > 0) {
 			pubWif = result[0]["memo_key"];
@@ -36,6 +41,7 @@ exports.checkLogin = function(data, out){
 						out({user: decodedContainer.user, error: "leaked"});
 					}
 					if (isvalid == false) {
+						//TODO delete user from leaked keys db
 						var sessionKeys = crypto.generate_session_keys(LaraPrivateKey, pubWif);
 						console.log(decodedContainer.token);
 						var isvalid = crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
