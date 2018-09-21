@@ -1,11 +1,11 @@
-const app = require('express')();
-const express = require('express');
-const path = require('path');
-const serverLib = require('./server/serverlib.js');
-//const apiServerLib = require('./apiServerLib.js')
-const STMServer = require('./server/programs/STMServer.js');
-const ejs = require('ejs');
-const PORT = process.env.PORT || 4000;
+const app 		= require('express')();
+const express 		= require('express');
+const path 		= require('path');
+const serverLib 	= require('./server/serverlib.js');
+const STMServer 	= require('./server/programs/STMServer.js');
+const ejs 		= require('ejs');
+const PORT 		= process.env.PORT || 4000;
+//const apiServerLib 	= require('./apiServerLib.js')
 //const apiPORT = 3000;
 
 
