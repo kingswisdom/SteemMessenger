@@ -6,15 +6,15 @@
 
 	var element = function(id){	return document.getElementById(id);	}
 
-	var body 					= element('thisisit');
-	var app 					= element('app');
+	var body 				= element('thisisit');
+	var app 				= element('app');
 	var messages 				= element('messages');
 	var textarea 				= element('textarea');
 	var username 				= element('username');
 	var privMemoKey 			= element('privMemoKey');
 	var newPassphrase 			= element('newPassphrase')
 	var newPassphrase2 			= element('newPassphrase2');
-	var passphraseUsername 		= element('passphraseUsername');
+	var passphraseUsername 			= element('passphraseUsername');
 	var passphrase 				= element('passphrase');
 	var receiver 				= element('receiver');
 	var loader0 				= element("loaderEffect0");
@@ -61,20 +61,20 @@
 					case "returnToSelection":
 						return returnToPreviousDiscussions();						
 
-				    case "PassphraseLoginBtn":
-				    	return passphraseLogin();				    	
+					case "PassphraseLoginBtn":
+				    		return passphraseLogin();				    	
 
-				    case "clear":
-				    	return clearMessages();
+					case "clear":
+				    		return clearMessages();
 
-				    case "DaButton":
-				    	return UI.switchAppDisplay();
+					case "DaButton":
+				    		return UI.switchAppDisplay();
 
-				    case "emojiBtn":
-				    	return UI.switchEmojisBoxDisplay();
+					case "emojiBtn":
+				    		return UI.switchEmojisBoxDisplay();
 
-				    case "settings":
-				    	return UI.openSettings();
+					case "settings":
+				    		return UI.openSettings();
 				}
 			}
 		});
@@ -152,12 +152,12 @@
 				reader.onloadend = function() {
 		    		SM.handleFile({user: user, sharedKey: recipient_sharedKey, file: reader.result}, function(out){
 		    			var request = 	{
-			    							request: "file input", 
-			    							identity: user, 
-			    							user: user, 
-			    							to: recipient, 
-			    							message: out.encodedfile
-			    						};
+			    					request: "file input", 
+			    					identity: user, 
+			    					user: user, 
+			    					to: recipient, 
+			    					message: out.encodedfile
+			    				};
 
 		    			sendSocket(request);
 		    		});
@@ -176,16 +176,16 @@
 
 		exports.fetchDiscussion = function(data){
 			SM.chooseFriend({to:data.receiver, key:key, user:user}, function(out){
-				recipient 			= out.to;
+				recipient 		= out.to;
 				recipient_pubWIF 	= out.pubWif;
-				recipient_sharedKey = out.sharedKey;
+				recipient_sharedKey 	= out.sharedKey;
 
 				var request = 	{
-									request: "getDiscussion", 
-									identity: user, 
-									user: user, 
-									to: recipient
-								};
+							request: "getDiscussion", 
+							identity: user, 
+							user: user, 
+							to: recipient
+						};
 
 				sendSocket(request);
 			});
@@ -197,9 +197,9 @@
 				user 	= result.user;
 				key 	= result.key;
 				keys 	= 	{
-								authenticationKey: result.authenticationKey,
-								encryptionKey: result.encryptionKey
-							};
+							authenticationKey: result.authenticationKey,
+							encryptionKey: result.encryptionKey
+						};
 				return socket.emit('initialize', {encodedmsg: result.encodedmsg});
 			});
 		}
@@ -212,11 +212,11 @@
 				if(result == "ok"){
 					Lara.initializeKeys({user: user, key: key, passphrase: newPassphrase.value}, function(out){
 						keys =  {
-									uniquePublic: out.uniquePublic,
-									uniquePrivate: out.uniquePrivate,
-									authenticationKey: out.authenticationKey,
-									encryptionKey: out.encryptionKey
-								};
+								uniquePublic: out.uniquePublic,
+								uniquePrivate: out.uniquePrivate,
+								authenticationKey: out.authenticationKey,
+								encryptionKey: out.encryptionKey
+							};
 						UI.onNewPassphraseShowSuccessScreen();
 					});
 				}
@@ -225,15 +225,15 @@
 
 		function returnToPreviousDiscussions(){
 			UI.returnToPreviousDiscussions();
-			recipient 				= undefined;
-			recipient_pubWIF 		= undefined;
+			recipient 		= undefined;
+			recipient_pubWIF 	= undefined;
 			recipient_sharedKey 	= undefined;
 
 			var request = 	{
-								request: "getDiscussions", 
-								identity: user, 
-								user: user
-							};
+						request: "getDiscussions", 
+						identity: user, 
+						user: user
+					};
 
 			sendSocket(request);
 		}
@@ -241,17 +241,17 @@
 		function getReceiver(){
 			if(receiver.value != "") {
 				SM.chooseFriend({user:user, key:key, to:receiver.value}, function(out){
-					recipient 			= out.to;				
+					recipient 		= out.to;				
 					recipient_pubWIF 	= out.pubWif;					
-					recipient_sharedKey = out.sharedKey;
+					recipient_sharedKey 	= out.sharedKey;
 					receiver.value 		= "";
 
 					var request = 	{
-										request: "getDiscussion", 
-										identity: user, 
-										user: user, 
-										to: recipient
-									}
+								request: "getDiscussion", 
+								identity: user, 
+								user: user, 
+								to: recipient
+							}
 
 					sendSocket(request);
 				});
@@ -262,12 +262,12 @@
 			if(textarea.value != "") {
 				SM.handleInput({user: user, sharedKey: recipient_sharedKey, message: textarea.value}, function(out){
 					var request = 	{
-										request: "input", 
-										identity: user, 
-										user: user, 
-										to: recipient, 
-										message: out.encodedmsg
-									}
+								request: "input", 
+								identity: user, 
+								user: user, 
+								to: recipient, 
+								message: out.encodedmsg
+							}
 
 					sendSocket(request);
 				});
@@ -276,16 +276,16 @@
 
 		function passphraseLogin(){
 			SM.passphraseLogin({user:passphraseUsername.value, passphrase:passphrase.value}, function(result){
-				var wallet 				= result.wallet;
+				var wallet 		= result.wallet;
 				var encodedContainer 	= result.encodedContainer;
-				user 					= wallet.user;
-				key 					= wallet.privateKey;
-				keys 					=   {
-												uniquePublic: wallet.uniquePublic,
-												uniquePrivate: wallet.uniquePrivate,
-												authenticationKey: wallet.authenticationKey,
-												encryptionKey: wallet.encryptionKey
-											};
+				user 			= wallet.user;
+				key 			= wallet.privateKey;
+				keys 			=   {
+								uniquePublic: wallet.uniquePublic,
+								uniquePrivate: wallet.uniquePrivate,
+								authenticationKey: wallet.authenticationKey,
+								encryptionKey: wallet.encryptionKey
+								};
 
 				socket.emit('reinitialize', {encodedmsg: encodedContainer});
 				UI.onValidPassphraseShowLoginSuccessScreen();
@@ -301,11 +301,11 @@
 		function clearMessages(){
 			messages.innerHTML = "";
 			var request = 	{
-								request: "clear", 
-								identity: user, 
-								user: user, 
-								to: recipient
-							}
+						request: "clear", 
+						identity: user, 
+						user: user, 
+						to: recipient
+					}
 			sendSocket(request);			
 		}
 
