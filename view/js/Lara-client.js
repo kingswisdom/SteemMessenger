@@ -9,15 +9,15 @@ var LaraAccount = "lara-bot"
 
 exports.initializeKeys = function(data, out){
 
-    var uniqueMemoKeys 	= libcrypto.generateKeys();
-    var uniquePrivate 	= uniqueMemoKeys.private;
-    var uniquePublic 	= uniqueMemoKeys.public;
+    var uniqueMemoKeys 		= libcrypto.generateKeys();
+    var uniquePrivate 		= uniqueMemoKeys.private;
+    var uniquePublic 		= uniqueMemoKeys.public;
 
     steem.api.getAccounts([LaraAccount], function(err, result){
 		if(result.length > 0) {
-			var pubWif 			= result[0]["memo_key"];
+			var pubWif 		= result[0]["memo_key"];
 			var sessionKeys 	= crypto.generate_session_keys(data.key, pubWif);
-		    var wallet 			= '{"user":"' 				+ data.user +
+			var wallet 		= 	'{"user":"' 			+ data.user +
 		    					 '","privateKey":"' 		+ data.key + 
 		    					 '","uniquePrivate":"' 		+ uniquePrivate + 
 		    					 '","uniquePublic":"' 		+ uniquePublic + 
@@ -33,11 +33,10 @@ exports.initializeKeys = function(data, out){
 exports.decodeSafeSocket = function(data, key, keys, out){
 	console.log(data, key)
 
-	var rawContainer 		= crypto.decrypt(keys.encryptionKey, data.encodedmsg);
-	console.log(rawContainer)
-	var raw 				= rawContainer.split("");
-		raw.shift();
-		raw 				= raw.join("");
+	var rawContainer 	= crypto.decrypt(keys.encryptionKey, data.encodedmsg);
+	var raw 		= rawContainer.split("");
+	raw.shift();
+	raw 			= raw.join("");
 	var decodedContainer 	= JSON.parse(raw);
 
 	console.log(decodedContainer);	
@@ -56,40 +55,40 @@ exports.decodeSafeSocket = function(data, key, keys, out){
 exports.encodeSafeSocket = function(data, key, keys, out){
 	steem.api.getAccounts([LaraAccount], function(err, result){
 		if(result.length > 0) {
-			var pubWif 				= result[0]["memo_key"];
-            data.token 				= crypto.authentication_token(keys.authenticationKey);
-            var Container 			= "#" + JSON.stringify(data);
-            var encodedContainer 	= crypto.encrypt(keys.encryptionKey, Container);
-            out({encodedmsg: encodedContainer});
+			var pubWif 		= result[0]["memo_key"];
+            		data.token 		= crypto.authentication_token(keys.authenticationKey);
+            		var Container 		= "#" + JSON.stringify(data);
+            		var encodedContainer 	= crypto.encrypt(keys.encryptionKey, Container);
+            		out({encodedmsg: encodedContainer});
 		}
 	});
 }
 
 exports.encodeMessage = function(data, out){
-	var preOp = "#" + data.message;
-	var encoded = crypto.encrypt(data.sharedKey, preOp);
+	var preOp 	= "#" + data.message;
+	var encoded 	= crypto.encrypt(data.sharedKey, preOp);
   	console.log("encrypted message" + encoded);
 	out({encoded: encoded})
 }
 
 
 exports.decodeMessage = function(data, out){
-    var pubWif = data.recipient_pubWIF;
-    var sessionKeys = crypto.generate_session_keys(data.key,pubWif);
-    var decoded = crypto.decrypt(sessionKeys.encryptionKey, data.message);
-  	var decodedFinal = decoded.split("");
-  		decodedFinal.shift();
-  	var decodedFinal = decodedFinal.join("");
+	var pubWif 		= data.recipient_pubWIF;
+	var sessionKeys 	= crypto.generate_session_keys(data.key,pubWif);
+	var decoded 		= crypto.decrypt(sessionKeys.encryptionKey, data.message);
+	var decodedFinal 	= decoded.split("");
+  	decodedFinal.shift();
+  	var decodedFinal 	= decodedFinal.join("");
     console.log("decoded message"+decodedFinal);
   	out({decoded: decodedFinal});
 
 }
 
 exports.decodeMessage2 = function(data, out){
-    var decoded = crypto.decrypt(data.sharedKey, data.message);
-  	var decodedFinal = decoded.split("");
-  		decodedFinal.shift();
-  	var decodedFinal = decodedFinal.join("");
+	var decoded 		= crypto.decrypt(data.sharedKey, data.message);
+	var decodedFinal 	= decoded.split("");
+	decodedFinal.shift();
+	var decodedFinal 	= decodedFinal.join("");
     console.log("decoded message"+decodedFinal);
   	out({decoded: decodedFinal});
 
