@@ -10,14 +10,15 @@ exports.checkLogin = function(data, out){
 	raw = rawContainer.split("");
 	raw.shift();
 	raw = raw.join("");
-	//Check if decryption gives a JSON
-	try {
+
+	try { //Check if decryption gives a JSON 
 		var decodedContainer = JSON.parse(raw);
 	} catch (e) {
 		console.error("Parsing error:", e);
 		out(undefined);
 		return;
 	}
+
 	steem.api.getAccounts([decodedContainer.user], function(err, result){
 		if(result.length > 0) {
 			pubWif = result[0]["memo_key"];
@@ -102,17 +103,17 @@ exports.checkIdentity = function(data, out){
 };
 
 exports.decodeSafeSocket = function(data, username, out){
-	rawContainer = steem.memo.decode(LaraPrivateKey, data.encodedmsg);
-	raw = rawContainer.split("");
-	raw.shift();
-	raw = raw.join("");
-	var decodedContainer = JSON.parse(raw);
-	steem.api.getAccounts([decodedContainer.user], function(err, result){
+	
+	steem.api.getAccounts([username], function(err, result){
 		if(result.length > 0) {
-			pubWif = result[0]["memo_key"];
-			var sessionKeys = crypto.generate_session_keys(LaraPrivateKey, pubWif);
-			console.log(decodedContainer.token);
-			var isvalid = crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
+			var pubWif = result[0]["memo_key"];
+			var sessionKeys 		= crypto.generate_session_keys(LaraPrivateKey, pubWif);
+			var rawContainer 		= crypto.decrypt(sessionKeys.encryptionKey, data.encodedmsg);
+			var raw 				= rawContainer.split("");
+				raw.shift();
+				raw 				= raw.join("");
+			var decodedContainer 	= JSON.parse(raw);
+			var isvalid 			= crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
 			if(isvalid) {
 				console.log('Lara : Identity confirmed ! The request will be processed securely to the recipient !')
 				out(decodedContainer);
@@ -132,7 +133,7 @@ exports.encodeSafeSocket = function(data, out){
 			var sessionKeys = crypto.generate_session_keys(LaraPrivateKey, pubWif);
             data.token = crypto.authentication_token(sessionKeys.authenticationKey);
             var Container = "#" + JSON.stringify(data);
-            var encodedContainer = steem.memo.encode(LaraPrivateKey, pubWif, Container);
+            var encodedContainer = crypto.encrypt(sessionKeys.encryptionKey, Container);
             out({encodedmsg: encodedContainer});
 		}
 	});

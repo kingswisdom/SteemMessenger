@@ -8,52 +8,58 @@ var LaraAccount = "lara-bot"
 
 
 exports.initializeKeys = function(data, out){
-    var uniqueMemoKeys = libcrypto.generateKeys();
-    var uniquePrivate = uniqueMemoKeys.private;
-    var uniquePublic = uniqueMemoKeys.public;
+
+    var uniqueMemoKeys 	= libcrypto.generateKeys();
+    var uniquePrivate 	= uniqueMemoKeys.private;
+    var uniquePublic 	= uniqueMemoKeys.public;
+
     steem.api.getAccounts([LaraAccount], function(err, result){
 		if(result.length > 0) {
-			pubWif = result[0]["memo_key"];
-			var sessionKeys = crypto.generate_session_keys(data.key, pubWif);
-		    var wallet = '{"user":"' + data.user + '","privateKey":"' + data.key + '","uniquePrivate":"' + uniquePrivate + '","uniquePublic":"' + uniquePublic + '","authenticationKey":"' + sessionKeys.authenticationKey + '","encryptionKey":"' + sessionKeys.encryptionKey + '"}'
+			var pubWif 			= result[0]["memo_key"];
+			var sessionKeys 	= crypto.generate_session_keys(data.key, pubWif);
+		    var wallet 			= '{"user":"' 				+ data.user +
+		    					 '","privateKey":"' 		+ data.key + 
+		    					 '","uniquePrivate":"' 		+ uniquePrivate + 
+		    					 '","uniquePublic":"' 		+ uniquePublic + 
+		    					 '","authenticationKey":"' 	+ sessionKeys.authenticationKey + 
+		    					 '","encryptionKey":"' 		+ sessionKeys.encryptionKey + '"}'
+
 		    storage.createSafeStorage(wallet, data.passphrase);
 		    out({user: data.user, privateKey: data.key, uniquePrivate: uniquePrivate, uniquePublic: uniquePublic, authenticationKey: sessionKeys.authenticationKey, encryptionKey: sessionKeys.encryptionKey });
 		}
 	});
-    }
-
-exports.decodeSafeSocket = function(data, key, out){
-	console.log(data, key)
-	rawContainer = steem.memo.decode(key, data.encodedmsg);
-	raw = rawContainer.split("");
-	raw.shift();
-	raw = raw.join("");
-	var decodedContainer = JSON.parse(raw);
-	console.log(decodedContainer)
-	steem.api.getAccounts([LaraAccount], function(err, result){
-		if(result.length > 0) {
-			pubWif = result[0]["memo_key"];
-			var sessionKeys = crypto.generate_session_keys(key, pubWif);
-			console.log(decodedContainer.token);
-			var isvalid = crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
-			if(isvalid) {
-				out(decodedContainer);
-			}
-			else {
-				out(undefined);
-			}
-		}
-	});
 }
 
-exports.encodeSafeSocket = function(data, key, out){
+exports.decodeSafeSocket = function(data, key, keys, out){
+	console.log(data, key)
+
+	var rawContainer 		= crypto.decrypt(keys.encryptionKey, data.encodedmsg);
+	console.log(rawContainer)
+	var raw 				= rawContainer.split("");
+		raw.shift();
+		raw 				= raw.join("");
+	var decodedContainer 	= JSON.parse(raw);
+
+	console.log(decodedContainer);	
+	console.log(decodedContainer.token);
+	console.log(keys.authenticationKey);
+
+	var isvalid = crypto.verify_client_authentication(decodedContainer.token, keys.authenticationKey);
+	if(isvalid) {
+		out(decodedContainer);
+	}
+	else {
+		out(undefined);
+	}
+}
+
+exports.encodeSafeSocket = function(data, key, keys, out){
 	steem.api.getAccounts([LaraAccount], function(err, result){
 		if(result.length > 0) {
-			var pubWif = result[0]["memo_key"];
-			var sessionKeys = crypto.generate_session_keys(key, pubWif);
-            data.token = crypto.authentication_token(sessionKeys.authenticationKey);
-            var Container = "#" + JSON.stringify(data);
-            var encodedContainer = steem.memo.encode(key, pubWif, Container);
+			var pubWif 				= result[0]["memo_key"];
+            data.token 				= crypto.authentication_token(keys.authenticationKey);
+            var Container 			= "#" + JSON.stringify(data);
+            var encodedContainer 	= crypto.encrypt(keys.encryptionKey, Container);
             out({encodedmsg: encodedContainer});
 		}
 	});

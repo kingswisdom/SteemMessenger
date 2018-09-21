@@ -19,7 +19,13 @@ exports.firstLogin = function(data, out){
                 
                 var encodedContainer        = steem.memo.encode(data.privWif, LaraPublicKey, Container);
 
-                out({user: data.user, key: data.privWif, encodedmsg: encodedContainer});
+                out({
+                        user:               data.user, 
+                        key:                data.privWif, 
+                        authenticationKey:  sessionKeys.authenticationKey, 
+                        encryptionKey:      sessionKeys.encryptionKey, 
+                        encodedmsg:         encodedContainer
+                    });
 
             }
             else {

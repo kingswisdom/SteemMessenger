@@ -102,7 +102,7 @@
 		});
 
 		socket.on('safeSocket', function(data){
-			Lara.decodeSafeSocket(data, key, function(out){
+			Lara.decodeSafeSocket(data, key, keys, function(out){
 				console.log("socket : " + out.request)
 				if(out.request !== undefined){
 					switch(out.request) {
@@ -151,9 +151,15 @@
 				var reader = new FileReader();
 				reader.onloadend = function() {
 		    		SM.handleFile({user: user, sharedKey: recipient_sharedKey, file: reader.result}, function(out){
-		    			Lara.encodeSafeSocket({request: "file input", identity: user, user: user, to: recipient, message: out.encodedfile}, key, function(res){
-							return socket.emit("safeSocket", res);
-						});
+		    			var request = 	{
+			    							request: "file input", 
+			    							identity: user, 
+			    							user: user, 
+			    							to: recipient, 
+			    							message: out.encodedfile
+			    						};
+
+		    			sendSocket(request);
 		    		});
 		    	}
 		    	reader.readAsDataURL(file);
@@ -173,9 +179,15 @@
 				recipient 			= out.to;
 				recipient_pubWIF 	= out.pubWif;
 				recipient_sharedKey = out.sharedKey;
-				Lara.encodeSafeSocket({request: "getDiscussion", identity: user, user: user, to: recipient}, key, function(res){
-					return socket.emit("safeSocket", res);
-				});
+
+				var request = 	{
+									request: "getDiscussion", 
+									identity: user, 
+									user: user, 
+									to: recipient
+								};
+
+				sendSocket(request);
 			});
 		}
 
@@ -184,6 +196,10 @@
 				console.log(result)
 				user 	= result.user;
 				key 	= result.key;
+				keys 	= 	{
+								authenticationKey: result.authenticationKey,
+								encryptionKey: result.encryptionKey
+							};
 				return socket.emit('initialize', {encodedmsg: result.encodedmsg});
 			});
 		}
@@ -212,9 +228,14 @@
 			recipient 				= undefined;
 			recipient_pubWIF 		= undefined;
 			recipient_sharedKey 	= undefined;
-			Lara.encodeSafeSocket({request: "getDiscussions", identity: user, user: user}, key, function(res){
-				return socket.emit("safeSocket", res);
-			});
+
+			var request = 	{
+								request: "getDiscussions", 
+								identity: user, 
+								user: user
+							};
+
+			sendSocket(request);
 		}
 
 		function getReceiver(){
@@ -224,9 +245,15 @@
 					recipient_pubWIF 	= out.pubWif;					
 					recipient_sharedKey = out.sharedKey;
 					receiver.value 		= "";
-					Lara.encodeSafeSocket({request: "getDiscussion", identity: user, user: user, to: recipient}, key, function(res){
-						return socket.emit("safeSocket", res);
-					});
+
+					var request = 	{
+										request: "getDiscussion", 
+										identity: user, 
+										user: user, 
+										to: recipient
+									}
+
+					sendSocket(request);
 				});
 			}
 		}
@@ -234,9 +261,15 @@
 		function sendMessage(){
 			if(textarea.value != "") {
 				SM.handleInput({user: user, sharedKey: recipient_sharedKey, message: textarea.value}, function(out){
-					Lara.encodeSafeSocket({request: "input", identity: user, user: user, to: recipient, message: out.encodedmsg}, key, function(res){
-						return socket.emit("safeSocket", res);
-					});
+					var request = 	{
+										request: "input", 
+										identity: user, 
+										user: user, 
+										to: recipient, 
+										message: out.encodedmsg
+									}
+
+					sendSocket(request);
 				});
 			}
 		}
@@ -267,7 +300,17 @@
 
 		function clearMessages(){
 			messages.innerHTML = "";
-			Lara.encodeSafeSocket({request: "clear", identity: user, user: user, to: recipient}, key, function(res){
+			var request = 	{
+								request: "clear", 
+								identity: user, 
+								user: user, 
+								to: recipient
+							}
+			sendSocket(request);			
+		}
+
+		function sendSocket(request){
+			Lara.encodeSafeSocket(request, key, keys, function(res){
 				return socket.emit("safeSocket", res);
 			});
 		}

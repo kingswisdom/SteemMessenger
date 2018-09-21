@@ -5682,7 +5682,7 @@ module.exports={
   "_args": [
     [
       "bigi@^1.4.2",
-      "/home/kingswisdom/Téléchargements/SteemMessenger-0.0.6 (2)/SteemMessenger-0.0.6/node_modules/steem"
+      "/home/kingswisdom/Téléchargements/SteemMessenger-0.0.6 (3)/SteemMessenger-0.0.6/node_modules/steem"
     ]
   ],
   "_from": "bigi@>=1.4.2 <2.0.0",
@@ -5717,7 +5717,7 @@ module.exports={
   "_shasum": "9c665a95f88b8b08fc05cfd731f561859d725825",
   "_shrinkwrap": null,
   "_spec": "bigi@^1.4.2",
-  "_where": "/home/kingswisdom/Téléchargements/SteemMessenger-0.0.6 (2)/SteemMessenger-0.0.6/node_modules/steem",
+  "_where": "/home/kingswisdom/Téléchargements/SteemMessenger-0.0.6 (3)/SteemMessenger-0.0.6/node_modules/steem",
   "bugs": {
     "url": "https://github.com/cryptocoinjs/bigi/issues"
   },
@@ -35390,52 +35390,58 @@ var LaraAccount = "lara-bot"
 
 
 exports.initializeKeys = function(data, out){
-    var uniqueMemoKeys = libcrypto.generateKeys();
-    var uniquePrivate = uniqueMemoKeys.private;
-    var uniquePublic = uniqueMemoKeys.public;
+
+    var uniqueMemoKeys 	= libcrypto.generateKeys();
+    var uniquePrivate 	= uniqueMemoKeys.private;
+    var uniquePublic 	= uniqueMemoKeys.public;
+
     steem.api.getAccounts([LaraAccount], function(err, result){
 		if(result.length > 0) {
-			pubWif = result[0]["memo_key"];
-			var sessionKeys = crypto.generate_session_keys(data.key, pubWif);
-		    var wallet = '{"user":"' + data.user + '","privateKey":"' + data.key + '","uniquePrivate":"' + uniquePrivate + '","uniquePublic":"' + uniquePublic + '","authenticationKey":"' + sessionKeys.authenticationKey + '","encryptionKey":"' + sessionKeys.encryptionKey + '"}'
+			var pubWif 			= result[0]["memo_key"];
+			var sessionKeys 	= crypto.generate_session_keys(data.key, pubWif);
+		    var wallet 			= '{"user":"' 				+ data.user +
+		    					 '","privateKey":"' 		+ data.key + 
+		    					 '","uniquePrivate":"' 		+ uniquePrivate + 
+		    					 '","uniquePublic":"' 		+ uniquePublic + 
+		    					 '","authenticationKey":"' 	+ sessionKeys.authenticationKey + 
+		    					 '","encryptionKey":"' 		+ sessionKeys.encryptionKey + '"}'
+
 		    storage.createSafeStorage(wallet, data.passphrase);
 		    out({user: data.user, privateKey: data.key, uniquePrivate: uniquePrivate, uniquePublic: uniquePublic, authenticationKey: sessionKeys.authenticationKey, encryptionKey: sessionKeys.encryptionKey });
 		}
 	});
-    }
-
-exports.decodeSafeSocket = function(data, key, out){
-	console.log(data, key)
-	rawContainer = steem.memo.decode(key, data.encodedmsg);
-	raw = rawContainer.split("");
-	raw.shift();
-	raw = raw.join("");
-	var decodedContainer = JSON.parse(raw);
-	console.log(decodedContainer)
-	steem.api.getAccounts([LaraAccount], function(err, result){
-		if(result.length > 0) {
-			pubWif = result[0]["memo_key"];
-			var sessionKeys = crypto.generate_session_keys(key, pubWif);
-			console.log(decodedContainer.token);
-			var isvalid = crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
-			if(isvalid) {
-				out(decodedContainer);
-			}
-			else {
-				out(undefined);
-			}
-		}
-	});
 }
 
-exports.encodeSafeSocket = function(data, key, out){
+exports.decodeSafeSocket = function(data, key, keys, out){
+	console.log(data, key)
+
+	var rawContainer 		= crypto.decrypt(keys.encryptionKey, data.encodedmsg);
+	console.log(rawContainer)
+	var raw 				= rawContainer.split("");
+		raw.shift();
+		raw 				= raw.join("");
+	var decodedContainer 	= JSON.parse(raw);
+
+	console.log(decodedContainer);	
+	console.log(decodedContainer.token);
+	console.log(keys.authenticationKey);
+
+	var isvalid = crypto.verify_client_authentication(decodedContainer.token, keys.authenticationKey);
+	if(isvalid) {
+		out(decodedContainer);
+	}
+	else {
+		out(undefined);
+	}
+}
+
+exports.encodeSafeSocket = function(data, key, keys, out){
 	steem.api.getAccounts([LaraAccount], function(err, result){
 		if(result.length > 0) {
-			var pubWif = result[0]["memo_key"];
-			var sessionKeys = crypto.generate_session_keys(key, pubWif);
-            data.token = crypto.authentication_token(sessionKeys.authenticationKey);
-            var Container = "#" + JSON.stringify(data);
-            var encodedContainer = steem.memo.encode(key, pubWif, Container);
+			var pubWif 				= result[0]["memo_key"];
+            data.token 				= crypto.authentication_token(keys.authenticationKey);
+            var Container 			= "#" + JSON.stringify(data);
+            var encodedContainer 	= crypto.encrypt(keys.encryptionKey, Container);
             out({encodedmsg: encodedContainer});
 		}
 	});
@@ -36353,7 +36359,7 @@ var notificationSound = new Audio('./audio/light.mp3');
 		});
 
 		socket.on('safeSocket', function(data){
-			Lara.decodeSafeSocket(data, key, function(out){
+			Lara.decodeSafeSocket(data, key, keys, function(out){
 				console.log("socket : " + out.request)
 				if(out.request !== undefined){
 					switch(out.request) {
@@ -36402,9 +36408,15 @@ var notificationSound = new Audio('./audio/light.mp3');
 				var reader = new FileReader();
 				reader.onloadend = function() {
 		    		SM.handleFile({user: user, sharedKey: recipient_sharedKey, file: reader.result}, function(out){
-		    			Lara.encodeSafeSocket({request: "file input", identity: user, user: user, to: recipient, message: out.encodedfile}, key, function(res){
-							return socket.emit("safeSocket", res);
-						});
+		    			var request = 	{
+			    							request: "file input", 
+			    							identity: user, 
+			    							user: user, 
+			    							to: recipient, 
+			    							message: out.encodedfile
+			    						};
+
+		    			sendSocket(request);
 		    		});
 		    	}
 		    	reader.readAsDataURL(file);
@@ -36424,9 +36436,15 @@ var notificationSound = new Audio('./audio/light.mp3');
 				recipient 			= out.to;
 				recipient_pubWIF 	= out.pubWif;
 				recipient_sharedKey = out.sharedKey;
-				Lara.encodeSafeSocket({request: "getDiscussion", identity: user, user: user, to: recipient}, key, function(res){
-					return socket.emit("safeSocket", res);
-				});
+
+				var request = 	{
+									request: "getDiscussion", 
+									identity: user, 
+									user: user, 
+									to: recipient
+								};
+
+				sendSocket(request);
 			});
 		}
 
@@ -36435,6 +36453,10 @@ var notificationSound = new Audio('./audio/light.mp3');
 				console.log(result)
 				user 	= result.user;
 				key 	= result.key;
+				keys 	= 	{
+								authenticationKey: result.authenticationKey,
+								encryptionKey: result.encryptionKey
+							};
 				return socket.emit('initialize', {encodedmsg: result.encodedmsg});
 			});
 		}
@@ -36463,9 +36485,14 @@ var notificationSound = new Audio('./audio/light.mp3');
 			recipient 				= undefined;
 			recipient_pubWIF 		= undefined;
 			recipient_sharedKey 	= undefined;
-			Lara.encodeSafeSocket({request: "getDiscussions", identity: user, user: user}, key, function(res){
-				return socket.emit("safeSocket", res);
-			});
+
+			var request = 	{
+								request: "getDiscussions", 
+								identity: user, 
+								user: user
+							};
+
+			sendSocket(request);
 		}
 
 		function getReceiver(){
@@ -36475,9 +36502,15 @@ var notificationSound = new Audio('./audio/light.mp3');
 					recipient_pubWIF 	= out.pubWif;					
 					recipient_sharedKey = out.sharedKey;
 					receiver.value 		= "";
-					Lara.encodeSafeSocket({request: "getDiscussion", identity: user, user: user, to: recipient}, key, function(res){
-						return socket.emit("safeSocket", res);
-					});
+
+					var request = 	{
+										request: "getDiscussion", 
+										identity: user, 
+										user: user, 
+										to: recipient
+									}
+
+					sendSocket(request);
 				});
 			}
 		}
@@ -36485,9 +36518,15 @@ var notificationSound = new Audio('./audio/light.mp3');
 		function sendMessage(){
 			if(textarea.value != "") {
 				SM.handleInput({user: user, sharedKey: recipient_sharedKey, message: textarea.value}, function(out){
-					Lara.encodeSafeSocket({request: "input", identity: user, user: user, to: recipient, message: out.encodedmsg}, key, function(res){
-						return socket.emit("safeSocket", res);
-					});
+					var request = 	{
+										request: "input", 
+										identity: user, 
+										user: user, 
+										to: recipient, 
+										message: out.encodedmsg
+									}
+
+					sendSocket(request);
 				});
 			}
 		}
@@ -36518,7 +36557,17 @@ var notificationSound = new Audio('./audio/light.mp3');
 
 		function clearMessages(){
 			messages.innerHTML = "";
-			Lara.encodeSafeSocket({request: "clear", identity: user, user: user, to: recipient}, key, function(res){
+			var request = 	{
+								request: "clear", 
+								identity: user, 
+								user: user, 
+								to: recipient
+							}
+			sendSocket(request);			
+		}
+
+		function sendSocket(request){
+			Lara.encodeSafeSocket(request, key, keys, function(res){
 				return socket.emit("safeSocket", res);
 			});
 		}
@@ -36557,6 +36606,11 @@ Crypto.authentication_token = function (authenticationKey){
 	return authenticationKey;
 }
 
+//TODO Paranoia question: the current implementation is vulnerable to timing attack
+// see https://github.com/nodejs/node-v0.x-archive/issues/8560
+// we can fix this using, apparently, constant time comparison with using
+// https://nodejs.org/api/crypto.html#crypto_crypto_timingsafeequal_a_b
+// or/and add a server nonce per session in the authentication token
 Crypto.verify_client_authentication = function (receivedtoken, authenticationKey){
 	//TODO modify this when previous function is modified
 	var computedToken = this.authentication_token(authenticationKey);
@@ -37670,7 +37724,13 @@ exports.firstLogin = function(data, out){
                 
                 var encodedContainer        = steem.memo.encode(data.privWif, LaraPublicKey, Container);
 
-                out({user: data.user, key: data.privWif, encodedmsg: encodedContainer});
+                out({
+                        user:               data.user, 
+                        key:                data.privWif, 
+                        authenticationKey:  sessionKeys.authenticationKey, 
+                        encryptionKey:      sessionKeys.encryptionKey, 
+                        encodedmsg:         encodedContainer
+                    });
 
             }
             else {
