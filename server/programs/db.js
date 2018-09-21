@@ -1,7 +1,7 @@
-const mongo = require('mongodb').MongoClient;
-const config = require('../../config.json');
+const mongo     = require('mongodb').MongoClient;
+const config    = require('../../config.json');
 
-const url = process.env.MONGO_URI || config.db;
+const url       = process.env.MONGO_URI || config.db;
 
 var i;
 
@@ -14,11 +14,12 @@ mongo.connect(url, function(err, db){
     }
 
 
-    var chat = db.collection('chats');
-    var latestMessages = db.collection('latestMessages');
-    var subscriptions = db.collection('subscriptions');
-    var leakedKeys = db.collection('leakedKeys');
-    var blacklist = db.collection('blacklist');
+    var chat                = db.collection('chats');
+    var latestMessages      = db.collection('latestMessages');
+    var subscriptions       = db.collection('subscriptions');
+    var leakedKeys          = db.collection('leakedKeys');
+    var blacklist           = db.collection('blacklist');
+    
 
     exports.getMessages = function(data, limit, out){
     	var query = chat.find({tags: { $all: [data.user, data.receiver]}});
@@ -46,20 +47,20 @@ mongo.connect(url, function(err, db){
 
     exports.saveMessage = function(data){
     	chat.insert({
-    		"from": data.user,
-    		"to": data.to,
-    		"tags": [data.user, data.to],
-    		"message": data.message,
-    		"timestamp": Date.now()
+    		"from":         data.user,
+    		"to":           data.to,
+    		"tags":         [data.user, data.to],
+    		"message":      data.message,
+    		"timestamp":    Date.now()
     	});
         latestMessages.remove({from:data.user, to:data.to});
         latestMessages.remove({from:data.to, to:data.user});
         latestMessages.insert({
-            "from": data.user,
-            "to": data.to,
-            "tags": [data.user, data.to],
-            "message": data.message,
-            "timestamp": Date.now()
+            "from":         data.user,
+            "to":           data.to,
+            "tags":         [data.user, data.to],
+            "message":      data.message,
+            "timestamp":    Date.now()
         });
     }
 
@@ -72,26 +73,26 @@ mongo.connect(url, function(err, db){
         subscriptions.remove({user: data.user});
         if(data.plan == 0){
             subscriptions.insert({
-            "user": data.user,
-            "plan": data.plan,
-            "timestamp": Date.now(),
-            "end": Date.now() + 669600000
+            "user":         data.user,
+            "plan":         data.plan,
+            "timestamp":    Date.now(),
+            "end":          Date.now() + 669600000
             });
         }
         if(data.plan == 1){
             subscriptions.insert({
-            "user": data.user,
-            "plan": data.plan,
-            "timestamp": Date.now(),
-            "end": Date.now() + 2678400000
+            "user":         data.user,
+            "plan":         data.plan,
+            "timestamp":    Date.now(),
+            "end":          Date.now() + 2678400000
             });
         }
         if(data.plan == 2){
             subscriptions.insert({
-            "user": data.user,
-            "plan": data.plan,
-            "timestamp": Date.now(),
-            "end": Date.now() + 2678400000
+            "user":         data.user,
+            "plan":         data.plan,
+            "timestamp":    Date.now(),
+            "end":          Date.now() + 2678400000
             });
         }    
     }
@@ -110,17 +111,17 @@ mongo.connect(url, function(err, db){
             if(i < 101){
                 if(res.state == undefined && res.plan == undefined){
                     subscriptions.insert({
-                        "user": data.user,
-                        "state": data.state
+                        "user":         data.user,
+                        "state":        data.state
                     });
                 } 
                 if(res.state == 1 && res.plan == undefined){
                     subscriptions.remove({user: data.user})
                     subscriptions.insert({
-                        "user": data.user,
-                        "plan": data.plan,
-                        "timestamp": Date.now(),
-                        "end": Date.now() + 2678400000
+                        "user":         data.user,
+                        "plan":         data.plan,
+                        "timestamp":    Date.now(),
+                        "end":          Date.now() + 2678400000
                     });
                     i++;
                 }    
@@ -143,8 +144,8 @@ mongo.connect(url, function(err, db){
 
     exports.addToBlacklist = function(data){
         blacklist.insert({
-            "user": data.to,
-            "to": data.user
+            "user":     data.to,
+            "to":       data.user
         });
     }
 
