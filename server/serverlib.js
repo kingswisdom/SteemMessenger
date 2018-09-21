@@ -1,11 +1,11 @@
-const socketIO = require('socket.io');
-const db = require('./programs/db.js');
-const Lara = require('./programs/Lara.js');
+const socketIO      = require('socket.io');
+const db            = require('./programs/db.js');
+const Lara          = require('./programs/Lara.js');
 
 var io;
 
-var users = [];
-var users_sockets = [];
+var users           = [];
+var users_sockets   = [];
 
 exports.listen = function(server){
     io = socketIO.listen(server);
@@ -58,8 +58,8 @@ function initialization(socket){
                 });
             }
             else{
-                users[out.user] = {"id": socket.id};
-                users_sockets[socket.id] = {"name": out.user};
+                users[out.user]             = {"id": socket.id};
+                users_sockets[socket.id]    = {"name": out.user};                
                 Lara.encodeSafeSocket({request: "logged", identity: out.user, user: out.user}, function(res){
                     socket.emit('safeSocket', res);
                     return handleLatestDiscussions({user: out.user}, socket);
@@ -75,8 +75,8 @@ function initialization(socket){
 function reinitialization(socket){
     socket.on('reinitialize', function(data){
         Lara.checkLogin({encodedmsg: data.encodedmsg}, function(out){
-            users[out.user] = {"id": socket.id};
-            users_sockets[socket.id] = {"name": out.user};
+            users[out.user]             = {"id": socket.id};
+            users_sockets[socket.id]    = {"name": out.user};
             return handleLatestDiscussions({user: out.user}, socket);
     
         })
