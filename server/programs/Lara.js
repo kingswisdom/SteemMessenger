@@ -11,7 +11,7 @@ exports.checkLogin = function(data, out){
 	raw.shift();
 	raw 			= raw.join("");
 
-	try { //Check if decryption gives a JSON 
+	try { //Check if decryption gives a JSON
 		var decodedContainer = JSON.parse(raw);
 	} catch (e) {
 		console.error("Parsing error:", e);
@@ -100,8 +100,10 @@ exports.checkIdentity = function(data, out){
 	});
 };
 
+//TODO optimise the Steem API calls and DH computation
+//TODO benchamrk nodejs crypto speed
 exports.decodeSafeSocket = function(data, username, out){
-	
+
 	steem.api.getAccounts([username], function(err, result){
 		if(result.length > 0) {
 			var pubWif = result[0]["memo_key"];
@@ -110,7 +112,13 @@ exports.decodeSafeSocket = function(data, username, out){
 			var raw 			= rawContainer.split("");
 			raw.shift();
 			raw 				= raw.join("");
-			var decodedContainer 		= JSON.parse(raw);
+			try {
+				var decodedContainer = JSON.parse(raw);
+			} catch (e) {
+				console.error("decodeSafeSocket decryption Parsing error:", e);
+				out(undefined);
+				return;
+			}
 			var isvalid 			= crypto.verify_client_authentication(decodedContainer.token, sessionKeys.authenticationKey);
 			if(isvalid) {
 				console.log('Lara : Identity confirmed ! The request will be processed securely to the recipient !')

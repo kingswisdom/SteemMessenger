@@ -18,10 +18,10 @@ exports.initializeKeys = function(data, out){
 			var pubWif 		= result[0]["memo_key"];
 			var sessionKeys 	= crypto.generate_session_keys(data.key, pubWif);
 			var wallet 		= 	'{"user":"' 			+ data.user +
-		    					 '","privateKey":"' 		+ data.key + 
-		    					 '","uniquePrivate":"' 		+ uniquePrivate + 
-		    					 '","uniquePublic":"' 		+ uniquePublic + 
-		    					 '","authenticationKey":"' 	+ sessionKeys.authenticationKey + 
+		    					 '","privateKey":"' 		+ data.key +
+		    					 '","uniquePrivate":"' 		+ uniquePrivate +
+		    					 '","uniquePublic":"' 		+ uniquePublic +
+		    					 '","authenticationKey":"' 	+ sessionKeys.authenticationKey +
 		    					 '","encryptionKey":"' 		+ sessionKeys.encryptionKey + '"}'
 
 		    storage.createSafeStorage(wallet, data.passphrase);
@@ -37,9 +37,15 @@ exports.decodeSafeSocket = function(data, key, keys, out){
 	var raw 		= rawContainer.split("");
 	raw.shift();
 	raw 			= raw.join("");
-	var decodedContainer 	= JSON.parse(raw);
+  try {
+    var decodedContainer = JSON.parse(raw);
+  } catch (e) {
+    console.error("decodeSafeSocket decryption Parsing error:", e);
+    out(undefined);
+    return;
+  }
 
-	console.log(decodedContainer);	
+	console.log(decodedContainer);
 	console.log(decodedContainer.token);
 	console.log(keys.authenticationKey);
 
@@ -93,4 +99,3 @@ exports.decodeMessage2 = function(data, out){
   	out({decoded: decodedFinal});
 
 }
-
