@@ -21,6 +21,14 @@ function SafeSocket(socket){
         var username = users_sockets[socket.id].name;
         Lara.decodeSafeSocket(data, username, function(out){
             console.log(out);
+            if(out == undefined){
+                return
+            }
+            if(out.error == "leaked"){
+                Lara.encodeSafeSocket({request: "leaked", identity: out.user, user: out.user}, function(res){
+                    return socket.emit('safeSocket', res);
+                });
+            }
             if(out.request != undefined){
                 switch(out.request) {
                     case "getDiscussion":
@@ -57,6 +65,9 @@ function initialization(socket){
                     return socket.emit('safeSocket', res);
                 });
             }
+            if(out == undefined){
+
+            }
             else{
                 users[out.user]             = {"id": socket.id};
                 users_sockets[socket.id]    = {"name": out.user};                
@@ -75,9 +86,19 @@ function initialization(socket){
 function reinitialization(socket){
     socket.on('reinitialize', function(data){
         Lara.checkLogin({encodedmsg: data.encodedmsg}, function(out){
-            users[out.user]             = {"id": socket.id};
-            users_sockets[socket.id]    = {"name": out.user};
-            return handleLatestDiscussions({user: out.user}, socket);
+            if(out.error == "leaked"){
+                Lara.encodeSafeSocket({request: "leaked", identity: out.user, user: out.user}, function(res){
+                    return socket.emit('safeSocket', res);
+                });
+            }
+            if(out == undefined){
+                return
+            }
+            else{
+                users[out.user]             = {"id": socket.id};
+                users_sockets[socket.id]    = {"name": out.user};
+                return handleLatestDiscussions({user: out.user}, socket);
+            }
     
         })
         

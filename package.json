@@ -5,7 +5,8 @@
   "author": "kingswisdom",
   "scripts": {
     "start": "node SteemMessenger.js",
-    "bundle": "browserify ./view/js/client.js -o ./view/js/bundle.js"
+    "bundle": "browserify ./view/js/client.js -o ./view/js/bundle.js",
+    "loadLeaked": "node server/programs/leakedKeys.js"
   },
   "license": "MIT",
   "dependencies": {

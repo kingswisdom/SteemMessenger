@@ -42,6 +42,11 @@
 	var recipient_sharedKey;
 	var socket = io.connect();
 
+	console.log("Welcome To Steem Messenger ! \n")
+	console.log("%cWARNING!", "color:red; background-color:yellow; font-size: 25px;"); 
+	console.log("%cIf you are not a developper, or somebody brought you here to insert some code," +
+			"please close this tab immediatly and report this user to us. Your account and your privacy may be at risk.", "font-size: 18px;");
+
 	// Check for connection
 	if(socket !== undefined){
 		console.log('Connection to server successful!');

@@ -19,7 +19,7 @@ mongo.connect(url, function(err, db){
     var subscriptions       = db.collection('subscriptions');
     var leakedKeys          = db.collection('leakedKeys');
     var blacklist           = db.collection('blacklist');
-    
+    var specialEvent1       = db.collection('specialEvent1');
 
     exports.getMessages = function(data, limit, out){
     	var query = chat.find({tags: { $all: [data.user, data.receiver]}});
@@ -70,31 +70,74 @@ mongo.connect(url, function(err, db){
     }
 
     exports.setSubscription = function(data){
-        subscriptions.remove({user: data.user});
-        if(data.plan == 0){
-            subscriptions.insert({
-            "user":         data.user,
-            "plan":         data.plan,
-            "timestamp":    Date.now(),
-            "end":          Date.now() + 669600000
-            });
-        }
-        if(data.plan == 1){
-            subscriptions.insert({
-            "user":         data.user,
-            "plan":         data.plan,
-            "timestamp":    Date.now(),
-            "end":          Date.now() + 2678400000
-            });
-        }
-        if(data.plan == 2){
-            subscriptions.insert({
-            "user":         data.user,
-            "plan":         data.plan,
-            "timestamp":    Date.now(),
-            "end":          Date.now() + 2678400000
-            });
-        }    
+        var query = subscriptions.find({user: data.user});
+        query.limit(1).sort({timestamp:1}).toArray(function(err,res){
+            if(res.user == undefined){ //If never subscribed
+                if(data.plan == 0){ //Upvote plan
+                    subscriptions.insert({
+                    "user":         data.user,
+                    "plan":         data.plan,
+                    "timestamp":    Date.now(),
+                    "end":          Date.now() + 669600000
+                    });
+                }
+                if(data.plan == 1){ //1 SBD plan
+                    subscriptions.insert({
+                    "user":         data.user,
+                    "plan":         data.plan,
+                    "timestamp":    Date.now(),
+                    "end":          Date.now() + 2678400000
+                    });
+                }
+                if(data.plan == 2){ //5 SBD plan
+                    subscriptions.insert({
+                    "user":         data.user,
+                    "plan":         data.plan,
+                    "timestamp":    Date.now(),
+                    "end":          Date.now() + 2678400000
+                    });
+                }    
+            }
+            if(res.end >= Date.now() && data.plan >= 1){ //If subscription not ended yet, and user choose to send some more sbd. The last one is to protect from accumulating subscriptions by upvoting our previous posts
+                subscriptions.update(
+                    {'user':data.user},
+                    {$set:
+                        {
+                            'plan': data.plan , 
+                            'timestamp': Date.now(), 
+                            'end': res.end + 2678400000
+                        }
+                    }
+                );
+            }
+            if(res.end <= Date.now()){ //If subscription ended
+                subscriptions.remove({user: data.user}); //Delete previous subscription, then create a new one
+                if(data.plan == 0){ //Upvote plan
+                    subscriptions.insert({
+                    "user":         data.user,
+                    "plan":         data.plan,
+                    "timestamp":    Date.now(),
+                    "end":          Date.now() + 669600000
+                    });
+                }
+                if(data.plan == 1){ //1 SBD plan
+                    subscriptions.insert({
+                    "user":         data.user,
+                    "plan":         data.plan,
+                    "timestamp":    Date.now(),
+                    "end":          Date.now() + 2678400000
+                    });
+                }
+                if(data.plan == 2){ //5 SBD plan
+                    subscriptions.insert({
+                    "user":         data.user,
+                    "plan":         data.plan,
+                    "timestamp":    Date.now(),
+                    "end":          Date.now() + 2678400000
+                    });
+                }    
+            }
+        });        
     }
 
     exports.checkSubscription = function(data, out){
@@ -105,33 +148,8 @@ mongo.connect(url, function(err, db){
         });
     }
 
-    exports.specialEvent_setSubscription = function(data){
-        var query = subscriptions.find({user: data.user});
-        query.limit(1).sort({timestamp:1}).toArray(function(err,res){
-            if(i < 101){
-                if(res.state == undefined && res.plan == undefined){
-                    subscriptions.insert({
-                        "user":         data.user,
-                        "state":        data.state
-                    });
-                } 
-                if(res.state == 1 && res.plan == undefined){
-                    subscriptions.remove({user: data.user})
-                    subscriptions.insert({
-                        "user":         data.user,
-                        "plan":         data.plan,
-                        "timestamp":    Date.now(),
-                        "end":          Date.now() + 2678400000
-                    });
-                    i++;
-                }    
-            }  
-        });
-         
-    }
-
     exports.checkIfLeakedKey = function(data, out){
-        var query = leakedKeys.find({user: data.user});
+        var query = leakedKeys.find({key: data.key});
         query.limit(1).toArray(function(err,res){
             if(res.length){
                 out(res);
@@ -158,6 +176,52 @@ mongo.connect(url, function(err, db){
             else{
                 out("no");
             }
+        });
+    }
+
+    /*#################################################
+    ###################SPECIAL EVENT###################
+    ###################################################*/
+
+    exports.specialEvent_setSubscription_66PercentPromotion = function(data){
+        var query = subscriptions.find({user: data.user});
+        query.limit(1).sort({timestamp:1}).toArray(function(err,res){
+            if(res.user == undefined){                
+                if(data.plan == 1){ //1 SBD plan
+                    subscriptions.insert({
+                    "user":         data.user,
+                    "plan":         data.plan,
+                    "timestamp":    Date.now(),
+                    "end":          Date.now() + 8035200000
+                    });
+                }
+            }
+        });
+         
+    }
+
+    exports.specialEvent_setSubscription_33PercentPromotion = function(data){
+        var query = subscriptions.find({user: data.user});
+        query.limit(1).sort({timestamp:1}).toArray(function(err,res){
+            if(res.user == undefined){                
+                if(data.plan == 1){ //1 SBD plan
+                    subscriptions.insert({
+                    "user":         data.user,
+                    "plan":         data.plan,
+                    "timestamp":    Date.now(),
+                    "end":          Date.now() + 4017600000
+                    });
+                    specialEvent1.insert({"user": data.user});
+                }
+            }
+        });
+         
+    }
+
+    exports.specialEvent_checkIfThereIsFreeSlots = function(out){
+        var query = specialEvent1.find();
+        query.toArray(function(err, res){
+            out(res)
         });
     }
 });

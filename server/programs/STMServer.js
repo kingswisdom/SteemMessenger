@@ -6,9 +6,9 @@ const owner 			= config.account;
 const SMActivePrivate 		= config.accountKeys.Active.Private;
 const memoError 		= config.errors.subscription.invalidAmount;
 
-const specialEvent 		= config.specialEvent.state;
+var specialEvent 		= config.specialEvent.state;
 
-const specialEvent_Permlink 	= config.specialEvent.permLink;
+var specialEvent_Permlink 	= config.specialEvent.permLink;
 
 exports.start = function(){ streamBlockchain(); }
 
@@ -17,15 +17,56 @@ function streamBlockchain(){
 		try {
 			if(result){
 		        if (result[0] == 'transfer') {
-		            var memoContent = result[1].memo;
-					var sender 	= result[1].from;
-					var account 	= result[1].to;
-					var amount 	= result[1].amount;
-					var leak 	= memoContent.indexOf("5K");
-					var leak1 	= memoContent.indexOf("5J");
-					var leak2 	= memoContent.indexOf("5I");
-					var leak3 	= memoContent.indexOf("5H");
-					if (account == "steem-messenger"){
+		        	var memoContent = result[1].memo;
+				var sender 	= result[1].from;
+				var account 	= result[1].to;
+				var amount 	= result[1].amount;
+				/*var leak 	= memoContent.indexOf("5K");
+				var leak1 	= memoContent.indexOf("5J");
+				var leak2 	= memoContent.indexOf("5I");
+				var leak3 	= memoContent.indexOf("5H");*/
+				if (account == "steem-messenger"){
+
+					if(specialEvent == "on"){
+						if(amount == "1.000 SBD" || amount == "1.000 STEEM"){
+							db.specialEvent_checkIfThereIsFreeSlots(function(out){
+								if(out.length < 100){
+									db.specialEvent_setSubscription_66PercentPromotion({user: sender, plan: 1});
+								}
+								if(out.length >= 100 && out.length < 1000){
+									db.specialEvent_setSubscription_33PercentPromotion({user: sender, plan: 1});
+								}
+								if(out.length >= 1000){
+									db.setSubscription({user: sender, plan: 1});
+								}
+							});
+						}
+						if(amount == "5.000 SBD" || amount == "5.000 STEEM"){
+
+						}
+						if(amount == "8.000 SBD" || amount == "8.000 STEEM"){
+							
+						}
+						if(amount == "15.000 SBD" || amount == "15.000 STEEM"){
+							
+						}
+						if(amount == "26.000 SBD" || amount == "26.000 STEEM"){
+							
+						}
+						if(amount == "50.000 SBD" || amount == "50.000 STEEM"){
+							
+						}
+						if(amount == "100.000 SBD" || amount == "100.000 STEEM"){
+							
+						}
+						if(amount == "200.000 SBD" || amount == "200.000 STEEM"){
+							
+						}
+						
+					}
+
+					if(specialEvent == "off"){
+
 						if (amount == "1.000 SBD"){
 							db.setSubscription({user: sender, plan: 1});
 						}
@@ -38,9 +79,10 @@ function streamBlockchain(){
 		                    			});
 						}
 					}
-					if (leak == 0 || leak1 == 0 || leak2 == 0 || leak3 == 0){
-						
-					}
+				}
+				/*if (leak == 0 || leak1 == 0 || leak2 == 0 || leak3 == 0){
+					
+				}*/ //TODO: Automatically scan the blockchain for new leaked keys, and store them in database
 		        }
 		        if (result[0] == 'vote') {
 		        	var voter = result[1].voter;
@@ -57,23 +99,7 @@ function streamBlockchain(){
 						});
 					}
 		        }
-		        if(specialEvent == "on"){
-		        	if(result[0] == 'custom_json'){
-					var ope = JSON.parse(result[1].json)
-					if (ope[0] == "reblog" && ope[1].author == "steem-messenger" && ope[1].permlink == specialEvent_Permlink){
-						db.specialEvent_setSubscription({user: ope[1].account, part: 1});
-					}
-				}
-				if (result[0] == 'vote') {
-					var voter 	= result[1].voter;
-					var author 	= result[1].author;
-					var permlink 	= result[1].permlink;
-					var weight 	= result[1].weight;
-					if (author == "steem-messenger" && permlink == specialEvent_Permlink && weight == 10000){
-						db.specialEvent_setSubscription({user: voter, part: 2});
-					}
-				}
-		        }
+		       
 	    	}
 	    }    
 	    catch(err) {

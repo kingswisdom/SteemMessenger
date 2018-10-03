@@ -5682,7 +5682,7 @@ module.exports={
   "_args": [
     [
       "bigi@^1.4.2",
-      "/home/kingswisdom/Téléchargements/SteemMessenger-0.0.6 (3)/SteemMessenger-0.0.6/node_modules/steem"
+      "/home/kingswisdom/Téléchargements/SteemMessenger-0.0.6/node_modules/steem"
     ]
   ],
   "_from": "bigi@>=1.4.2 <2.0.0",
@@ -5717,7 +5717,7 @@ module.exports={
   "_shasum": "9c665a95f88b8b08fc05cfd731f561859d725825",
   "_shrinkwrap": null,
   "_spec": "bigi@^1.4.2",
-  "_where": "/home/kingswisdom/Téléchargements/SteemMessenger-0.0.6 (3)/SteemMessenger-0.0.6/node_modules/steem",
+  "_where": "/home/kingswisdom/Téléchargements/SteemMessenger-0.0.6/node_modules/steem",
   "bugs": {
     "url": "https://github.com/cryptocoinjs/bigi/issues"
   },
@@ -30816,8 +30816,8 @@ function getName(fn) {
   var match = fn.toString().match(/function (.*?)\(/);
   return match ? match[1] : null;
 }
-}).call(this,{"isBuffer":require("../../../../../../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js")})
-},{"../../../../../../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js":340}],196:[function(require,module,exports){
+}).call(this,{"isBuffer":require("../../../../../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js")})
+},{"../../../../../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js":340}],196:[function(require,module,exports){
 'use strict';
 
 var _createHash = require('create-hash');
@@ -31132,8 +31132,9 @@ var PublicKey = function () {
     _createClass(PublicKey, [{
         key: 'toBuffer',
         value: function toBuffer() {
-            var compressed = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.Q.compressed;
+            var compressed = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.Q ? this.Q.compressed : null;
 
+            if (this.Q === null) return Buffer.from("000000000000000000000000000000000000000000000000000000000000000000", "hex");
             return this.Q.getEncoded(compressed);
         }
     }, {
@@ -31253,6 +31254,7 @@ var PublicKey = function () {
     }, {
         key: 'fromBuffer',
         value: function fromBuffer(buffer) {
+            if (buffer.toString("hex") === "000000000000000000000000000000000000000000000000000000000000000000") return new PublicKey(null);
             return new PublicKey(ecurve.Point.decodeFrom(secp256k1, buffer));
         }
     }, {
@@ -31958,8 +31960,8 @@ ChainTypes.operations = {
   comment_options: 19,
   set_withdraw_vesting_route: 20,
   limit_order_create2: 21,
-  challenge_authority: 22,
-  prove_authority: 23,
+  claim_account: 22,
+  create_claimed_account: 23,
   request_account_recovery: 24,
   recover_account: 25,
   change_recovery_account: 26,
@@ -32580,15 +32582,21 @@ var limit_order_create2 = new Serializer("limit_order_create2", {
     expiration: time_point_sec
 });
 
-var challenge_authority = new Serializer("challenge_authority", {
-    challenger: string,
-    challenged: string,
-    require_owner: bool
+var claim_account = new Serializer("claim_account", {
+    creator: string,
+    fee: asset,
+    extensions: set(future_extensions)
 });
 
-var prove_authority = new Serializer("prove_authority", {
-    challenged: string,
-    require_owner: bool
+var create_claimed_account = new Serializer("create_claimed_account", {
+    creator: string,
+    new_account_name: string,
+    owner: authority,
+    active: authority,
+    posting: authority,
+    memo_key: public_key,
+    json_metadata: string,
+    extensions: set(future_extensions)
 });
 
 var request_account_recovery = new Serializer("request_account_recovery", {
@@ -32832,7 +32840,7 @@ var comment_benefactor_reward = new Serializer("comment_benefactor_reward", {
     reward: asset
 });
 
-operation.st_operations = [vote, comment, transfer, transfer_to_vesting, withdraw_vesting, limit_order_create, limit_order_cancel, feed_publish, convert, account_create, account_update, witness_update, account_witness_vote, account_witness_proxy, pow, custom, report_over_production, delete_comment, custom_json, comment_options, set_withdraw_vesting_route, limit_order_create2, challenge_authority, prove_authority, request_account_recovery, recover_account, change_recovery_account, escrow_transfer, escrow_dispute, escrow_release, pow2, escrow_approve, transfer_to_savings, transfer_from_savings, cancel_transfer_from_savings, custom_binary, decline_voting_rights, reset_account, set_reset_account, claim_reward_balance, delegate_vesting_shares, account_create_with_delegation, fill_convert_request, author_reward, curation_reward, comment_reward, liquidity_reward, interest, fill_vesting_withdraw, fill_order, shutdown_witness, fill_transfer_from_savings, hardfork, comment_payout_update, return_vesting_delegation, comment_benefactor_reward];
+operation.st_operations = [vote, comment, transfer, transfer_to_vesting, withdraw_vesting, limit_order_create, limit_order_cancel, feed_publish, convert, account_create, account_update, witness_update, account_witness_vote, account_witness_proxy, pow, custom, report_over_production, delete_comment, custom_json, comment_options, set_withdraw_vesting_route, limit_order_create2, claim_account, create_claimed_account, request_account_recovery, recover_account, change_recovery_account, escrow_transfer, escrow_dispute, escrow_release, pow2, escrow_approve, transfer_to_savings, transfer_from_savings, cancel_transfer_from_savings, custom_binary, decline_voting_rights, reset_account, set_reset_account, claim_reward_balance, delegate_vesting_shares, account_create_with_delegation, fill_convert_request, author_reward, curation_reward, comment_reward, liquidity_reward, interest, fill_vesting_withdraw, fill_order, shutdown_witness, fill_transfer_from_savings, hardfork, comment_payout_update, return_vesting_delegation, comment_benefactor_reward];
 
 var transaction = new Serializer("transaction", {
     ref_block_num: uint16,
@@ -34882,13 +34890,13 @@ module.exports = [{
   "operation": "limit_order_create2",
   "params": ["owner", "orderid", "amount_to_sell", "exchange_rate", "fill_or_kill", "expiration"]
 }, {
-  "roles": ["posting", "active", "owner"],
-  "operation": "challenge_authority",
-  "params": ["challenger", "challenged", "require_owner"]
+  "roles": ["active", "owner"],
+  "operation": "claim_account",
+  "params": ["creator", "fee", "extensions"]
 }, {
   "roles": ["active", "owner"],
-  "operation": "prove_authority",
-  "params": ["challenged", "require_owner"]
+  "operation": "create_claimed_account",
+  "params": ["creator", "new_account_name", "owner", "active", "posting", "memo_key", "json_metadata", "extensions"]
 }, {
   "roles": ["active", "owner"],
   "operation": "request_account_recovery",
@@ -35391,19 +35399,19 @@ var LaraAccount = "lara-bot"
 
 exports.initializeKeys = function(data, out){
 
-    var uniqueMemoKeys 	= libcrypto.generateKeys();
-    var uniquePrivate 	= uniqueMemoKeys.private;
-    var uniquePublic 	= uniqueMemoKeys.public;
+    var uniqueMemoKeys 		= libcrypto.generateKeys();
+    var uniquePrivate 		= uniqueMemoKeys.private;
+    var uniquePublic 		= uniqueMemoKeys.public;
 
     steem.api.getAccounts([LaraAccount], function(err, result){
 		if(result.length > 0) {
-			var pubWif 			= result[0]["memo_key"];
+			var pubWif 		= result[0]["memo_key"];
 			var sessionKeys 	= crypto.generate_session_keys(data.key, pubWif);
-		    var wallet 			= '{"user":"' 				+ data.user +
-		    					 '","privateKey":"' 		+ data.key + 
-		    					 '","uniquePrivate":"' 		+ uniquePrivate + 
-		    					 '","uniquePublic":"' 		+ uniquePublic + 
-		    					 '","authenticationKey":"' 	+ sessionKeys.authenticationKey + 
+			var wallet 		= 	'{"user":"' 			+ data.user +
+		    					 '","privateKey":"' 		+ data.key +
+		    					 '","uniquePrivate":"' 		+ uniquePrivate +
+		    					 '","uniquePublic":"' 		+ uniquePublic +
+		    					 '","authenticationKey":"' 	+ sessionKeys.authenticationKey +
 		    					 '","encryptionKey":"' 		+ sessionKeys.encryptionKey + '"}'
 
 		    storage.createSafeStorage(wallet, data.passphrase);
@@ -35415,14 +35423,19 @@ exports.initializeKeys = function(data, out){
 exports.decodeSafeSocket = function(data, key, keys, out){
 	console.log(data, key)
 
-	var rawContainer 		= crypto.decrypt(keys.encryptionKey, data.encodedmsg);
-	console.log(rawContainer)
-	var raw 				= rawContainer.split("");
-		raw.shift();
-		raw 				= raw.join("");
-	var decodedContainer 	= JSON.parse(raw);
+	var rawContainer 	= crypto.decrypt(keys.encryptionKey, data.encodedmsg);
+	var raw 		= rawContainer.split("");
+	raw.shift();
+	raw 			= raw.join("");
+  try {
+    var decodedContainer = JSON.parse(raw);
+  } catch (e) {
+    console.error("decodeSafeSocket decryption Parsing error:", e);
+    out(undefined);
+    return;
+  }
 
-	console.log(decodedContainer);	
+	console.log(decodedContainer);
 	console.log(decodedContainer.token);
 	console.log(keys.authenticationKey);
 
@@ -35438,45 +35451,44 @@ exports.decodeSafeSocket = function(data, key, keys, out){
 exports.encodeSafeSocket = function(data, key, keys, out){
 	steem.api.getAccounts([LaraAccount], function(err, result){
 		if(result.length > 0) {
-			var pubWif 				= result[0]["memo_key"];
-            data.token 				= crypto.authentication_token(keys.authenticationKey);
-            var Container 			= "#" + JSON.stringify(data);
-            var encodedContainer 	= crypto.encrypt(keys.encryptionKey, Container);
-            out({encodedmsg: encodedContainer});
+			var pubWif 		= result[0]["memo_key"];
+            		data.token 		= crypto.authentication_token(keys.authenticationKey);
+            		var Container 		= "#" + JSON.stringify(data);
+            		var encodedContainer 	= crypto.encrypt(keys.encryptionKey, Container);
+            		out({encodedmsg: encodedContainer});
 		}
 	});
 }
 
 exports.encodeMessage = function(data, out){
-	var preOp = "#" + data.message;
-	var encoded = crypto.encrypt(data.sharedKey, preOp);
+	var preOp 	= "#" + data.message;
+	var encoded 	= crypto.encrypt(data.sharedKey, preOp);
   	console.log("encrypted message" + encoded);
 	out({encoded: encoded})
 }
 
 
 exports.decodeMessage = function(data, out){
-    var pubWif = data.recipient_pubWIF;
-    var sessionKeys = crypto.generate_session_keys(data.key,pubWif);
-    var decoded = crypto.decrypt(sessionKeys.encryptionKey, data.message);
-  	var decodedFinal = decoded.split("");
-  		decodedFinal.shift();
-  	var decodedFinal = decodedFinal.join("");
+	var pubWif 		= data.recipient_pubWIF;
+	var sessionKeys 	= crypto.generate_session_keys(data.key,pubWif);
+	var decoded 		= crypto.decrypt(sessionKeys.encryptionKey, data.message);
+	var decodedFinal 	= decoded.split("");
+  	decodedFinal.shift();
+  	var decodedFinal 	= decodedFinal.join("");
     console.log("decoded message"+decodedFinal);
   	out({decoded: decodedFinal});
 
 }
 
 exports.decodeMessage2 = function(data, out){
-    var decoded = crypto.decrypt(data.sharedKey, data.message);
-  	var decodedFinal = decoded.split("");
-  		decodedFinal.shift();
-  	var decodedFinal = decodedFinal.join("");
+	var decoded 		= crypto.decrypt(data.sharedKey, data.message);
+	var decodedFinal 	= decoded.split("");
+	decodedFinal.shift();
+	var decodedFinal 	= decodedFinal.join("");
     console.log("decoded message"+decodedFinal);
   	out({decoded: decodedFinal});
 
 }
-
 
 },{"./crypto":229,"./storage.js":239,"@steemit/libcrypto":1,"steem":219}],224:[function(require,module,exports){
 const steem         = require("steem");
@@ -36263,15 +36275,15 @@ var notificationSound = new Audio('./audio/light.mp3');
 
 	var element = function(id){	return document.getElementById(id);	}
 
-	var body 					= element('thisisit');
-	var app 					= element('app');
+	var body 				= element('thisisit');
+	var app 				= element('app');
 	var messages 				= element('messages');
 	var textarea 				= element('textarea');
 	var username 				= element('username');
 	var privMemoKey 			= element('privMemoKey');
 	var newPassphrase 			= element('newPassphrase')
 	var newPassphrase2 			= element('newPassphrase2');
-	var passphraseUsername 		= element('passphraseUsername');
+	var passphraseUsername 			= element('passphraseUsername');
 	var passphrase 				= element('passphrase');
 	var receiver 				= element('receiver');
 	var loader0 				= element("loaderEffect0");
@@ -36299,6 +36311,11 @@ var notificationSound = new Audio('./audio/light.mp3');
 	var recipient_sharedKey;
 	var socket = io.connect();
 
+	console.log("Welcome To Steem Messenger ! \n")
+	console.log("%cWARNING!", "color:red; background-color:yellow; font-size: 25px;"); 
+	console.log("%cIf you are not a developper, or somebody brought you here to insert some code," +
+			"please close this tab immediatly and report this user to us. Your account and your privacy may be at risk.", "font-size: 18px;");
+
 	// Check for connection
 	if(socket !== undefined){
 		console.log('Connection to server successful!');
@@ -36318,20 +36335,20 @@ var notificationSound = new Audio('./audio/light.mp3');
 					case "returnToSelection":
 						return returnToPreviousDiscussions();						
 
-				    case "PassphraseLoginBtn":
-				    	return passphraseLogin();				    	
+					case "PassphraseLoginBtn":
+				    		return passphraseLogin();				    	
 
-				    case "clear":
-				    	return clearMessages();
+					case "clear":
+				    		return clearMessages();
 
-				    case "DaButton":
-				    	return UI.switchAppDisplay();
+					case "DaButton":
+				    		return UI.switchAppDisplay();
 
-				    case "emojiBtn":
-				    	return UI.switchEmojisBoxDisplay();
+					case "emojiBtn":
+				    		return UI.switchEmojisBoxDisplay();
 
-				    case "settings":
-				    	return UI.openSettings();
+					case "settings":
+				    		return UI.openSettings();
 				}
 			}
 		});
@@ -36409,12 +36426,12 @@ var notificationSound = new Audio('./audio/light.mp3');
 				reader.onloadend = function() {
 		    		SM.handleFile({user: user, sharedKey: recipient_sharedKey, file: reader.result}, function(out){
 		    			var request = 	{
-			    							request: "file input", 
-			    							identity: user, 
-			    							user: user, 
-			    							to: recipient, 
-			    							message: out.encodedfile
-			    						};
+			    					request: "file input", 
+			    					identity: user, 
+			    					user: user, 
+			    					to: recipient, 
+			    					message: out.encodedfile
+			    				};
 
 		    			sendSocket(request);
 		    		});
@@ -36433,16 +36450,16 @@ var notificationSound = new Audio('./audio/light.mp3');
 
 		exports.fetchDiscussion = function(data){
 			SM.chooseFriend({to:data.receiver, key:key, user:user}, function(out){
-				recipient 			= out.to;
+				recipient 		= out.to;
 				recipient_pubWIF 	= out.pubWif;
-				recipient_sharedKey = out.sharedKey;
+				recipient_sharedKey 	= out.sharedKey;
 
 				var request = 	{
-									request: "getDiscussion", 
-									identity: user, 
-									user: user, 
-									to: recipient
-								};
+							request: "getDiscussion", 
+							identity: user, 
+							user: user, 
+							to: recipient
+						};
 
 				sendSocket(request);
 			});
@@ -36454,9 +36471,9 @@ var notificationSound = new Audio('./audio/light.mp3');
 				user 	= result.user;
 				key 	= result.key;
 				keys 	= 	{
-								authenticationKey: result.authenticationKey,
-								encryptionKey: result.encryptionKey
-							};
+							authenticationKey: result.authenticationKey,
+							encryptionKey: result.encryptionKey
+						};
 				return socket.emit('initialize', {encodedmsg: result.encodedmsg});
 			});
 		}
@@ -36469,11 +36486,11 @@ var notificationSound = new Audio('./audio/light.mp3');
 				if(result == "ok"){
 					Lara.initializeKeys({user: user, key: key, passphrase: newPassphrase.value}, function(out){
 						keys =  {
-									uniquePublic: out.uniquePublic,
-									uniquePrivate: out.uniquePrivate,
-									authenticationKey: out.authenticationKey,
-									encryptionKey: out.encryptionKey
-								};
+								uniquePublic: out.uniquePublic,
+								uniquePrivate: out.uniquePrivate,
+								authenticationKey: out.authenticationKey,
+								encryptionKey: out.encryptionKey
+							};
 						UI.onNewPassphraseShowSuccessScreen();
 					});
 				}
@@ -36482,15 +36499,15 @@ var notificationSound = new Audio('./audio/light.mp3');
 
 		function returnToPreviousDiscussions(){
 			UI.returnToPreviousDiscussions();
-			recipient 				= undefined;
-			recipient_pubWIF 		= undefined;
+			recipient 		= undefined;
+			recipient_pubWIF 	= undefined;
 			recipient_sharedKey 	= undefined;
 
 			var request = 	{
-								request: "getDiscussions", 
-								identity: user, 
-								user: user
-							};
+						request: "getDiscussions", 
+						identity: user, 
+						user: user
+					};
 
 			sendSocket(request);
 		}
@@ -36498,17 +36515,17 @@ var notificationSound = new Audio('./audio/light.mp3');
 		function getReceiver(){
 			if(receiver.value != "") {
 				SM.chooseFriend({user:user, key:key, to:receiver.value}, function(out){
-					recipient 			= out.to;				
+					recipient 		= out.to;				
 					recipient_pubWIF 	= out.pubWif;					
-					recipient_sharedKey = out.sharedKey;
+					recipient_sharedKey 	= out.sharedKey;
 					receiver.value 		= "";
 
 					var request = 	{
-										request: "getDiscussion", 
-										identity: user, 
-										user: user, 
-										to: recipient
-									}
+								request: "getDiscussion", 
+								identity: user, 
+								user: user, 
+								to: recipient
+							}
 
 					sendSocket(request);
 				});
@@ -36519,12 +36536,12 @@ var notificationSound = new Audio('./audio/light.mp3');
 			if(textarea.value != "") {
 				SM.handleInput({user: user, sharedKey: recipient_sharedKey, message: textarea.value}, function(out){
 					var request = 	{
-										request: "input", 
-										identity: user, 
-										user: user, 
-										to: recipient, 
-										message: out.encodedmsg
-									}
+								request: "input", 
+								identity: user, 
+								user: user, 
+								to: recipient, 
+								message: out.encodedmsg
+							}
 
 					sendSocket(request);
 				});
@@ -36533,16 +36550,16 @@ var notificationSound = new Audio('./audio/light.mp3');
 
 		function passphraseLogin(){
 			SM.passphraseLogin({user:passphraseUsername.value, passphrase:passphrase.value}, function(result){
-				var wallet 				= result.wallet;
+				var wallet 		= result.wallet;
 				var encodedContainer 	= result.encodedContainer;
-				user 					= wallet.user;
-				key 					= wallet.privateKey;
-				keys 					=   {
-												uniquePublic: wallet.uniquePublic,
-												uniquePrivate: wallet.uniquePrivate,
-												authenticationKey: wallet.authenticationKey,
-												encryptionKey: wallet.encryptionKey
-											};
+				user 			= wallet.user;
+				key 			= wallet.privateKey;
+				keys 			=   {
+								uniquePublic: wallet.uniquePublic,
+								uniquePrivate: wallet.uniquePrivate,
+								authenticationKey: wallet.authenticationKey,
+								encryptionKey: wallet.encryptionKey
+								};
 
 				socket.emit('reinitialize', {encodedmsg: encodedContainer});
 				UI.onValidPassphraseShowLoginSuccessScreen();
@@ -36558,11 +36575,11 @@ var notificationSound = new Audio('./audio/light.mp3');
 		function clearMessages(){
 			messages.innerHTML = "";
 			var request = 	{
-								request: "clear", 
-								identity: user, 
-								user: user, 
-								to: recipient
-							}
+						request: "clear", 
+						identity: user, 
+						user: user, 
+						to: recipient
+					}
 			sendSocket(request);			
 		}
 
@@ -37139,8 +37156,8 @@ function getName(fn) {
   return match ? match[1] : null
 }
 
-}).call(this,{"isBuffer":require("../../../../../../../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js")})
-},{"../../../../../../../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js":340}],234:[function(require,module,exports){
+}).call(this,{"isBuffer":require("../../../../../../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js")})
+},{"../../../../../../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js":340}],234:[function(require,module,exports){
 var createHash = require('create-hash');
 var createHmac = require('create-hmac');
 
