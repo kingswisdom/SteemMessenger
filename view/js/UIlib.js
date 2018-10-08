@@ -39,7 +39,10 @@ var fileSend = element('fileSend');
 var emojiList = element("emoji-list");
 var emojiContainer = element("emoji-container");
 var previousDiscussions = element("previousDiscussions");
+var settingsInterface = element("settingsInterface");
 var notificationSound = new Audio('./audio/light.mp3');
+
+var exportWallet = element("exportWallet");
 
 /*-------------------------------
 ------------Loaders--------------
@@ -174,7 +177,16 @@ var notificationSound = new Audio('./audio/light.mp3');
   exports.hideNotSubscribed = function(){
     notSubscribed.style.display = "none";
   }
+
+  exports.showSettings = function(data){
+    settingsInterface.style.display = "block";
+    exportWallet.value = "";
+    exportWallet.value = data;
+  }
   
+  exports.hideSettings = function(){
+    settingsInterface.style.display = "none";
+  }
 /*-------------------------------
 ------------Buttons--------------
 -------------------------------*/

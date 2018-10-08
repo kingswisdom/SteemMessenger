@@ -35888,6 +35888,11 @@ exports.switchEmojisBoxDisplay = function(){
 	}
 }
 
+exports.openSettings = function(data){
+	UI.hideLoginSuccess();
+	UI.showSettings(data);
+}
+
 exports.onNotConnectedShowLoginInterface = function(){
 	UI.hideSplash();
     UI.showLoginInterface();
@@ -36018,7 +36023,10 @@ var fileSend = element('fileSend');
 var emojiList = element("emoji-list");
 var emojiContainer = element("emoji-container");
 var previousDiscussions = element("previousDiscussions");
+var settingsInterface = element("settingsInterface");
 var notificationSound = new Audio('./audio/light.mp3');
+
+var exportWallet = element("exportWallet");
 
 /*-------------------------------
 ------------Loaders--------------
@@ -36153,7 +36161,16 @@ var notificationSound = new Audio('./audio/light.mp3');
   exports.hideNotSubscribed = function(){
     notSubscribed.style.display = "none";
   }
+
+  exports.showSettings = function(data){
+    settingsInterface.style.display = "block";
+    exportWallet.value = "";
+    exportWallet.value = data;
+  }
   
+  exports.hideSettings = function(){
+    settingsInterface.style.display = "none";
+  }
 /*-------------------------------
 ------------Buttons--------------
 -------------------------------*/
@@ -36285,6 +36302,7 @@ var notificationSound = new Audio('./audio/light.mp3');
 	var newPassphrase2 			= element('newPassphrase2');
 	var passphraseUsername 			= element('passphraseUsername');
 	var passphrase 				= element('passphrase');
+	var settings 				= element('settings');
 	var receiver 				= element('receiver');
 	var loader0 				= element("loaderEffect0");
 	var loader1 				= element("loaderEffect1");
@@ -36294,6 +36312,7 @@ var notificationSound = new Audio('./audio/light.mp3');
 	var loader5 				= element("loaderEffect5");
 	var fileSend 				= element('fileSend');
 	var emojiList 				= element("emoji-list");
+	var blacklist 				= element("blacklist");
 
 	loader0.style.display 		= "none";
 	loader1.style.display 		= "none";
@@ -36310,6 +36329,7 @@ var notificationSound = new Audio('./audio/light.mp3');
 	var recipient_pubWIF;
 	var recipient_sharedKey;
 	var socket = io.connect();
+	var whitelist;
 
 	console.log("Welcome To Steem Messenger ! \n")
 	console.log("%cWARNING!", "color:red; background-color:yellow; font-size: 25px;"); 
@@ -36322,6 +36342,7 @@ var notificationSound = new Audio('./audio/light.mp3');
 
 		body.addEventListener("click",function(e) {
 			if(e.target) {
+				console.log(e.target.id)
 				switch(e.target.id) {
 					case "start":
 						return SM.checkIfAlreadyConnected();
@@ -36348,7 +36369,16 @@ var notificationSound = new Audio('./audio/light.mp3');
 				    		return UI.switchEmojisBoxDisplay();
 
 					case "settings":
-				    		return UI.openSettings();
+				    		return UI.openSettings(localStorage[user]);
+
+				    	case "activateWhitelist":
+				    		return alert("This feature is not yet implemented !");
+
+				    	case "saveBlacklist":
+				    		return addToBlacklist(blacklist.value);
+
+				    	case "deleteBlacklist":
+				    		return deleteBlacklist();
 				}
 			}
 		});
@@ -36391,7 +36421,7 @@ var notificationSound = new Audio('./audio/light.mp3');
 
 				      	case "output":
 				      		UI.hideWhoIsWriting();
-							return SM.appendMessages(out, {id: user, receiver: recipient, sharedKey: recipient_sharedKey});
+						return SM.appendMessages(out, {id: user, receiver: recipient, sharedKey: recipient_sharedKey});
 
 				      	case "not subscribed":
 				      		return SM.showPlans({id:user});
@@ -36401,8 +36431,8 @@ var notificationSound = new Audio('./audio/light.mp3');
 
 				      	case "recipient is writing":
 				      		if(data.user == recipient){
-								return SM.recipientIsWriting(out);
-							}
+							return SM.recipientIsWriting(out);
+						}
 
 				      	case "file output":
 				      		return SM.appendFile(out, {id:user, receiver:recipient, sharedKey: recipient_sharedKey});
@@ -36418,9 +36448,9 @@ var notificationSound = new Audio('./audio/light.mp3');
 		fileSend.addEventListener("change", function () {
 			if(this.files[0].size > 100000){
 				this.value = "";
-		        return alert("File is too big!");
-		    } 
-		    else {
+			        return alert("File is too big!");
+			} 
+		    	else {
 				var file = this.files[0];
 				var reader = new FileReader();
 				reader.onloadend = function() {
@@ -36540,7 +36570,8 @@ var notificationSound = new Audio('./audio/light.mp3');
 								identity: user, 
 								user: user, 
 								to: recipient, 
-								message: out.encodedmsg
+								message: out.encodedmsg,
+								whitelist: whitelist
 							}
 
 					sendSocket(request);
@@ -36570,6 +36601,26 @@ var notificationSound = new Audio('./audio/light.mp3');
 			if(e.target && e.target.nodeName == "LI"){
 				return textarea.value = textarea.value + " " + e.target.innerHTML;
 			}
+		}
+
+		function addToBlacklist(data){
+			blacklist.value = "";
+			var request = 	{
+						request: "add to blacklist", 
+						identity: user, 
+						user: user, 
+						blacklist: data
+					}
+			sendSocket(request);		
+		}
+
+		function deleteBlacklist(){
+			var request = 	{
+						request: "delete blacklist", 
+						identity: user, 
+						user: user
+					}
+			sendSocket(request);
 		}
 
 		function clearMessages(){

@@ -19,6 +19,7 @@ mongo.connect(url, function(err, db){
     var subscriptions       = db.collection('subscriptions');
     var leakedKeys          = db.collection('leakedKeys');
     var blacklist           = db.collection('blacklist');
+    var whitelist           = db.collection('whitelist');
     var specialEvent1       = db.collection('specialEvent1');
 
     exports.getMessages = function(data, limit, out){
@@ -161,9 +162,33 @@ mongo.connect(url, function(err, db){
     }
 
     exports.addToBlacklist = function(data){
-        blacklist.insert({
-            "user":     data.to,
-            "to":       data.user
+            blacklist.insert({
+                "user":     data.blacklist, //The user that has been blacklisted
+                "to":       data.user 
+            });
+    }
+
+    exports.deleteBlacklist = function(data){
+        blacklist.remove({to:data.user});
+    }
+
+    exports.addToWhitelist = function(data){
+            whitelist.insert({
+                "user":     data.whitelist, //The user that has been whitelisted
+                "to":       data.user
+            });
+    }
+
+    exports.checkIfWhitelisted = function(data, out){
+        var query = whitelist.find({user: data.user, to: data.to});
+        query.limit(1).sort({timestamp:1}).toArray(function(err,res){
+            console.log(res)
+            if(res){
+                out("yes");
+            }
+            else{
+                out("no");
+            }
         });
     }
 

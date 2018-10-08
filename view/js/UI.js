@@ -29,6 +29,11 @@ exports.switchEmojisBoxDisplay = function(){
 	}
 }
 
+exports.openSettings = function(data){
+	UI.hideLoginSuccess();
+	UI.showSettings(data);
+}
+
 exports.onNotConnectedShowLoginInterface = function(){
 	UI.hideSplash();
     UI.showLoginInterface();

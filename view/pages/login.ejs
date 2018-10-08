@@ -60,16 +60,16 @@
 
 		<div id="DaChat" class="DaChatBox">
 
-				<div id="receiver-info" class="receiver-info">
-						<div class="returnBtn">
-								<div id="returnToSelection" class="returnText"><</div>
-								<span class="tooltippreviousdisc">Previous discussions</span>
-						</div>
-						<div class="clearBtn">
-								<img id="clear" style="width: 30px; height: 30px; margin-top: 7px;" src="../images/bin.png">
-								<span class="tooltipcleardisc">Clear discussion</span>
-						</div>
-			 </div>
+			<div id="receiver-info" class="receiver-info">
+				<div class="returnBtn">
+					<div id="returnToSelection" class="returnText"><</div>
+					<span class="tooltippreviousdisc">Previous discussions</span>
+				</div>
+				<div class="clearBtn">
+					<img id="clear" style="width: 30px; height: 30px; margin-top: 7px;" src="../images/bin.png">
+					<span class="tooltipcleardisc">Clear discussion</span>
+				</div>
+			</div>
 
 			<div id="splash" class="splash">
 				<br>
@@ -98,17 +98,64 @@
 			<div id="leakedWarning" class="leakedWarning">
 				<br>
 				<br>
-			<h2>Warning ! <img style="height: 50px;width: 50px;" src="../images/Warning.png"></h2>
+				<img style="height: 50px;width: 50px;" src="../images/Warning.png">
+				<h2>Warning ! </h2>
 
-					<p style="margin-top: 25%; position: absolute;padding: 10px;">Your private memo key has been leaked in the past ! In order to connect to our services, you must change it, otherwise your account would be at risk ! Simply refresh this page and proceed to reconnect when you're done changing your keys.</p>
+				<p style="margin-top: 25%; position: absolute;padding: 10px;">Your private memo key has been leaked in the past ! In order to connect to our services, you must change it, otherwise your account would be at risk ! Simply refresh this page and proceed to reconnect when you're done changing your keys.</p>
 			</div>
 
 			<div id="login-success" class="login-success">
 
-				<textarea type="text" id="receiver" class="messageInput" placeholder="Enter friend name to search..."></textarea>
+				<div class="settingsBtn">
+					<img id="settings" style="width: 30px;height: 30px;margin-bottom: -20px;margin-left: -19px;" src="../images/settings.png">
+					<span class="tooltipsettings">Settings</span>
+				</div>
+
+				<textarea type="text" id="receiver" class="friendSearchInput" placeholder="Enter friend name to search..."></textarea>
+				
 
 				<div class="discussionsHistory" id="previousDiscussions"></div>
 				<div class="loaderEffect" style="float:right;" id="loaderEffect2"></div>
+			</div>
+
+			<div id="settingsInterface" class="settingsInterface">
+				<h2>Settings</h2>
+
+				<h4>Blacklist</h4>
+				<p>If a user is bothering you, you can decide to block him.</p>
+				<label for="blacklist">Write here which users you want to block</label>
+				<div>
+					<input id="blacklist" type="text" placeholder="Separate each username by a space" >
+					<a class="button hero__buttonblack" style="border-radius:50px; margin-top:5px;" id="saveBlacklist">Save</a><a class="button hero__buttonblack" style="border-radius:50px; margin-top:5px;" id="deleteBlacklist">Delete blacklist</a>
+				</div>
+				<br>
+
+				<h4>Whitelist</h4>
+				<p>By activating the whitelist, you will no longer receive messages from people that are not listed here.</p>
+				<div>
+					<input type="checkbox" id="activateWhitelist"/>
+					<label for="activateWhitelist">Activate the whitelist (Not working yet)</label>
+				</div>
+				<div id="whitelistParameters" class="whitelistParameters">
+					<label for="whitelist">Write here which users you want to add to your whitelist</label>
+					<div>
+						<input id="whitelist" type="text" placeholder="Separate each username by a space" >
+						<a class="button hero__buttonblack" style="border-radius:50px; margin-top:5px;" id="saveWhitelist">Save</a>
+					</div>
+				</div>
+				<br>
+
+				<h3>Advanced</h3>
+				<br>
+				<label for="importWallet">Import Wallet (Not available yet)</label>
+				<div>
+					<input id="importWallet" type="text" placeholder="Paste your encrypted wallet here" >
+				</div>
+				<br>
+				<label for="exportWallet">Export Wallet</label>
+				<div>
+					<input id="exportWallet" type="text" placeholder="Loading..." >
+				</div>				
 			</div>
 
 			<div id="passphraseSelectorScreen" class="passphraseSelectorScreen">
@@ -151,9 +198,7 @@
 				<div id="isWriting" class="isWriting"></div>
 				<textarea id="textarea" class="messageInput" placeholder="Your message here..."></textarea>
 					<div class="loaderEffect" id="loaderEffect3"></div>
-					<div id="emojiBtn" class="emojiButton">
-						😁
-					</div>
+					<div id="emojiBtn" class="emojiButton">😁</div>
 					<span class="tooltipemoji">Select Emojis</span>
 					<div class="paperclip-btn">
 						<label for="fileSend" class="label-file"><img class="paperclip-button" src="../images/paperclip.png"></label>
@@ -1039,8 +1084,8 @@
 							</ul>
 						</div>
 					</div>
+				</div>
 			</div>
-		</div>
 
 		</div>
 			<!--End of the widget-->
