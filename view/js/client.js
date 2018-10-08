@@ -2,6 +2,7 @@
 	const io 		= require('socket.io-client');
 	const SM 		= require('./SM.js');
 	const UI 		= require('./UI.js');
+	const UIlib		= require('./UIlib.js');
 	const Lara 		= require('./Lara-client.js')
 
 	var element = function(id){	return document.getElementById(id);	}
@@ -93,6 +94,10 @@
 
 				    	case "deleteBlacklist":
 				    		return deleteBlacklist();
+
+				    	case "quitSettings":
+				    		return closeSettings();
+
 				}
 			}
 		});
@@ -247,6 +252,17 @@
 			recipient_pubWIF 	= undefined;
 			recipient_sharedKey 	= undefined;
 
+			var request = 	{
+						request: "getDiscussions", 
+						identity: user, 
+						user: user
+					};
+
+			sendSocket(request);
+		}
+
+		function closeSettings(){
+			UI.closeSettings();
 			var request = 	{
 						request: "getDiscussions", 
 						identity: user, 

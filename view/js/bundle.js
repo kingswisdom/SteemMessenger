@@ -35893,6 +35893,12 @@ exports.openSettings = function(data){
 	UI.showSettings(data);
 }
 
+exports.closeSettings = function(){
+	UI.clearPreviousDiscussions();
+	UI.hideSettings();
+	UI.showLoginSuccess();
+}
+
 exports.onNotConnectedShowLoginInterface = function(){
 	UI.hideSplash();
     UI.showLoginInterface();
@@ -36288,6 +36294,7 @@ var exportWallet = element("exportWallet");
 	const io 		= require('socket.io-client');
 	const SM 		= require('./SM.js');
 	const UI 		= require('./UI.js');
+	const UIlib		= require('./UIlib.js');
 	const Lara 		= require('./Lara-client.js')
 
 	var element = function(id){	return document.getElementById(id);	}
@@ -36379,6 +36386,10 @@ var exportWallet = element("exportWallet");
 
 				    	case "deleteBlacklist":
 				    		return deleteBlacklist();
+
+				    	case "quitSettings":
+				    		return closeSettings();
+
 				}
 			}
 		});
@@ -36542,6 +36553,17 @@ var exportWallet = element("exportWallet");
 			sendSocket(request);
 		}
 
+		function closeSettings(){
+			UI.closeSettings();
+			var request = 	{
+						request: "getDiscussions", 
+						identity: user, 
+						user: user
+					};
+
+			sendSocket(request);
+		}
+
 		function getReceiver(){
 			if(receiver.value != "") {
 				SM.chooseFriend({user:user, key:key, to:receiver.value}, function(out){
@@ -36642,7 +36664,7 @@ var exportWallet = element("exportWallet");
 	}
 })(jQuery);
 
-},{"./Lara-client.js":223,"./SM.js":224,"./UI.js":225,"socket.io-client":169}],228:[function(require,module,exports){
+},{"./Lara-client.js":223,"./SM.js":224,"./UI.js":225,"./UIlib.js":226,"socket.io-client":169}],228:[function(require,module,exports){
 module.exports={
 	"SMaccount" : "steem-messenger",
 	"LaraAccount": "lara-bot"

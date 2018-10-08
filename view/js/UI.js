@@ -34,6 +34,12 @@ exports.openSettings = function(data){
 	UI.showSettings(data);
 }
 
+exports.closeSettings = function(){
+	UI.clearPreviousDiscussions();
+	UI.hideSettings();
+	UI.showLoginSuccess();
+}
+
 exports.onNotConnectedShowLoginInterface = function(){
 	UI.hideSplash();
     UI.showLoginInterface();
