@@ -63,7 +63,7 @@ exports.createWalletPassphrase = function(data, result){
 exports.showPlans = function(data){
     steem.api.getDiscussionsByBlog({tag: config.SMaccount, limit: 1}, function(err, result){
         var permlink = result[0].permlink;
-        return UI.onNotSubscribed({id:data.user, permlink: permlink});
+        return UI.onNotSubscribed({id:data.id, permlink: permlink});
     });
 }
 
