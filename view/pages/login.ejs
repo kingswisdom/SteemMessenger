@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+	<meta class="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>Authentication @Steem-Messenger</title>
+	<link rel='stylesheet' href='../css/style.css' />
+	<link rel='stylesheet' href='../css/chat.css' />
+</head>
+<body id="thisisit">
+	<!-- navbar -->
+	<div class="navbar">
+		<nav class="nav__mobile"></nav>
+		<div class="container">
+			<div class="navbar__inner">
+				<a href="../" class="navbar__logo">STEEM MESSENGER</a>
+				<nav class="navbar__menu">
+					<ul>
+						<li><a href="../">Home</a></li>
+						<li><a href="https://signup.steemit.com">Sign up</a></li>
+					</ul>
+				</nav>
+				<div class="navbar__menu-mob"><a href="" id='toggle'><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z" class=""></path></svg></a></div>
+			</div>
+		</div>
+	</div>
+	<!-- Authentication pages
+	<div class="auth">
+		<div class="container">
+			<div class="auth__inner">
+				<div class="auth__media">
+					<img src="../images/undraw_selfie.png">
+				</div>
+				<div class="auth__auth">
+					<h1 class="auth__title">Connect to Steem Messenger</h1>
+					<p>Your can find your Private Memo Key on Steemit in <br>Settings > Permissions > Show Private Memo Key</p>
+					<form method='post' class="form">
+						<input name="username" class="fakefield">
+						<label>Email</label>
+						<input type="text" name="username" id='username' placeholder="Your Steem username">
+						<label>Private Memo Key</label>
+						<input type="password" name="PrivateMemoKey" id='PrivateMemoKey' placeholder="Your Private Memo Key" autocomplete="off">
+						<button type='submit' class="button button__accent">Log in</button>
+						<a href="https://signup.steemit.com"><h6 class="left-align" >Not registered yet ?</h6></a>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	-->
+		<!--Widget-->
+		<div id="DaButton" class="flyingButtonApp">
+
+		</div>
+		<div id="app" class="app">
+
+			<div id="notSubscribed" style="display:none;" class="notSubscribed">
+
+			</div>
+
+		<div id="DaChat" class="DaChatBox">
+
+			<div id="receiver-info" class="receiver-info">
+				<div class="returnBtn">
+					<div id="returnToSelection" class="returnText"><</div>
+					<span class="tooltippreviousdisc">Previous discussions</span>
+				</div>
+				<div class="clearBtn">
+					<img id="clear" style="width: 30px; height: 30px; margin-top: 7px;" src="../images/bin.png">
+					<span class="tooltipcleardisc">Clear discussion</span>
+				</div>
+			</div>
+
+			<div id="splash" class="splash">
+				<br>
+				<br>
+			<h2>The Steem Messenger <img src="../images/SteemMessenger.png"></h2>
+
+					<p style="margin-top: 25%; position: absolute;padding: 10px;">A secure and private instant messaging application for the Steem ecosystem by <a href="http://steemit.com/@kingswisdom">@kingswisdom</a></p>
+					<div class="loaderEffect" id="loaderEffect0"></div>
+					<a id="start"  class="button hero__buttonblack" style="margin-top:70%;border-radius:50px;">Start</a>
+			</div>
+
+			<div id="login-interface" class="login-interface">
+				<br>
+				<br>
+				<header class="major">
+				<h2>Who are you ?</h2>
+				</header>
+				<input type="text" id="username" placeholder="Username"></input>
+				<input type="password" id="privMemoKey" placeholder="Private Memo Key"></input>
+
+				<a class="button hero__buttonblack" style="border-radius:50px; margin-top:15px;" id="login">Log in</a>
+				<p style="margin-top: 15px">This operation requires your Private Memo Key. You can find it in Steemit in Wallet > Permissions > Show Private Memo Key</p>
+				<div class="loaderEffect" style="float:right;" id="loaderEffect1"></div>
+			</div>
+
+			<div id="leakedWarning" class="leakedWarning">
+				<br>
+				<br>
+				<img style="height: 50px;width: 50px;" src="../images/Warning.png">
+				<h2>Warning ! </h2>
+
+				<p style="margin-top: 25%; position: absolute;padding: 10px;">Your private memo key has been leaked in the past ! In order to connect to our services, you must change it, otherwise your account would be at risk ! Simply refresh this page and proceed to reconnect when you're done changing your keys.</p>
+			</div>
+
+			<div id="login-success" class="login-success">
+
+				<div class="settingsBtn">
+					<img id="settings" style="width: 30px;height: 30px;margin-bottom: -20px;margin-left: -19px;" src="../images/settings.png">
+					<span class="tooltipsettings">Settings</span>
+				</div>
+
+				<textarea type="text" id="receiver" class="friendSearchInput" placeholder="Enter friend name to search..."></textarea>
+				
+
+				<div class="discussionsHistory" id="previousDiscussions"></div>
+				<div class="loaderEffect" style="float:right;" id="loaderEffect2"></div>
+			</div>
+
+			<div id="settingsInterface" class="settingsInterface">
+				<a class="button hero__buttonblack" style="border-radius:50px; margin-top:5px;" id="quitSettings">Go Back</a>
+				<h2>Settings</h2>
+
+				<h4>Blacklist</h4>
+				<p>If a user is bothering you, you can decide to block him.</p>
+				<label for="blacklist">Write here which user you want to block</label>
+				<div>
+					<input id="blacklist" type="text" placeholder="Enter username" >
+					<a class="button hero__buttonblack" style="border-radius:50px; margin-top:5px;" id="saveBlacklist">Save</a><a class="button hero__buttonblack" style="border-radius:50px; margin-top:5px;" id="deleteBlacklist">Delete blacklist</a>
+				</div>
+				<br>
+
+				<h4>Whitelist</h4>
+				<p>By activating the whitelist, you will no longer receive messages from people that are not listed here.</p>
+				<div>
+					<input type="checkbox" id="activateWhitelist"/>
+					<label for="activateWhitelist">Activate the whitelist (Not working yet)</label>
+				</div>
+				<div id="whitelistParameters" class="whitelistParameters">
+					<label for="whitelist">Write here which users you want to add to your whitelist</label>
+					<div>
+						<input id="whitelist" type="text" placeholder="Separate each username by a space" >
+						<a class="button hero__buttonblack" style="border-radius:50px; margin-top:5px;" id="saveWhitelist">Save</a>
+					</div>
+				</div>
+				<br>
+
+				<h3>Advanced</h3>
+				<br>
+				<label for="importWallet">Import Wallet (Not available yet)</label>
+				<div>
+					<input id="importWallet" type="text" placeholder="Paste your encrypted wallet here" >
+				</div>
+				<br>
+				<label for="exportWallet">Export Wallet</label>
+				<div>
+					<input id="exportWallet" type="text" placeholder="Loading..." >
+				</div>				
+			</div>
+
+			<div id="passphraseSelectorScreen" class="passphraseSelectorScreen">
+				<br>
+				<br>
+				<header class="major">
+				<h2>Welcome !</h2>
+				</header>
+				<p style="margin-top: 15px">This is your first login to Steem Messenger. Your browser will generate a wallet with your secret keys to handle everything about the encryption and store it locally. In order to make all of this secure, you need to choose a strong password.</p>
+				<input type="password" id="newPassphrase" class="form-control" placeholder="New password"></input>
+				<input type="password" id="newPassphrase2" class="form-control" placeholder="Confirm your password"></input>
+
+				<button style="border-radius:50px; margin-top:15px;" id="createPassphraseBtn">Go !</button>
+
+				<div class="loaderEffect" style="float:right;" id="loaderEffect4"></div>
+			</div>
+
+
+			<div id="passphraseLoginInterface" class="passphraseLoginInterface">
+				<br>
+				<br>
+				<header class="major">
+				<h2>Welcome back !</h2>
+				</header>
+				<p style="margin-top: 15px">Enter the password you created on first login to access your session</p>
+				<input type="text" id="passphraseUsername" class="form-control" placeholder="Username"></input>
+				<input type="password" id="passphrase" class="form-control" placeholder="Password"></input>
+
+				<a class="button hero__buttonblack" style="border-radius:50px; margin-top:15px;" id="PassphraseLoginBtn">Unlock Session</a>
+
+				<div class="loaderEffect" style="float:right;" id="loaderEffect5"></div>
+			</div>
+
+
+
+			<div id="chat-container" class="chat-container">
+
+				<div id="messages" class="msg-box">
+				</div>
+				<div id="isWriting" class="isWriting"></div>
+				<textarea id="textarea" class="messageInput" placeholder="Your message here..."></textarea>
+					<div class="loaderEffect" id="loaderEffect3"></div>
+					<div id="emojiBtn" class="emojiButton">😁</div>
+					<span class="tooltipemoji">Select Emojis</span>
+					<div class="paperclip-btn">
+						<label for="fileSend" class="label-file"><img class="paperclip-button" src="../images/paperclip.png"></label>
+						<span class="tooltippaperclip">Send File (< 100kb)</span>
+						<input type="file" class="input-file" id="fileSend"/>
+					</div>
+					<div id="emoji-container" class="emoji-container">
+						<div class="emojiBox">
+							<ul id="emoji-list">
+							      <li id="&#x1F600;">&#x1F600;</li>
+							      <li id="&#x1F602;">&#x1F602;</li>
+							      <li id="&#x1F603;">&#x1F603;</li>
+							      <li id="&#x1F604;">&#x1F604;</li>
+							      <li id="&#x1F605;">&#x1F605;</li>
+							      <li id="&#x1F606;">&#x1F606;</li>
+							      <li id="&#x1F607;">&#x1F607;</li>
+							      <li id="&#x1F608;">&#x1F608;</li>
+							      <li id="&#x1F609;">&#x1F609;</li>
+							      <li id="&#x1F60A;">&#x1F60A;</li>
+							      <li id="&#x1F60B;">&#x1F60B;</li>
+							      <li id="&#x1F60C;">&#x1F60C;</li>
+							      <li id="&#x1F60D;">&#x1F60D;</li>
+							      <li id="&#x1F60E;">&#x1F60E;</li>
+							      <li id="&#x1F60F;">&#x1F60F;</li>
+							      <li id="&#x1F610;">&#x1F610;</li>
+							      <li id="&#x1F611;">&#x1F611;</li>
+							      <li id="&#x1F612;">&#x1F612;</li>
+							      <li id="&#x1F613;">&#x1F613;</li>
+							      <li id="&#x1F614;">&#x1F614;</li>
+							      <li id="&#x1F615;">&#x1F615;</li>
+							      <li id="&#x1F616;">&#x1F616;</li>
+							      <li id="&#x1F617;">&#x1F617;</li>
+							      <li id="&#x1F618;">&#x1F618;</li>
+							      <li id="&#x1F619;">&#x1F619;</li>
+							      <li id="&#x1F61A;">&#x1F61A;</li>
+							      <li id="&#x1F61B;">&#x1F61B;</li>
+							      <li id="&#x1F61C;">&#x1F61C;</li>
+							      <li id="&#x1F61D;">&#x1F61D;</li>
+							      <li id="&#x1F61E;">&#x1F61E;</li>
+							      <li id="&#x1F61F;">&#x1F61F;</li>
+							      <li id="&#x1F620;">&#x1F620;</li>
+							      <li id="&#x1F621;">&#x1F621;</li>
+							      <li id="&#x1F622;">&#x1F622;</li>
+							      <li id="&#x1F623;">&#x1F623;</li>
+							      <li id="&#x1F624;">&#x1F624;</li>
+							      <li id="&#x1F625;">&#x1F625;</li>
+							      <li id="&#x1F626;">&#x1F626;</li>
+							      <li id="&#x1F627;">&#x1F627;</li>
+							      <li id="&#x1F628;">&#x1F628;</li>
+							      <li id="&#x1F629;">&#x1F629;</li>
+							      <li id="&#x1F62A;">&#x1F62A;</li>
+							      <li id="&#x1F62B;">&#x1F62B;</li>
+							      <li id="&#x1F62C;">&#x1F62C;</li>
+							      <li id="&#x1F62D;">&#x1F62D;</li>
+							      <li id="&#x1F62E;">&#x1F62E;</li>
+							      <li id="&#x1F62F;">&#x1F62F;</li>
+							      <li id="&#x1F630;">&#x1F630;</li>
+							      <li id="&#x1F631;">&#x1F631;</li>
+							      <li id="&#x1F632;">&#x1F632;</li>
+							      <li id="&#x1F633;">&#x1F633;</li>
+							      <li id="&#x1F634;">&#x1F634;</li>
+							      <li id="&#x1F635;">&#x1F635;</li>
+							      <li id="&#x1F636;">&#x1F636;</li>
+							      <li id="&#x1F637;">&#x1F637;</li>
+							      <li id="&#x1F638;">&#x1F638;</li>
+							      <li id="&#x1F639;">&#x1F639;</li>
+							      <li id="&#x1F63A;">&#x1F63A;</li>
+							      <li id="&#x1F63B;">&#x1F63B;</li>
+							      <li id="&#x1F63C;">&#x1F63C;</li>
+							      <li id="&#x1F63D;">&#x1F63D;</li>
+							      <li id="&#x1F63E;">&#x1F63E;</li>
+							      <li id="&#x1F63F;">&#x1F63F;</li>
+							      <li id="&#x1F640;">&#x1F640;</li>
+							      <li id="&#x1F641;">&#x1F641;</li>
+							      <li id="&#x1F642;">&#x1F642;</li>
+							      <li id="&#x1F645;">&#x1F645;</li>
+							      <li id="&#x1F646;">&#x1F646;</li>
+							      <li id="&#x1F647;">&#x1F647;</li>
+							      <li id="&#x1F648;">&#x1F648;</li>
+							      <li id="&#x1F649;">&#x1F649;</li>
+							      <li id="&#x1F64A;">&#x1F64A;</li>
+							      <li id="&#x1F64B;">&#x1F64B;</li>
+							      <li id="&#x1F64C;">&#x1F64C;</li>
+							      <li id="&#x1F64D;">&#x1F64D;</li>
+							      <li id="&#x1F64E;">&#x1F64E;</li>
+							      <li id="&#x1F64F;">&#x1F64F;</li>
+							      <li id="&#x1F680;">&#x1F680;</li>
+							      <li id="&#x1F681;">&#x1F681;</li>
+							      <li id="&#x1F682;">&#x1F682;</li>
+							      <li id="&#x1F683;">&#x1F683;</li>
+							      <li id="&#x1F684;">&#x1F684;</li>
+							      <li id="&#x1F685;">&#x1F685;</li>
+							      <li id="&#x1F686;">&#x1F686;</li>
+							      <li id="&#x1F687;">&#x1F687;</li>
+							      <li id="&#x1F688;">&#x1F688;</li>
+							      <li id="&#x1F689;">&#x1F689;</li>
+							      <li id="&#x1F68A;">&#x1F68A;</li>
+							      <li id="&#x1F68B;">&#x1F68B;</li>
+							      <li id="&#x1F68C;">&#x1F68C;</li>
+							      <li id="&#x1F68D;">&#x1F68D;</li>
+							      <li id="&#x1F68E;">&#x1F68E;</li>
+							      <li id="&#x1F68F;">&#x1F68F;</li>
+							      <li id="&#x1F690;">&#x1F690;</li>
+							      <li id="&#x1F691;">&#x1F691;</li>
+							      <li id="&#x1F692;">&#x1F692;</li>
+							      <li id="&#x1F693;">&#x1F693;</li>
+							      <li id="&#x1F694;">&#x1F694;</li>
+							      <li id="&#x1F695;">&#x1F695;</li>
+							      <li id="&#x1F696;">&#x1F696;</li>
+							      <li id="&#x1F697;">&#x1F697;</li>
+							      <li id="&#x1F698;">&#x1F698;</li>
+							      <li id="&#x1F004;">&#x1F004;</li>
+							      <li id="&#x1F0CF;">&#x1F0CF;</li>
+							      <li id="&#x1F170;">&#x1F170;</li>
+							      <li id="&#x1F171;">&#x1F171;</li>
+							      <li id="&#x1F17E;">&#x1F17E;</li>
+							      <li id="&#x1F17F;">&#x1F17F;</li>
+							      <li id="&#x1F18E;">&#x1F18E;</li>
+							      <li id="&#x1F191;">&#x1F191;</li>
+							      <li id="&#x1F192;">&#x1F192;</li>
+							      <li id="&#x1F193;">&#x1F193;</li>
+							      <li id="&#x1F194;">&#x1F194;</li>
+							      <li id="&#x1F195;">&#x1F195;</li>
+							      <li id="&#x1F196;">&#x1F196;</li>
+							      <li id="&#x1F197;">&#x1F197;</li>
+							      <li id="&#x1F198;">&#x1F198;</li>
+							      <li id="&#x1F199;">&#x1F199;</li>
+							      <li id="&#x1F19A;">&#x1F19A;</li>
+							      <li id="&#x1F1E6;">&#x1F1E6;</li>
+							      <li id="&#x1F1E7;">&#x1F1E7;</li>
+							      <li id="&#x1F1E8;&#x1F1F3;">&#x1F1E8;&#x1F1F3;</li>
+							      <li id="&#x1F1E8;">&#x1F1E8;</li>
+							      <li id="&#x1F1E9;&#x1F1EA;">&#x1F1E9;&#x1F1EA;</li>
+							      <li id="&#x1F1E9;">&#x1F1E9;</li>
+							      <li id="&#x1F1EA;&#x1F1F8;">&#x1F1EA;&#x1F1F8;</li>
+							      <li id="&#x1F1EA;">&#x1F1EA;</li>
+							      <li id="&#x1F1EB;&#x1F1F7;">&#x1F1EB;&#x1F1F7;</li>
+							      <li id="&#x1F1EB;">&#x1F1EB;</li>
+							      <li id="&#x1F1EC;&#x1F1E7;">&#x1F1EC;&#x1F1E7;</li>
+							      <li id="&#x1F1EC;">&#x1F1EC;</li>
+							      <li id="&#x1F1ED;">&#x1F1ED;</li>
+							      <li id="&#x1F1EE;&#x1F1F9;">&#x1F1EE;&#x1F1F9;</li>
+							      <li id="&#x1F1EE;">&#x1F1EE;</li>
+							      <li id="&#x1F1EF;&#x1F1F5;">&#x1F1EF;&#x1F1F5;</li>
+							      <li id="&#x1F1EF;">&#x1F1EF;</li>
+							      <li id="&#x1F1F0;&#x1F1F7;">&#x1F1F0;&#x1F1F7;</li>
+							      <li id="&#x1F1F7;&#x1F1FA;">&#x1F1F7;&#x1F1FA;</li>
+							      <li id="&#x1F1FA;&#x1F1F8;">&#x1F1FA;&#x1F1F8;</li>
+							      <li id="&#x1F1F0;">&#x1F1F0;</li>
+							      <li id="&#x1F1F1;">&#x1F1F1;</li>
+							      <li id="&#x1F1F2;">&#x1F1F2;</li>
+							      <li id="&#x1F1F3;">&#x1F1F3;</li>
+							      <li id="&#x1F1F4;">&#x1F1F4;</li>
+							      <li id="&#x1F1F5;">&#x1F1F5;</li>
+							      <li id="&#x1F1F6;">&#x1F1F6;</li>
+							      <li id="&#x1F1F7;">&#x1F1F7;</li>
+							      <li id="&#x1F1F8;">&#x1F1F8;</li>
+							      <li id="&#x1F1F9;">&#x1F1F9;</li>
+							      <li id="&#x1F1FA;">&#x1F1FA;</li>
+							      <li id="&#x1F1FB;">&#x1F1FB;</li>
+							      <li id="&#x1F1FC;">&#x1F1FC;</li>
+							      <li id="&#x1F1FD;">&#x1F1FD;</li>
+							      <li id="&#x1F1FE;">&#x1F1FE;</li>
+							      <li id="&#x1F1FF;">&#x1F1FF;</li>
+							      <li id="&#x1F201;">&#x1F201;</li>
+							      <li id="&#x1F202;">&#x1F202;</li>
+							      <li id="&#x1F21A;">&#x1F21A;</li>
+							      <li id="&#x1F22F;">&#x1F22F;</li>
+							      <li id="&#x1F232;">&#x1F232;</li>
+							      <li id="&#x1F233;">&#x1F233;</li>
+							      <li id="&#x1F234;">&#x1F234;</li>
+							      <li id="&#x1F235;">&#x1F235;</li>
+							      <li id="&#x1F236;">&#x1F236;</li>
+							      <li id="&#x1F237;">&#x1F237;</li>
+							      <li id="&#x1F238;">&#x1F238;</li>
+							      <li id="&#x1F239;">&#x1F239;</li>
+							      <li id="&#x1F23A;">&#x1F23A;</li>
+							      <li id="&#x1F250;">&#x1F250;</li>
+							      <li id="&#x1F251;">&#x1F251;</li>
+							      <li id="&#x1F300;">&#x1F300;</li>
+							      <li id="&#x1F301;">&#x1F301;</li>
+							      <li id="&#x1F302;">&#x1F302;</li>
+							      <li id="&#x1F303;">&#x1F303;</li>
+							      <li id="&#x1F304;">&#x1F304;</li>
+							      <li id="&#x1F305;">&#x1F305;</li>
+							      <li id="&#x1F306;">&#x1F306;</li>
+							      <li id="&#x1F307;">&#x1F307;</li>
+							      <li id="&#x1F308;">&#x1F308;</li>
+							      <li id="&#x1F309;">&#x1F309;</li>
+							      <li id="&#x1F30A;">&#x1F30A;</li>
+							      <li id="&#x1F30B;">&#x1F30B;</li>
+							      <li id="&#x1F30C;">&#x1F30C;</li>
+							      <li id="&#x1F30D;">&#x1F30D;</li>
+							      <li id="&#x1F30E;">&#x1F30E;</li>
+							      <li id="&#x1F30F;">&#x1F30F;</li>
+							      <li id="&#x1F310;">&#x1F310;</li>
+							      <li id="&#x1F311;">&#x1F311;</li>
+							      <li id="&#x1F312;">&#x1F312;</li>
+							      <li id="&#x1F313;">&#x1F313;</li>
+							      <li id="&#x1F314;">&#x1F314;</li>
+							      <li id="&#x1F315;">&#x1F315;</li>
+							      <li id="&#x1F316;">&#x1F316;</li>
+							      <li id="&#x1F317;">&#x1F317;</li>
+							      <li id="&#x1F318;">&#x1F318;</li>
+							      <li id="&#x1F319;">&#x1F319;</li>
+							      <li id="&#x1F31A;">&#x1F31A;</li>
+							      <li id="&#x1F31B;">&#x1F31B;</li>
+							      <li id="&#x1F31C;">&#x1F31C;</li>
+							      <li id="&#x1F31D;">&#x1F31D;</li>
+							      <li id="&#x1F31E;">&#x1F31E;</li>
+							      <li id="&#x1F31F;">&#x1F31F;</li>
+							      <li id="&#x1F320;">&#x1F320;</li>
+							      <li id="&#x1F330;">&#x1F330;</li>
+							      <li id="&#x1F331;">&#x1F331;</li>
+							      <li id="&#x1F332;">&#x1F332;</li>
+							      <li id="&#x1F333;">&#x1F333;</li>
+							      <li id="&#x1F334;">&#x1F334;</li>
+							      <li id="&#x1F335;">&#x1F335;</li>
+							      <li id="&#x1F337;">&#x1F337;</li>
+							      <li id="&#x1F338;">&#x1F338;</li>
+							      <li id="&#x1F339;">&#x1F339;</li>
+							      <li id="&#x1F33A;">&#x1F33A;</li>
+							      <li id="&#x1F33B;">&#x1F33B;</li>
+							      <li id="&#x1F33C;">&#x1F33C;</li>
+							      <li id="&#x1F33D;">&#x1F33D;</li>
+							      <li id="&#x1F33E;">&#x1F33E;</li>
+							      <li id="&#x1F33F;">&#x1F33F;</li>
+							      <li id="&#x1F340;">&#x1F340;</li>
+							      <li id="&#x1F341;">&#x1F341;</li>
+							      <li id="&#x1F342;">&#x1F342;</li>
+							      <li id="&#x1F343;">&#x1F343;</li>
+							      <li id="&#x1F344;">&#x1F344;</li>
+							      <li id="&#x1F345;">&#x1F345;</li>
+							      <li id="&#x1F346;">&#x1F346;</li>
+							      <li id="&#x1F347;">&#x1F347;</li>
+							      <li id="&#x1F348;">&#x1F348;</li>
+							      <li id="&#x1F349;">&#x1F349;</li>
+							      <li id="&#x1F34A;">&#x1F34A;</li>
+							      <li id="&#x1F34B;">&#x1F34B;</li>
+							      <li id="&#x1F34C;">&#x1F34C;</li>
+							      <li id="&#x1F34D;">&#x1F34D;</li>
+							      <li id="&#x1F34E;">&#x1F34E;</li>
+							      <li id="&#x1F34F;">&#x1F34F;</li>
+							      <li id="&#x1F350;">&#x1F350;</li>
+							      <li id="&#x1F351;">&#x1F351;</li>
+							      <li id="&#x1F352;">&#x1F352;</li>
+							      <li id="&#x1F353;">&#x1F353;</li>
+							      <li id="&#x1F354;">&#x1F354;</li>
+							      <li id="&#x1F355;">&#x1F355;</li>
+							      <li id="&#x1F356;">&#x1F356;</li>
+							      <li id="&#x1F357;">&#x1F357;</li>
+							      <li id="&#x1F358;">&#x1F358;</li>
+							      <li id="&#x1F359;">&#x1F359;</li>
+							      <li id="&#x1F35A;">&#x1F35A;</li>
+							      <li id="&#x1F35B;">&#x1F35B;</li>
+							      <li id="&#x1F35C;">&#x1F35C;</li>
+							      <li id="&#x1F35D;">&#x1F35D;</li>
+							      <li id="&#x1F35E;">&#x1F35E;</li>
+							      <li id="&#x1F35F;">&#x1F35F;</li>
+							      <li id="&#x1F360;">&#x1F360;</li>
+							      <li id="&#x1F361;">&#x1F361;</li>
+							      <li id="&#x1F362;">&#x1F362;</li>
+							      <li id="&#x1F363;">&#x1F363;</li>
+							      <li id="&#x1F364;">&#x1F364;</li>
+							      <li id="&#x1F365;">&#x1F365;</li>
+							      <li id="&#x1F366;">&#x1F366;</li>
+							      <li id="&#x1F367;">&#x1F367;</li>
+							      <li id="&#x1F368;">&#x1F368;</li>
+							      <li id="&#x1F369;">&#x1F369;</li>
+							      <li id="&#x1F36A;">&#x1F36A;</li>
+							      <li id="&#x1F36B;">&#x1F36B;</li>
+							      <li id="&#x1F36C;">&#x1F36C;</li>
+							      <li id="&#x1F36D;">&#x1F36D;</li>
+							      <li id="&#x1F36E;">&#x1F36E;</li>
+							      <li id="&#x1F36F;">&#x1F36F;</li>
+							      <li id="&#x1F370;">&#x1F370;</li>
+							      <li id="&#x1F371;">&#x1F371;</li>
+							      <li id="&#x1F372;">&#x1F372;</li>
+							      <li id="&#x1F373;">&#x1F373;</li>
+							      <li id="&#x1F374;">&#x1F374;</li>
+							      <li id="&#x1F375;">&#x1F375;</li>
+							      <li id="&#x1F376;">&#x1F376;</li>
+							      <li id="&#x1F377;">&#x1F377;</li>
+							      <li id="&#x1F378;">&#x1F378;</li>
+							      <li id="&#x1F379;">&#x1F379;</li>
+							      <li id="&#x1F37A;">&#x1F37A;</li>
+							      <li id="&#x1F37B;">&#x1F37B;</li>
+							      <li id="&#x1F37C;">&#x1F37C;</li>
+							      <li id="&#x1F380;">&#x1F380;</li>
+							      <li id="&#x1F381;">&#x1F381;</li>
+							      <li id="&#x1F382;">&#x1F382;</li>
+							      <li id="&#x1F383;">&#x1F383;</li>
+							      <li id="&#x1F384;">&#x1F384;</li>
+							      <li id="&#x1F385;">&#x1F385;</li>
+							      <li id="&#x1F386;">&#x1F386;</li>
+							      <li id="&#x1F387;">&#x1F387;</li>
+							      <li id="&#x1F388;">&#x1F388;</li>
+							      <li id="&#x1F389;">&#x1F389;</li>
+							      <li id="&#x1F38A;">&#x1F38A;</li>
+							      <li id="&#x1F38B;">&#x1F38B;</li>
+							      <li id="&#x1F38C;">&#x1F38C;</li>
+							      <li id="&#x1F38D;">&#x1F38D;</li>
+							      <li id="&#x1F38E;">&#x1F38E;</li>
+							      <li id="&#x1F38F;">&#x1F38F;</li>
+							      <li id="&#x1F390;">&#x1F390;</li>
+							      <li id="&#x1F391;">&#x1F391;</li>
+							      <li id="&#x1F392;">&#x1F392;</li>
+							      <li id="&#x1F393;">&#x1F393;</li>
+							      <li id="&#x1F3A0;">&#x1F3A0;</li>
+							      <li id="&#x1F3A1;">&#x1F3A1;</li>
+							      <li id="&#x1F3A2;">&#x1F3A2;</li>
+							      <li id="&#x1F3A3;">&#x1F3A3;</li>
+							      <li id="&#x1F3A4;">&#x1F3A4;</li>
+							      <li id="&#x1F3A5;">&#x1F3A5;</li>
+							      <li id="&#x1F3A6;">&#x1F3A6;</li>
+							      <li id="&#x1F3A7;">&#x1F3A7;</li>
+							      <li id="&#x1F3A8;">&#x1F3A8;</li>
+							      <li id="&#x1F3A9;">&#x1F3A9;</li>
+							      <li id="&#x1F3AA;">&#x1F3AA;</li>
+							      <li id="&#x1F3AB;">&#x1F3AB;</li>
+							      <li id="&#x1F3AC;">&#x1F3AC;</li>
+							      <li id="&#x1F3AD;">&#x1F3AD;</li>
+							      <li id="&#x1F3AE;">&#x1F3AE;</li>
+							      <li id="&#x1F3AF;">&#x1F3AF;</li>
+							      <li id="&#x1F3B0;">&#x1F3B0;</li>
+							      <li id="&#x1F3B1;">&#x1F3B1;</li>
+							      <li id="&#x1F3B2;">&#x1F3B2;</li>
+							      <li id="&#x1F3B3;">&#x1F3B3;</li>
+							      <li id="&#x1F3B4;">&#x1F3B4;</li>
+							      <li id="&#x1F3B5;">&#x1F3B5;</li>
+							      <li id="&#x1F3B6;">&#x1F3B6;</li>
+							      <li id="&#x1F3B7;">&#x1F3B7;</li>
+							      <li id="&#x1F3B8;">&#x1F3B8;</li>
+							      <li id="&#x1F3B9;">&#x1F3B9;</li>
+							      <li id="&#x1F3BA;">&#x1F3BA;</li>
+							      <li id="&#x1F3BB;">&#x1F3BB;</li>
+							      <li id="&#x1F3BC;">&#x1F3BC;</li>
+							      <li id="&#x1F3BD;">&#x1F3BD;</li>
+							      <li id="&#x1F3BE;">&#x1F3BE;</li>
+							      <li id="&#x1F3BF;">&#x1F3BF;</li>
+							      <li id="&#x1F3C0;">&#x1F3C0;</li>
+							      <li id="&#x1F3C1;">&#x1F3C1;</li>
+							      <li id="&#x1F3C2;">&#x1F3C2;</li>
+							      <li id="&#x1F3C3;">&#x1F3C3;</li>
+							      <li id="&#x1F3C4;">&#x1F3C4;</li>
+							      <li id="&#x1F3C6;">&#x1F3C6;</li>
+							      <li id="&#x1F3C7;">&#x1F3C7;</li>
+							      <li id="&#x1F3C8;">&#x1F3C8;</li>
+							      <li id="&#x1F3C9;">&#x1F3C9;</li>
+							      <li id="&#x1F3CA;">&#x1F3CA;</li>
+							      <li id="&#x1F3E0;">&#x1F3E0;</li>
+							      <li id="&#x1F3E1;">&#x1F3E1;</li>
+							      <li id="&#x1F3E2;">&#x1F3E2;</li>
+							      <li id="&#x1F3E3;">&#x1F3E3;</li>
+							      <li id="&#x1F3E4;">&#x1F3E4;</li>
+							      <li id="&#x1F3E5;">&#x1F3E5;</li>
+							      <li id="&#x1F3E6;">&#x1F3E6;</li>
+							      <li id="&#x1F3E7;">&#x1F3E7;</li>
+							      <li id="&#x1F3E8;">&#x1F3E8;</li>
+							      <li id="&#x1F3E9;">&#x1F3E9;</li>
+							      <li id="&#x1F3EA;">&#x1F3EA;</li>
+							      <li id="&#x1F3EB;">&#x1F3EB;</li>
+							      <li id="&#x1F3EC;">&#x1F3EC;</li>
+							      <li id="&#x1F3ED;">&#x1F3ED;</li>
+							      <li id="&#x1F3EE;">&#x1F3EE;</li>
+							      <li id="&#x1F3EF;">&#x1F3EF;</li>
+							      <li id="&#x1F3F0;">&#x1F3F0;</li>
+							      <li id="&#x1F400;">&#x1F400;</li>
+							      <li id="&#x1F401;">&#x1F401;</li>
+							      <li id="&#x1F402;">&#x1F402;</li>
+							      <li id="&#x1F403;">&#x1F403;</li>
+							      <li id="&#x1F404;">&#x1F404;</li>
+							      <li id="&#x1F405;">&#x1F405;</li>
+							      <li id="&#x1F406;">&#x1F406;</li>
+							      <li id="&#x1F407;">&#x1F407;</li>
+							      <li id="&#x1F408;">&#x1F408;</li>
+							      <li id="&#x1F409;">&#x1F409;</li>
+							      <li id="&#x1F40A;">&#x1F40A;</li>
+							      <li id="&#x1F40B;">&#x1F40B;</li>
+							      <li id="&#x1F40C;">&#x1F40C;</li>
+							      <li id="&#x1F40D;">&#x1F40D;</li>
+							      <li id="&#x1F40E;">&#x1F40E;</li>
+							      <li id="&#x1F40F;">&#x1F40F;</li>
+							      <li id="&#x1F410;">&#x1F410;</li>
+							      <li id="&#x1F411;">&#x1F411;</li>
+							      <li id="&#x1F412;">&#x1F412;</li>
+							      <li id="&#x1F413;">&#x1F413;</li>
+							      <li id="&#x1F414;">&#x1F414;</li>
+							      <li id="&#x1F415;">&#x1F415;</li>
+							      <li id="&#x1F416;">&#x1F416;</li>
+							      <li id="&#x1F417;">&#x1F417;</li>
+							      <li id="&#x1F418;">&#x1F418;</li>
+							      <li id="&#x1F419;">&#x1F419;</li>
+							      <li id="&#x1F41A;">&#x1F41A;</li>
+							      <li id="&#x1F41B;">&#x1F41B;</li>
+							      <li id="&#x1F41C;">&#x1F41C;</li>
+							      <li id="&#x1F41D;">&#x1F41D;</li>
+							      <li id="&#x1F41E;">&#x1F41E;</li>
+							      <li id="&#x1F41F;">&#x1F41F;</li>
+							      <li id="&#x1F420;">&#x1F420;</li>
+							      <li id="&#x1F421;">&#x1F421;</li>
+							      <li id="&#x1F422;">&#x1F422;</li>
+							      <li id="&#x1F423;">&#x1F423;</li>
+							      <li id="&#x1F424;">&#x1F424;</li>
+							      <li id="&#x1F425;">&#x1F425;</li>
+							      <li id="&#x1F426;">&#x1F426;</li>
+							      <li id="&#x1F427;">&#x1F427;</li>
+							      <li id="&#x1F428;">&#x1F428;</li>
+							      <li id="&#x1F429;">&#x1F429;</li>
+							      <li id="&#x1F42A;">&#x1F42A;</li>
+							      <li id="&#x1F42B;">&#x1F42B;</li>
+							      <li id="&#x1F42C;">&#x1F42C;</li>
+							      <li id="&#x1F42D;">&#x1F42D;</li>
+							      <li id="&#x1F42E;">&#x1F42E;</li>
+							      <li id="&#x1F42F;">&#x1F42F;</li>
+							      <li id="&#x1F430;">&#x1F430;</li>
+							      <li id="&#x1F431;">&#x1F431;</li>
+							      <li id="&#x1F432;">&#x1F432;</li>
+							      <li id="&#x1F433;">&#x1F433;</li>
+							      <li id="&#x1F434;">&#x1F434;</li>
+							      <li id="&#x1F435;">&#x1F435;</li>
+							      <li id="&#x1F436;">&#x1F436;</li>
+							      <li id="&#x1F437;">&#x1F437;</li>
+							      <li id="&#x1F438;">&#x1F438;</li>
+							      <li id="&#x1F439;">&#x1F439;</li>
+							      <li id="&#x1F43A;">&#x1F43A;</li>
+							      <li id="&#x1F43B;">&#x1F43B;</li>
+							      <li id="&#x1F43C;">&#x1F43C;</li>
+							      <li id="&#x1F43D;">&#x1F43D;</li>
+							      <li id="&#x1F43E;">&#x1F43E;</li>
+							      <li id="&#x1F440;">&#x1F440;</li>
+							      <li id="&#x1F442;">&#x1F442;</li>
+							      <li id="&#x1F443;">&#x1F443;</li>
+							      <li id="&#x1F444;">&#x1F444;</li>
+							      <li id="&#x1F445;">&#x1F445;</li>
+							      <li id="&#x1F446;">&#x1F446;</li>
+							      <li id="&#x1F447;">&#x1F447;</li>
+							      <li id="&#x1F448;">&#x1F448;</li>
+							      <li id="&#x1F449;">&#x1F449;</li>
+							      <li id="&#x1F44A;">&#x1F44A;</li>
+							      <li id="&#x1F44B;">&#x1F44B;</li>
+							      <li id="&#x1F44C;">&#x1F44C;</li>
+							      <li id="&#x1F44D;">&#x1F44D;</li>
+							      <li id="&#x1F44E;">&#x1F44E;</li>
+							      <li id="&#x1F44F;">&#x1F44F;</li>
+							      <li id="&#x1F450;">&#x1F450;</li>
+							      <li id="&#x1F451;">&#x1F451;</li>
+							      <li id="&#x1F452;">&#x1F452;</li>
+							      <li id="&#x1F453;">&#x1F453;</li>
+							      <li id="&#x1F454;">&#x1F454;</li>
+							      <li id="&#x1F455;">&#x1F455;</li>
+							      <li id="&#x1F456;">&#x1F456;</li>
+							      <li id="&#x1F457;">&#x1F457;</li>
+							      <li id="&#x1F458;">&#x1F458;</li>
+							      <li id="&#x1F459;">&#x1F459;</li>
+							      <li id="&#x1F45A;">&#x1F45A;</li>
+							      <li id="&#x1F45B;">&#x1F45B;</li>
+							      <li id="&#x1F45C;">&#x1F45C;</li>
+							      <li id="&#x1F45D;">&#x1F45D;</li>
+							      <li id="&#x1F45E;">&#x1F45E;</li>
+							      <li id="&#x1F45F;">&#x1F45F;</li>
+							      <li id="&#x1F460;">&#x1F460;</li>
+							      <li id="&#x1F461;">&#x1F461;</li>
+							      <li id="&#x1F462;">&#x1F462;</li>
+							      <li id="&#x1F463;">&#x1F463;</li>
+							      <li id="&#x1F464;">&#x1F464;</li>
+							      <li id="&#x1F465;">&#x1F465;</li>
+							      <li id="&#x1F466;">&#x1F466;</li>
+							      <li id="&#x1F467;">&#x1F467;</li>
+							      <li id="&#x1F468;">&#x1F468;</li>
+							      <li id="&#x1F469;">&#x1F469;</li>
+							      <li id="&#x1F46A;">&#x1F46A;</li>
+							      <li id="&#x1F46B;">&#x1F46B;</li>
+							      <li id="&#x1F46C;">&#x1F46C;</li>
+							      <li id="&#x1F46D;">&#x1F46D;</li>
+							      <li id="&#x1F46E;">&#x1F46E;</li>
+							      <li id="&#x1F46F;">&#x1F46F;</li>
+							      <li id="&#x1F470;">&#x1F470;</li>
+							      <li id="&#x1F471;">&#x1F471;</li>
+							      <li id="&#x1F472;">&#x1F472;</li>
+							      <li id="&#x1F473;">&#x1F473;</li>
+							      <li id="&#x1F474;">&#x1F474;</li>
+							      <li id="&#x1F475;">&#x1F475;</li>
+							      <li id="&#x1F476;">&#x1F476;</li>
+							      <li id="&#x1F477;">&#x1F477;</li>
+							      <li id="&#x1F478;">&#x1F478;</li>
+							      <li id="&#x1F479;">&#x1F479;</li>
+							      <li id="&#x1F47A;">&#x1F47A;</li>
+							      <li id="&#x1F47B;">&#x1F47B;</li>
+							      <li id="&#x1F47C;">&#x1F47C;</li>
+							      <li id="&#x1F47D;">&#x1F47D;</li>
+							      <li id="&#x1F47E;">&#x1F47E;</li>
+							      <li id="&#x1F47F;">&#x1F47F;</li>
+							      <li id="&#x1F480;">&#x1F480;</li>
+							      <li id="&#x1F481;">&#x1F481;</li>
+							      <li id="&#x1F482;">&#x1F482;</li>
+							      <li id="&#x1F483;">&#x1F483;</li>
+							      <li id="&#x1F484;">&#x1F484;</li>
+							      <li id="&#x1F485;">&#x1F485;</li>
+							      <li id="&#x1F486;">&#x1F486;</li>
+							      <li id="&#x1F487;">&#x1F487;</li>
+							      <li id="&#x1F488;">&#x1F488;</li>
+							      <li id="&#x1F489;">&#x1F489;</li>
+							      <li id="&#x1F48A;">&#x1F48A;</li>
+							      <li id="&#x1F48B;">&#x1F48B;</li>
+							      <li id="&#x1F48C;">&#x1F48C;</li>
+							      <li id="&#x1F48D;">&#x1F48D;</li>
+							      <li id="&#x1F48E;">&#x1F48E;</li>
+							      <li id="&#x1F48F;">&#x1F48F;</li>
+							      <li id="&#x1F490;">&#x1F490;</li>
+							      <li id="&#x1F491;">&#x1F491;</li>
+							      <li id="&#x1F492;">&#x1F492;</li>
+							      <li id="&#x1F493;">&#x1F493;</li>
+							      <li id="&#x1F494;">&#x1F494;</li>
+							      <li id="&#x1F495;">&#x1F495;</li>
+							      <li id="&#x1F496;">&#x1F496;</li>
+							      <li id="&#x1F497;">&#x1F497;</li>
+							      <li id="&#x1F498;">&#x1F498;</li>
+							      <li id="&#x1F499;">&#x1F499;</li>
+							      <li id="&#x1F49A;">&#x1F49A;</li>
+							      <li id="&#x1F49B;">&#x1F49B;</li>
+							      <li id="&#x1F49C;">&#x1F49C;</li>
+							      <li id="&#x1F49D;">&#x1F49D;</li>
+							      <li id="&#x1F49E;">&#x1F49E;</li>
+							      <li id="&#x1F49F;">&#x1F49F;</li>
+							      <li id="&#x1F4A0;">&#x1F4A0;</li>
+							      <li id="&#x1F4A1;">&#x1F4A1;</li>
+							      <li id="&#x1F4A2;">&#x1F4A2;</li>
+							      <li id="&#x1F4A3;">&#x1F4A3;</li>
+							      <li id="&#x1F4A4;">&#x1F4A4;</li>
+							      <li id="&#x1F4A5;">&#x1F4A5;</li>
+							      <li id="&#x1F4A6;">&#x1F4A6;</li>
+							      <li id="&#x1F4A7;">&#x1F4A7;</li>
+							      <li id="&#x1F4A8;">&#x1F4A8;</li>
+							      <li id="&#x1F4A9;">&#x1F4A9;</li>
+							      <li id="&#x1F4AA;">&#x1F4AA;</li>
+							      <li id="&#x1F4AB;">&#x1F4AB;</li>
+							      <li id="&#x1F4AC;">&#x1F4AC;</li>
+							      <li id="&#x1F4AD;">&#x1F4AD;</li>
+							      <li id="&#x1F4AE;">&#x1F4AE;</li>
+							      <li id="&#x1F4AF;">&#x1F4AF;</li>
+							      <li id="&#x1F4B0;">&#x1F4B0;</li>
+							      <li id="&#x1F4B1;">&#x1F4B1;</li>
+							      <li id="&#x1F4B2;">&#x1F4B2;</li>
+							      <li id="&#x1F4B3;">&#x1F4B3;</li>
+							      <li id="&#x1F4B4;">&#x1F4B4;</li>
+							      <li id="&#x1F4B5;">&#x1F4B5;</li>
+							      <li id="&#x1F4B6;">&#x1F4B6;</li>
+							      <li id="&#x1F4B7;">&#x1F4B7;</li>
+							      <li id="&#x1F4B8;">&#x1F4B8;</li>
+							      <li id="&#x1F4B9;">&#x1F4B9;</li>
+							      <li id="&#x1F4BA;">&#x1F4BA;</li>
+							      <li id="&#x1F4BB;">&#x1F4BB;</li>
+							      <li id="&#x1F4BC;">&#x1F4BC;</li>
+							      <li id="&#x1F4BD;">&#x1F4BD;</li>
+							      <li id="&#x1F4BE;">&#x1F4BE;</li>
+							      <li id="&#x1F4BF;">&#x1F4BF;</li>
+							      <li id="&#x1F4C0;">&#x1F4C0;</li>
+							      <li id="&#x1F4C1;">&#x1F4C1;</li>
+							      <li id="&#x1F4C2;">&#x1F4C2;</li>
+							      <li id="&#x1F4C3;">&#x1F4C3;</li>
+							      <li id="&#x1F4C4;">&#x1F4C4;</li>
+							      <li id="&#x1F4C5;">&#x1F4C5;</li>
+							      <li id="&#x1F4C6;">&#x1F4C6;</li>
+							      <li id="&#x1F4C7;">&#x1F4C7;</li>
+							      <li id="&#x1F4C8;">&#x1F4C8;</li>
+							      <li id="&#x1F4C9;">&#x1F4C9;</li>
+							      <li id="&#x1F4CA;">&#x1F4CA;</li>
+							      <li id="&#x1F4CB;">&#x1F4CB;</li>
+							      <li id="&#x1F4CC;">&#x1F4CC;</li>
+							      <li id="&#x1F4CD;">&#x1F4CD;</li>
+							      <li id="&#x1F4CE;">&#x1F4CE;</li>
+							      <li id="&#x1F4CF;">&#x1F4CF;</li>
+							      <li id="&#x1F4D0;">&#x1F4D0;</li>
+							      <li id="&#x1F4D1;">&#x1F4D1;</li>
+							      <li id="&#x1F4D2;">&#x1F4D2;</li>
+							      <li id="&#x1F4D3;">&#x1F4D3;</li>
+							      <li id="&#x1F4D4;">&#x1F4D4;</li>
+							      <li id="&#x1F4D5;">&#x1F4D5;</li>
+							      <li id="&#x1F4D6;">&#x1F4D6;</li>
+							      <li id="&#x1F4D7;">&#x1F4D7;</li>
+							      <li id="&#x1F4D8;">&#x1F4D8;</li>
+							      <li id="&#x1F4D9;">&#x1F4D9;</li>
+							      <li id="&#x1F4DA;">&#x1F4DA;</li>
+							      <li id="&#x1F4DB;">&#x1F4DB;</li>
+							      <li id="&#x1F4DC;">&#x1F4DC;</li>
+							      <li id="&#x1F4DD;">&#x1F4DD;</li>
+							      <li id="&#x1F4DE;">&#x1F4DE;</li>
+							      <li id="&#x1F4DF;">&#x1F4DF;</li>
+							      <li id="&#x1F4E0;">&#x1F4E0;</li>
+							      <li id="&#x1F4E1;">&#x1F4E1;</li>
+							      <li id="&#x1F4E2;">&#x1F4E2;</li>
+							      <li id="&#x1F4E3;">&#x1F4E3;</li>
+							      <li id="&#x1F4E4;">&#x1F4E4;</li>
+							      <li id="&#x1F4E5;">&#x1F4E5;</li>
+							      <li id="&#x1F4E6;">&#x1F4E6;</li>
+							      <li id="&#x1F4E7;">&#x1F4E7;</li>
+							      <li id="&#x1F4E8;">&#x1F4E8;</li>
+							      <li id="&#x1F4E9;">&#x1F4E9;</li>
+							      <li id="&#x1F4EA;">&#x1F4EA;</li>
+							      <li id="&#x1F4EB;">&#x1F4EB;</li>
+							      <li id="&#x1F4EC;">&#x1F4EC;</li>
+							      <li id="&#x1F4ED;">&#x1F4ED;</li>
+							      <li id="&#x1F4EE;">&#x1F4EE;</li>
+							      <li id="&#x1F4EF;">&#x1F4EF;</li>
+							      <li id="&#x1F4F0;">&#x1F4F0;</li>
+							      <li id="&#x1F4F1;">&#x1F4F1;</li>
+							      <li id="&#x1F4F2;">&#x1F4F2;</li>
+							      <li id="&#x1F4F3;">&#x1F4F3;</li>
+							      <li id="&#x1F4F4;">&#x1F4F4;</li>
+							      <li id="&#x1F4F5;">&#x1F4F5;</li>
+							      <li id="&#x1F4F6;">&#x1F4F6;</li>
+							      <li id="&#x1F4F7;">&#x1F4F7;</li>
+							      <li id="&#x1F4F9;">&#x1F4F9;</li>
+							      <li id="&#x1F4FA;">&#x1F4FA;</li>
+							      <li id="&#x1F4FB;">&#x1F4FB;</li>
+							      <li id="&#x1F4FC;">&#x1F4FC;</li>
+							      <li id="&#x1F500;">&#x1F500;</li>
+							      <li id="&#x1F501;">&#x1F501;</li>
+							      <li id="&#x1F502;">&#x1F502;</li>
+							      <li id="&#x1F503;">&#x1F503;</li>
+							      <li id="&#x1F504;">&#x1F504;</li>
+							      <li id="&#x1F505;">&#x1F505;</li>
+							      <li id="&#x1F506;">&#x1F506;</li>
+							      <li id="&#x1F507;">&#x1F507;</li>
+							      <li id="&#x1F508;">&#x1F508;</li>
+							      <li id="&#x1F509;">&#x1F509;</li>
+							      <li id="&#x1F50A;">&#x1F50A;</li>
+							      <li id="&#x1F50B;">&#x1F50B;</li>
+							      <li id="&#x1F50C;">&#x1F50C;</li>
+							      <li id="&#x1F50D;">&#x1F50D;</li>
+							      <li id="&#x1F50E;">&#x1F50E;</li>
+							      <li id="&#x1F50F;">&#x1F50F;</li>
+							      <li id="&#x1F510;">&#x1F510;</li>
+							      <li id="&#x1F511;">&#x1F511;</li>
+							      <li id="&#x1F512;">&#x1F512;</li>
+							      <li id="&#x1F513;">&#x1F513;</li>
+							      <li id="&#x1F514;">&#x1F514;</li>
+							      <li id="&#x1F515;">&#x1F515;</li>
+							      <li id="&#x1F516;">&#x1F516;</li>
+							      <li id="&#x1F517;">&#x1F517;</li>
+							      <li id="&#x1F518;">&#x1F518;</li>
+							      <li id="&#x1F519;">&#x1F519;</li>
+							      <li id="&#x1F51A;">&#x1F51A;</li>
+							      <li id="&#x1F51B;">&#x1F51B;</li>
+							      <li id="&#x1F51C;">&#x1F51C;</li>
+							      <li id="&#x1F51D;">&#x1F51D;</li>
+							      <li id="&#x1F51E;">&#x1F51E;</li>
+							      <li id="&#x1F51F;">&#x1F51F;</li>
+							      <li id="&#x1F520;">&#x1F520;</li>
+							      <li id="&#x1F521;">&#x1F521;</li>
+							      <li id="&#x1F522;">&#x1F522;</li>
+							      <li id="&#x1F523;">&#x1F523;</li>
+							      <li id="&#x1F524;">&#x1F524;</li>
+							      <li id="&#x1F525;">&#x1F525;</li>
+							      <li id="&#x1F526;">&#x1F526;</li>
+							      <li id="&#x1F527;">&#x1F527;</li>
+							      <li id="&#x1F528;">&#x1F528;</li>
+							      <li id="&#x1F529;">&#x1F529;</li>
+							      <li id="&#x1F52A;">&#x1F52A;</li>
+							      <li id="&#x1F52B;">&#x1F52B;</li>
+							      <li id="&#x1F52C;">&#x1F52C;</li>
+							      <li id="&#x1F52D;">&#x1F52D;</li>
+							      <li id="&#x1F52E;">&#x1F52E;</li>
+							      <li id="&#x1F52F;">&#x1F52F;</li>
+							      <li id="&#x1F530;">&#x1F530;</li>
+							      <li id="&#x1F531;">&#x1F531;</li>
+							      <li id="&#x1F532;">&#x1F532;</li>
+							      <li id="&#x1F533;">&#x1F533;</li>
+							      <li id="&#x1F699;">&#x1F699;</li>
+							      <li id="&#x1F69A;">&#x1F69A;</li>
+							      <li id="&#x1F69B;">&#x1F69B;</li>
+							      <li id="&#x1F69C;">&#x1F69C;</li>
+							      <li id="&#x1F69D;">&#x1F69D;</li>
+							      <li id="&#x1F69E;">&#x1F69E;</li>
+							      <li id="&#x1F69F;">&#x1F69F;</li>
+							      <li id="&#x1F6A0;">&#x1F6A0;</li>
+							      <li id="&#x1F6A1;">&#x1F6A1;</li>
+							      <li id="&#x1F6A2;">&#x1F6A2;</li>
+							      <li id="&#x1F6A3;">&#x1F6A3;</li>
+							      <li id="&#x1F6A4;">&#x1F6A4;</li>
+							      <li id="&#x1F6A5;">&#x1F6A5;</li>
+							      <li id="&#x1F6A6;">&#x1F6A6;</li>
+							      <li id="&#x1F6A7;">&#x1F6A7;</li>
+							      <li id="&#x1F6A8;">&#x1F6A8;</li>
+							      <li id="&#x1F6A9;">&#x1F6A9;</li>
+							      <li id="&#x1F6AA;">&#x1F6AA;</li>
+							      <li id="&#x1F6AB;">&#x1F6AB;</li>
+							      <li id="&#x1F6AC;">&#x1F6AC;</li>
+							      <li id="&#x1F6AD;">&#x1F6AD;</li>
+							      <li id="&#x1F6AE;">&#x1F6AE;</li>
+							      <li id="&#x1F6AF;">&#x1F6AF;</li>
+							      <li id="&#x1F6B0;">&#x1F6B0;</li>
+							      <li id="&#x1F6B1;">&#x1F6B1;</li>
+							      <li id="&#x1F6B2;">&#x1F6B2;</li>
+							      <li id="&#x1F6B3;">&#x1F6B3;</li>
+							      <li id="&#x1F6B4;">&#x1F6B4;</li>
+							      <li id="&#x1F6B5;">&#x1F6B5;</li>
+							      <li id="&#x1F6B6;">&#x1F6B6;</li>
+							      <li id="&#x1F6B7;">&#x1F6B7;</li>
+							      <li id="&#x1F6B8;">&#x1F6B8;</li>
+							      <li id="&#x1F6B9;">&#x1F6B9;</li>
+							      <li id="&#x1F6BA;">&#x1F6BA;</li>
+							      <li id="&#x1F6BB;">&#x1F6BB;</li>
+							      <li id="&#x1F6BC;">&#x1F6BC;</li>
+							      <li id="&#x1F6BD;">&#x1F6BD;</li>
+							      <li id="&#x1F6BE;">&#x1F6BE;</li>
+							      <li id="&#x1F6BF;">&#x1F6BF;</li>
+							      <li id="&#x1F6C0;">&#x1F6C0;</li>
+							      <li id="&#x1F6C1;">&#x1F6C1;</li>
+							      <li id="&#x1F6C2;">&#x1F6C2;</li>
+							      <li id="&#x1F6C3;">&#x1F6C3;</li>
+							      <li id="&#x1F6C4;">&#x1F6C4;</li>
+							      <li id="&#x1F6C5;">&#x1F6C5;</li>
+							      <li id="&#x203C;">&#x203C;</li>
+							      <li id="&#x2049;">&#x2049;</li>
+							      <li id="&#x2122;">&#x2122;</li>
+							      <li id="&#x2139;">&#x2139;</li>
+							      <li id="&#x2194;">&#x2194;</li>
+							      <li id="&#x2195;">&#x2195;</li>
+							      <li id="&#x2196;">&#x2196;</li>
+							      <li id="&#x2197;">&#x2197;</li>
+							      <li id="&#x2198;">&#x2198;</li>
+							      <li id="&#x2199;">&#x2199;</li>
+							      <li id="&#x21A9;">&#x21A9;</li>
+							      <li id="&#x21AA;">&#x21AA;</li>
+							      <li id="&#x23;&#x20E3;">&#x23;&#x20E3;</li>
+							      <li id="&#x231A;">&#x231A;</li>
+							      <li id="&#x231B;">&#x231B;</li>
+							      <li id="&#x23E9;">&#x23E9;</li>
+							      <li id="&#x23EA;">&#x23EA;</li>
+							      <li id="&#x23EB;">&#x23EB;</li>
+							      <li id="&#x23EC;">&#x23EC;</li>
+							      <li id="&#x23F0;">&#x23F0;</li>
+							      <li id="&#x23F3;">&#x23F3;</li>
+							      <li id="&#x24C2;">&#x24C2;</li>
+							      <li id="&#x25AA;">&#x25AA;</li>
+							      <li id="&#x25AB;">&#x25AB;</li>
+							      <li id="&#x25B6;">&#x25B6;</li>
+							      <li id="&#x25C0;">&#x25C0;</li>
+							      <li id="&#x25FB;">&#x25FB;</li>
+							      <li id="&#x25FC;">&#x25FC;</li>
+							      <li id="&#x25FD;">&#x25FD;</li>
+							      <li id="&#x25FE;">&#x25FE;</li>
+							      <li id="&#x2600;">&#x2600;</li>
+							      <li id="&#x2601;">&#x2601;</li>
+							      <li id="&#x260E;">&#x260E;</li>
+							      <li id="&#x2611;">&#x2611;</li>
+							      <li id="&#x2614;">&#x2614;</li>
+							      <li id="&#x2615;">&#x2615;</li>
+							      <li id="&#x261D;">&#x261D;</li>
+							      <li id="&#x263A;">&#x263A;</li>
+							      <li id="&#x2648;">&#x2648;</li>
+							      <li id="&#x2649;">&#x2649;</li>
+							      <li id="&#x264A;">&#x264A;</li>
+							      <li id="&#x264B;">&#x264B;</li>
+							      <li id="&#x264C;">&#x264C;</li>
+							      <li id="&#x264D;">&#x264D;</li>
+							      <li id="&#x264E;">&#x264E;</li>
+							      <li id="&#x264F;">&#x264F;</li>
+							      <li id="&#x2650;">&#x2650;</li>
+							      <li id="&#x2651;">&#x2651;</li>
+							      <li id="&#x2652;">&#x2652;</li>
+							      <li id="&#x2653;">&#x2653;</li>
+							      <li id="&#x2660;">&#x2660;</li>
+							      <li id="&#x2663;">&#x2663;</li>
+							      <li id="&#x2665;">&#x2665;</li>
+							      <li id="&#x2666;">&#x2666;</li>
+							      <li id="&#x2668;">&#x2668;</li>
+							      <li id="&#x267B;">&#x267B;</li>
+							      <li id="&#x267F;">&#x267F;</li>
+							      <li id="&#x2693;">&#x2693;</li>
+							      <li id="&#x26A0;">&#x26A0;</li>
+							      <li id="&#x26A1;">&#x26A1;</li>
+							      <li id="&#x26AA;">&#x26AA;</li>
+							      <li id="&#x26AB;">&#x26AB;</li>
+							      <li id="&#x26BD;">&#x26BD;</li>
+							      <li id="&#x26BE;">&#x26BE;</li>
+							      <li id="&#x26C4;">&#x26C4;</li>
+							      <li id="&#x26C5;">&#x26C5;</li>
+							      <li id="&#x26CE;">&#x26CE;</li>
+							      <li id="&#x26D4;">&#x26D4;</li>
+							      <li id="&#x26EA;">&#x26EA;</li>
+							      <li id="&#x26F2;">&#x26F2;</li>
+							      <li id="&#x26F3;">&#x26F3;</li>
+							      <li id="&#x26F5;">&#x26F5;</li>
+							      <li id="&#x26FA;">&#x26FA;</li>
+							      <li id="&#x26FD;">&#x26FD;</li>
+							      <li id="&#x2702;">&#x2702;</li>
+							      <li id="&#x2705;">&#x2705;</li>
+							      <li id="&#x2708;">&#x2708;</li>
+							      <li id="&#x2709;">&#x2709;</li>
+							      <li id="&#x270A;">&#x270A;</li>
+							      <li id="&#x270B;">&#x270B;</li>
+							      <li id="&#x270C;">&#x270C;</li>
+							      <li id="&#x270F;">&#x270F;</li>
+							      <li id="&#x2712;">&#x2712;</li>
+							      <li id="&#x2714;">&#x2714;</li>
+							      <li id="&#x2716;">&#x2716;</li>
+							      <li id="&#x2728;">&#x2728;</li>
+							      <li id="&#x2733;">&#x2733;</li>
+							      <li id="&#x2734;">&#x2734;</li>
+							      <li id="&#x2744;">&#x2744;</li>
+							      <li id="&#x2747;">&#x2747;</li>
+							      <li id="&#x274C;">&#x274C;</li>
+							      <li id="&#x274E;">&#x274E;</li>
+							      <li id="&#x2753;">&#x2753;</li>
+							      <li id="&#x2754;">&#x2754;</li>
+							      <li id="&#x2755;">&#x2755;</li>
+							      <li id="&#x2757;">&#x2757;</li>
+							      <li id="&#x2764;">&#x2764;</li>
+							      <li id="&#x2795;">&#x2795;</li>
+							      <li id="&#x2796;">&#x2796;</li>
+							      <li id="&#x2797;">&#x2797;</li>
+							      <li id="&#x27A1;">&#x27A1;</li>
+							      <li id="&#x27B0;">&#x27B0;</li>
+							      <li id="&#x27BF;">&#x27BF;</li>
+							      <li id="&#x2934;">&#x2934;</li>
+							      <li id="&#x2935;">&#x2935;</li>
+							      <li id="&#x2B05;">&#x2B05;</li>
+							      <li id="&#x2B06;">&#x2B06;</li>
+							      <li id="&#x2B07;">&#x2B07;</li>
+							      <li id="&#x2B1B;">&#x2B1B;</li>
+							      <li id="&#x2B1C;">&#x2B1C;</li>
+							      <li id="&#x2B50;">&#x2B50;</li>
+							      <li id="&#x2B55;">&#x2B55;</li>
+							      <li id="&#x30;&#x20E3;">&#x30;&#x20E3;</li>
+							      <li id="&#x3030;">&#x3030;</li>
+							      <li id="&#x303D;">&#x303D;</li>
+							      <li id="&#x31;&#x20E3;">&#x31;&#x20E3;</li>
+							      <li id="&#x32;&#x20E3;">&#x32;&#x20E3;</li>
+							      <li id="&#x3297;">&#x3297;</li>
+							      <li id="&#x3299;">&#x3299;</li>
+							      <li id="&#x33;&#x20E3;">&#x33;&#x20E3;</li>
+							      <li id="&#x34;&#x20E3;">&#x34;&#x20E3;</li>
+							      <li id="&#x35;&#x20E3;">&#x35;&#x20E3;</li>
+							      <li id="&#x36;&#x20E3;">&#x36;&#x20E3;</li>
+							      <li id="&#x37;&#x20E3;">&#x37;&#x20E3;</li>
+							      <li id="&#x38;&#x20E3;">&#x38;&#x20E3;</li>
+							      <li id="&#x39;&#x20E3;">&#x39;&#x20E3;</li>
+							      <li id="&#xA9;">&#xA9;</li>
+							      <li id="&#xAE;">&#xAE;</li>
+							      <li id="&#xE50A;">&#xE50A;</li>
+							      <li id="&#x1F535;">&#x1F535;</li>
+							      <li id="&#x1F536;">&#x1F536;</li>
+							      <li id="&#x1F537;">&#x1F537;</li>
+							      <li id="&#x1F538;">&#x1F538;</li>
+							      <li id="&#x1F539;">&#x1F539;</li>
+							      <li id="&#x1F53A;">&#x1F53A;</li>
+							      <li id="&#x1F53B;">&#x1F53B;</li>
+							      <li id="&#x1F53C;">&#x1F53C;</li>
+							      <li id="&#x1F53D;">&#x1F53D;</li>
+							      <li id="&#x1F550;">&#x1F550;</li>
+							      <li id="&#x1F551;">&#x1F551;</li>
+							      <li id="&#x1F552;">&#x1F552;</li>
+							      <li id="&#x1F553;">&#x1F553;</li>
+							      <li id="&#x1F554;">&#x1F554;</li>
+							      <li id="&#x1F555;">&#x1F555;</li>
+							      <li id="&#x1F556;">&#x1F556;</li>
+							      <li id="&#x1F557;">&#x1F557;</li>
+							      <li id="&#x1F558;">&#x1F558;</li>
+							      <li id="&#x1F559;">&#x1F559;</li>
+							      <li id="&#x1F55A;">&#x1F55A;</li>
+							      <li id="&#x1F55B;">&#x1F55B;</li>
+							      <li id="&#x1F55C;">&#x1F55C;</li>
+							      <li id="&#x1F55D;">&#x1F55D;</li>
+							      <li id="&#x1F55E;">&#x1F55E;</li>
+							      <li id="&#x1F55F;">&#x1F55F;</li>
+							      <li id="&#x1F560;">&#x1F560;</li>
+							      <li id="&#x1F561;">&#x1F561;</li>
+							      <li id="&#x1F562;">&#x1F562;</li>
+							      <li id="&#x1F563;">&#x1F563;</li>
+							      <li id="&#x1F564;">&#x1F564;</li>
+							      <li id="&#x1F565;">&#x1F565;</li>
+							      <li id="&#x1F566;">&#x1F566;</li>
+							      <li id="&#x1F567;">&#x1F567;</li>
+							      <li id="&#x1F5FB;">&#x1F5FB;</li>
+							      <li id="&#x1F5FC;">&#x1F5FC;</li>
+							      <li id="&#x1F5FD;">&#x1F5FD;</li>
+							      <li id="&#x1F5FE;">&#x1F5FE;</li>
+							      <li id="&#x1F5FF;">&#x1F5FF;</li>
+							      <li id="&#x1F534;">&#x1F534;</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+			<!--End of the widget-->
+
+<script src="../js/jquery.min.js"></script>
+<script src="../js/bundle.js"></script>
+
+<script src='../js/app.min.js'></script>
+</body>
+</html>
