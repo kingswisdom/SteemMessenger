@@ -1,7 +1,7 @@
+![](https://steemitimages.com/DQmb1nZtQbXzJsVfzFgwXkKnjKfKW3QEYxgEG8p7u2wDKD2/image.png)
+
 The Steem Messenger !
 ______________________________
-
-![](https://steemitimages.com/DQmb1nZtQbXzJsVfzFgwXkKnjKfKW3QEYxgEG8p7u2wDKD2/image.png)
 
 Chat securely with the power of the Steem blockchain !
 
