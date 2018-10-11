@@ -5,8 +5,6 @@ ______________________________
 
 Chat securely with the power of the Steem blockchain !
 
-https://github.com/kingswisdom/SteemMessenger
-
 ### About the project
 
 Steem Messenger aims to be the ultimate chat application for the Steem blockchain.
