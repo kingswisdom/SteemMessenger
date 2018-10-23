@@ -12,8 +12,6 @@ exports.createSafeStorage = function(data, passphrase){
 		var encryptedWallet = crypto.encrypt(kdfBase64, data);
 		var wallet = '{"encryptedWallet": '+encryptedWallet+', "params": {"salt":"'+params.salt.toString('hex')+'", "N":'+params.N+', "r":'+params.r+', "p":'+params.p+', "keyLen":'+params.keyLen+'}}'
 		localStorage.setItem(user, wallet);
-		console.log("localStorage:");
-		console.log(localStorage)
 	});
 
 }
@@ -31,7 +29,6 @@ exports.readSafeStorage = function(data, out){
 		out(JSON_wallet);
 	}
 	catch(err) {
-				console.log(err);
     		out(err);
 	}
 

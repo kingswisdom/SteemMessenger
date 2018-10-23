@@ -1,7 +1,10 @@
 const socketIO      = require('socket.io');
 const db            = require('./programs/db.js');
 const Lara          = require('./programs/Lara.js');
+/*const api_io        = require('socket.io-client');
 
+
+var api_socket  = api_io.connect("http://127.0.0.1:3000");*/
 var io;
 
 var users           = [];
@@ -9,6 +12,7 @@ var users_sockets   = [];
 
 exports.listen = function(server){
     io = socketIO.listen(server);
+    io.origins(['http://127.0.0.1:4000']);
     io.sockets.on('connection', function(socket){
         initialization(socket);
         reinitialization(socket);
@@ -16,11 +20,12 @@ exports.listen = function(server){
     });
 }
 
+
+
 function SafeSocket(socket){
     socket.on('safeSocket', function(data){
         var username = users_sockets[socket.id].name;
         Lara.decodeSafeSocket(data, username, function(out){
-            console.log(out);
             if(out == undefined){
                 return
             }
@@ -46,14 +51,26 @@ function SafeSocket(socket){
                     case "clear":
                         return handleClear(out, socket);
 
-                    case "is writing":
-                        return onIsWriting(out, socket);
+                    /*case "is writing":
+                        return onIsWriting(out, socket);*/
 
                     case "add to blacklist":
                         return addToBlacklist(out, socket);
 
                     case "delete blacklist":
                         return deleteBlacklist(out, socket);
+
+                    case "switch whitelist":
+                        return switchWhitelist(out, socket);
+
+                    case "check if whitelist is activated":
+                        return checkIfWhitelistIsActivated(out, socket);
+
+                    case "add to whitelist":
+                        return addToWhitelist(out, socket);
+
+                    case "delete whitelist":
+                        return deleteWhitelist(out, socket);
                 }
             }
         });
@@ -118,35 +135,38 @@ function getDiscussion(data, socket){
 
 function handleInput(data, socket){
     db.checkSubscription({user: data.user}, function(res){
-        if(res.length > 0 && res[0].user != undefined && res[0].end >= Date.now()){
-            if(data.whitelist == true){
-                db.checkIfWhitelisted({user: data.user, to: data.to}, function(result){
-                    if(result == "yes"){
-                        db.saveMessage({user: data.user, to: data.to, message: data.message});
-                        return handleOutput(data, socket);
-                    }
-                    if(result == "no"){
-                        Lara.encodeSafeSocket({request: "blacklisted", identity: data.user, user: data.user, to: data.to}, function(out){
-                            return socket.emit("safeSocket", out);
-                        });
-                    }
-                });
-            }
-            else{
-                db.checkIfBlacklisted({user: data.user, to: data.to}, function(res2){
-                    if(res2 == "no"){
-                        db.saveMessage({user: data.user, to: data.to, message: data.message});
-                        return handleOutput(data, socket);
-                    }
-                    if(res2 == "yes"){
-                        Lara.encodeSafeSocket({request: "blacklisted", identity: data.user, user: data.user, to: data.to}, function(out){
-                            return socket.emit("safeSocket", out);
-                        });
-                    }
-                });
-            }            
+        if(res.length > 0 && res[0].user != undefined && res[0].end >= Date.now()){ //If subscribed
+            db.checkIfWhitelistIsActive(data, function(result){
+                if(result == true){
+                    db.checkIfWhitelisted(data, function(output){
+                        if(output == "yes"){
+                            db.saveMessage({user: data.user, to: data.to, message: data.message});
+                            return handleOutput(data, socket);
+                        }
+                        if(output == "no"){
+                            Lara.encodeSafeSocket({request: "blacklisted", identity: data.user, user: data.user, to: data.to}, function(out){
+                                return socket.emit("safeSocket", out);
+                            });
+                        }
+                    });
+                }
+                if(result == false){
+                    db.checkIfBlacklisted({user: data.user, to: data.to}, function(res2){
+                        if(res2 == "no"){
+                            db.saveMessage({user: data.user, to: data.to, message: data.message});
+                            return handleOutput(data, socket);
+                        }
+                        if(res2 == "yes"){
+                            Lara.encodeSafeSocket({request: "blacklisted", identity: data.user, user: data.user, to: data.to}, function(out){
+                                return socket.emit("safeSocket", out);
+                            });
+                        }
+                    });
+                }
+            });
+
         }
-        else{
+        else{ //If not subscribed
             Lara.encodeSafeSocket({request: "not subscribed", identity: data.user, user: data.user}, function(out){
                 return socket.emit("safeSocket", out);
             });
@@ -215,6 +235,26 @@ function addToBlacklist(data, socket){
 
 function deleteBlacklist(data, socket){
     db.deleteBlacklist(data);
+}
+
+function switchWhitelist(data, socket){
+    db.switchWhitelist(data);
+}
+
+function checkIfWhitelistIsActivated(data, socket){
+    db.checkIfWhitelistIsActivated(data, function(result){
+        Lara.encodeSafeSocket({request: "is whitelist active", identity: data.user, user: data.user, answer: result}, function(out){
+                return socket.emit("safeSocket", out);
+            });
+    });
+}
+
+function addToWhitelist(data, socket){
+    db.addToWhitelist(data);
+}
+
+function deleteWhitelist(data, socket){
+    db.deleteWhitelist(data);
 }
 
 function handleOutput(data, socket){

@@ -6,6 +6,7 @@ const UIlib         = require('./UIlib.js');
 const UI            = require('./UI.js');
 const login         = require('./login.js')
 const Lara          = require('./Lara-client.js')
+const xss           = require("xss");
 
 var element = function(id){ return document.getElementById(id); }
 
@@ -16,7 +17,6 @@ receiverInfo.style.display      = "none"; //TODO : edit the css and add this sty
 
 
 exports.checkIfAlreadyConnected = function(){
-    console.log(localStorage);
     if(localStorage.length != 0){
         UI.onConnectedShowPassphraseLoginInterface();
     }
@@ -30,6 +30,7 @@ exports.login = function(data, result){
     login.firstLogin(data, function(out){
         if(out.error == "bad memo key" || out.error == "bad account"){
             UIlib.hideLoader1();
+            //UI.showLoginError();
             alert("Wrong username and/or Private Memo Key");
         }
         else{
@@ -118,9 +119,8 @@ exports.handleFile = function(data, out){
     });
 }
 
-exports.appendMessages = function(rawdata, ind){
+exports.appendMessages = function(rawdata, userInfos){
     var data = rawdata.message;
-    console.log(data);
     for(let x = 0;  x < data.length;    x++){
 
         var raw             = data[x].message;
@@ -130,13 +130,13 @@ exports.appendMessages = function(rawdata, ind){
         var timestamp       = data[x].timestamp;
         var relativeTime    = timeDifference(timestamp);
 
-        if(author1 == ind.id) {
-            Lara.decodeMessage2({sharedKey: ind.sharedKey, message: raw}, function(out){
+        if(author1 == userInfos.id) {
+            Lara.decodeMessage2({sharedKey: userInfos.sharedKey, message: raw}, function(out){
 
                 var time = document.createElement('div');
                     time.setAttribute('align', 'right');
                     time.setAttribute('class', 'timestamp');                    
-                    time.textContent = relativeTime; console.log(relativeTime);
+                    time.textContent = relativeTime;
 
                 var message = document.createElement('div');
                     message.setAttribute('class', 'msg-containerblue');
@@ -146,7 +146,7 @@ exports.appendMessages = function(rawdata, ind){
                 var messageText = document.createElement('div');
                     messageText.setAttribute('align', 'left');
                     messageText.setAttribute('class', 'msg-container-text');
-                    messageText.textContent = out.decoded;
+                    messageText.textContent = xss(out.decoded);
 
                 messages.appendChild(message);
                 message.appendChild(messageText);
@@ -158,8 +158,8 @@ exports.appendMessages = function(rawdata, ind){
                 messages.scrollTop = messages.scrollHeight;
             });
         }
-        if(author1 == ind.receiver) {
-            Lara.decodeMessage2({sharedKey: ind.sharedKey, message: raw}, function(out){
+        if(author1 == userInfos.receiver) {
+            Lara.decodeMessage2({sharedKey: userInfos.sharedKey, message: raw}, function(out){
 
                 var timestamp = document.createElement('div');
                     timestamp.setAttribute('align', 'left');
@@ -186,13 +186,13 @@ exports.appendMessages = function(rawdata, ind){
 }
 
 
-exports.appendDiscussions = function(rawdata, ind, blacklist){
+exports.appendDiscussions = function(rawdata, userInfos, blacklist){
     var data = rawdata.message
     var discussionPicture;
     var recipients = [];
     if(data.length){
         for(let i = 0; i < data.length; i++){
-            if(data[i].from == ind.id){
+            if(data[i].from == userInfos.id){
                 recipients[i] = data[i].to;
             }
             else{
@@ -209,12 +209,13 @@ exports.appendDiscussions = function(rawdata, ind, blacklist){
                 var author2     = data[x].to;
                     author2     = author2.toString();
 
-                if(author == ind.id) {
-                    Lara.decodeMessage({key: ind.key, receiver: author2, recipient_pubWIF: pubWif, message: raw}, function(out){
+                if(author == userInfos.id) {
+                    Lara.decodeMessage({key: userInfos.key, receiver: author2, recipient_pubWIF: pubWif, message: raw}, function(out){
 
                         var decodedFinal = out.decoded.split("");
                             decodedFinal = decodedFinal.slice(0, 34);
                             decodedFinal = decodedFinal.join("") + "...";
+                            decodedFinal = xss(decodedFinal);
 
                         var discussion = document.createElement('div');
                             discussion.setAttribute('class', 'discussionOld');
@@ -239,7 +240,7 @@ exports.appendDiscussions = function(rawdata, ind, blacklist){
                     });
                 }
                 else {
-                    Lara.decodeMessage({key: ind.key, receiver: author, recipient_pubWIF: pubWif, message: raw}, function(out){
+                    Lara.decodeMessage({key: userInfos.key, receiver: author, recipient_pubWIF: pubWif, message: raw}, function(out){
                         
                         var decodedFinal = out.decoded.split("");
                             decodedFinal = decodedFinal.slice(0, 34);
@@ -272,14 +273,12 @@ exports.appendDiscussions = function(rawdata, ind, blacklist){
     }
 }
 
-//TODO ind? while in client.js we get appendFile(out,data)...
-exports.appendFile = function(data, ind){
-    console.log(data)
+exports.appendFile = function(data, userInfos){
     var raw         = data.message;
     var author      = data.user;
     var author1     = author.toString();
-    if(author1 == ind.id){
-        Lara.decodeMessage2({sharedKey: ind.sharedKey, message: raw}, function(out){
+    if(author1 == userInfos.id){
+        Lara.decodeMessage2({sharedKey: userInfos.sharedKey, message: raw}, function(out){
             var decoded     = out.decoded;
             var image       = new Image();
                 image.src   = decoded;
@@ -302,8 +301,8 @@ exports.appendFile = function(data, ind){
         });
 
     }
-    if(author1 == ind.receiver){
-        Lara.decodeMessage2({sharedKey: ind.sharedKey, message: raw}, function(out){
+    if(author1 == userInfos.receiver){
+        Lara.decodeMessage2({sharedKey: userInfos.sharedKey, message: raw}, function(out){
             var decoded = out.decoded;
             var image = new Image();
                 image.src = decoded;

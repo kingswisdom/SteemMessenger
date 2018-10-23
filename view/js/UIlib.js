@@ -178,7 +178,7 @@ var exportWallet = element("exportWallet");
     notSubscribed.style.display = "none";
   }
 
-  exports.showSettings = function(data){
+  exports.showSettings = function(data, user){
     settingsInterface.style.display = "block";
     exportWallet.value = "";
     exportWallet.value = data;

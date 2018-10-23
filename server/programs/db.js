@@ -20,12 +20,12 @@ mongo.connect(url, function(err, db){
     var leakedKeys          = db.collection('leakedKeys');
     var blacklist           = db.collection('blacklist');
     var whitelist           = db.collection('whitelist');
+    var whitelistSwitches   = db.collection('whitelistSwitches');
     var specialEvent1       = db.collection('specialEvent1');
 
     exports.getMessages = function(data, limit, out){
     	var query = chat.find({tags: { $all: [data.user, data.receiver]}});
     	query.limit(limit).sort({timestamp:1}).toArray(function(err, res){
-    		console.log(res)
         	out(err, res);
     	});
     }
@@ -33,7 +33,6 @@ mongo.connect(url, function(err, db){
     exports.getLastMessage = function(data, out){
     	var query = chat.find({tags: { $all: [data.user, data.receiver]}});
     	query.limit(1).sort({timestamp:-1}).toArray(function(err, res){
-            console.log(res)
     		out(err, res);
     	});
     }
@@ -41,7 +40,6 @@ mongo.connect(url, function(err, db){
     exports.getLatestMessages = function(data, out){
         var query = latestMessages.find({tags: { $all: [data.user]}});
         query.limit(50).sort({timestamp:1}).toArray(function(err, res){
-            console.log(res)
             out(err, res);
         });
     }
@@ -144,7 +142,6 @@ mongo.connect(url, function(err, db){
     exports.checkSubscription = function(data, out){
         var query = subscriptions.find({user: data.user});
         query.limit(1).sort({timestamp:1}).toArray(function(err,res){
-            console.log(res)
             out(res);
         });
     }
@@ -173,17 +170,63 @@ mongo.connect(url, function(err, db){
     }
 
     exports.addToWhitelist = function(data){
+        for(let x = 0;  x < data.whitelist.length;    x++){
             whitelist.insert({
-                "user":     data.whitelist, //The user that has been whitelisted
+                "user":     data.whitelist[x], //The user that has been whitelisted
                 "to":       data.user
             });
+        }
+    }
+
+    exports.deleteWhitelist = function(data){
+        whitelist.remove({user: data.user});
+    }
+
+    exports.switchWhitelist = function(data){
+        var query = whitelistSwitches.find({user: data.user});
+        query.limit(1).sort({timestamp:1}).toArray(function(err, res){
+            if(res.length){
+                if(res[0].user == data.user){
+                    whitelistSwitches.remove({user: data.user});
+                }
+                else{
+                    whitelistSwitches.insert({user: data.user});
+                }
+            }
+            else{
+                whitelistSwitches.insert({user: data.user});
+            }
+        });
+    }
+
+    exports.checkIfWhitelistIsActivated = function(data, out){
+        var query = whitelistSwitches.find({user: data.user});
+        query.limit(1).sort({timestamp:1}).toArray(function(err,res){
+            if(res.length){
+                out(true);
+            }
+            else{
+                out(false);
+            }
+        });
+    }
+
+    exports.checkIfWhitelistIsActive = function(data, out){
+        var query = whitelistSwitches.find({user: data.to});
+        query.limit(1).sort({timestamp:1}).toArray(function(err,res){
+            if(res.length){
+                out(true);
+            }
+            else{
+                out(false);
+            }
+        });
     }
 
     exports.checkIfWhitelisted = function(data, out){
-        var query = whitelist.find({user: data.user, to: data.to});
+        var query = whitelist.find({user: data.to, to: data.user});
         query.limit(1).sort({timestamp:1}).toArray(function(err,res){
-            console.log(res)
-            if(res){
+            if(res.length){
                 out("yes");
             }
             else{

@@ -2,7 +2,6 @@
 	const io 		= require('socket.io-client');
 	const SM 		= require('./SM.js');
 	const UI 		= require('./UI.js');
-	const UIlib		= require('./UIlib.js');
 	const Lara 		= require('./Lara-client.js')
 
 	var element = function(id){	return document.getElementById(id);	}
@@ -28,6 +27,7 @@
 	var fileSend 				= element('fileSend');
 	var emojiList 				= element("emoji-list");
 	var blacklist 				= element("blacklist");
+	var whitelist 				= element("whitelist");
 
 	loader0.style.display 		= "none";
 	loader1.style.display 		= "none";
@@ -57,7 +57,7 @@
 
 		body.addEventListener("click",function(e) {
 			if(e.target) {
-				console.log(e.target.id)
+				//console.log(e.target.id)
 				switch(e.target.id) {
 					case "start":
 						return SM.checkIfAlreadyConnected();
@@ -84,10 +84,16 @@
 				    		return UI.switchEmojisBoxDisplay();
 
 					case "settings":
-				    		return UI.openSettings(localStorage[user]);
+				    		return openSettings();
 
-				    	case "activateWhitelist":
-				    		return alert("This feature is not yet implemented !");
+				    	case "switchWhitelist":
+				    		return switchWhitelist();
+
+				    	case "saveWhitelist":
+				    		return saveWhitelist(whitelist.value);
+
+				    	case "deleteWhitelist":
+				    		return deleteWhitelist();
 
 				    	case "saveBlacklist":
 				    		return addToBlacklist(blacklist.value);
@@ -126,7 +132,7 @@
 
 		socket.on('safeSocket', function(data){
 			Lara.decodeSafeSocket(data, key, keys, function(out){
-				console.log("socket : " + out.request)
+				//console.log("socket : " + out.request)
 				if(out.request !== undefined){
 					switch(out.request) {
 				    	case "logged":
@@ -159,13 +165,16 @@
 				      	case "cleared":
 				      		return messages.innerHTML = "";
 
+				      	case "is whitelist active":
+				      		return UI.isWhitelistActive(out);
+
 				    }					
 				}
 			})
 		});
 
 		fileSend.addEventListener("change", function () {
-			if(this.files[0].size > 100000){
+			if(this.files[0].size > 10000000){
 				this.value = "";
 			        return alert("File is too big!");
 			} 
@@ -216,7 +225,6 @@
 
 		function login(){
 			SM.login({user:username.value, privWif:privMemoKey.value}, function(result){
-				console.log(result)
 				user 	= result.user;
 				key 	= result.key;
 				keys 	= 	{
@@ -333,6 +341,16 @@
 			}
 		}
 
+		function openSettings(){
+			var request = 	{
+						request: "check if whitelist is activated", 
+						identity: user, 
+						user: user
+					}
+			sendSocket(request);
+			UI.openSettings(localStorage[user]);
+		}
+
 		function addToBlacklist(data){
 			blacklist.value = "";
 			var request = 	{
@@ -362,6 +380,36 @@
 						to: recipient
 					}
 			sendSocket(request);			
+		}
+
+		function switchWhitelist(){
+			UI.switchWhitelistSettings();
+			var request = 	{
+						request: "switch whitelist", 
+						identity: user, 
+						user: user
+					}
+			sendSocket(request);
+		}
+
+		function saveWhitelist(data){
+			var list = data.split(" ");
+			var request = 	{
+						request: "add to whitelist", 
+						identity: user, 
+						user: user,
+						whitelist: list
+					}
+			sendSocket(request);
+		}
+
+		function deleteWhitelist(){
+			var request = 	{
+						request: "delete whitelist", 
+						identity: user, 
+						user: user
+					}
+			sendSocket(request);
 		}
 
 		function sendSocket(request){

@@ -31,7 +31,6 @@ exports.initializeKeys = function(data, out){
 }
 
 exports.decodeSafeSocket = function(data, key, keys, out){
-	console.log(data, key)
 
 	var rawContainer 	= crypto.decrypt(keys.encryptionKey, data.encodedmsg);
 	var raw 		= rawContainer.split("");
@@ -40,15 +39,9 @@ exports.decodeSafeSocket = function(data, key, keys, out){
   try {
     var decodedContainer = JSON.parse(raw);
   } catch (e) {
-    console.error("decodeSafeSocket decryption Parsing error:", e);
     out(undefined);
     return;
   }
-
-	console.log(decodedContainer);
-	console.log(decodedContainer.token);
-	console.log(keys.authenticationKey);
-
 	var isvalid = crypto.verify_client_authentication(decodedContainer.token, keys.authenticationKey);
 	if(isvalid) {
 		out(decodedContainer);
@@ -73,7 +66,6 @@ exports.encodeSafeSocket = function(data, key, keys, out){
 exports.encodeMessage = function(data, out){
 	var preOp 	= "#" + data.message;
 	var encoded 	= crypto.encrypt(data.sharedKey, preOp);
-  	console.log("encrypted message" + encoded);
 	out({encoded: encoded})
 }
 
@@ -85,7 +77,6 @@ exports.decodeMessage = function(data, out){
 	var decodedFinal 	= decoded.split("");
   	decodedFinal.shift();
   	var decodedFinal 	= decodedFinal.join("");
-    console.log("decoded message"+decodedFinal);
   	out({decoded: decodedFinal});
 
 }
@@ -95,7 +86,6 @@ exports.decodeMessage2 = function(data, out){
 	var decodedFinal 	= decoded.split("");
 	decodedFinal.shift();
 	var decodedFinal 	= decodedFinal.join("");
-    console.log("decoded message"+decodedFinal);
   	out({decoded: decodedFinal});
 
 }

@@ -2,6 +2,7 @@ var UI = require('./UIlib.js')
 
 var chatOpen;
 var emojiBoxOpen;
+var whitelistSettingsOpen;
 
 exports.switchAppDisplay = function(){
 	if(chatOpen == 1){
@@ -28,6 +29,28 @@ exports.switchEmojisBoxDisplay = function(){
 		document.getElementById("emoji-container").style.display = "block";
 	}
 }
+
+exports.switchWhitelistSettings = function(){
+	if(whitelistSettingsOpen == 1){
+		document.getElementById("whitelistParameters").style.display = "none";
+		whitelistSettingsOpen = 0;
+	}
+	else{
+		document.getElementById("whitelistParameters").style.display = "block";
+		whitelistSettingsOpen = 1;
+	}
+}
+
+exports.isWhitelistActive = function(data){
+    if(data.answer == true){
+	document.getElementById("switchWhitelist").checked = true;
+	document.getElementById("whitelistParameters").style.display = "block";
+	whitelistSettingsOpen = 1;
+    }
+    if(data.answer == false){
+      document.getElementById("switchWhitelist").checked = false;
+    }
+  }
 
 exports.openSettings = function(data){
 	UI.hideLoginSuccess();
